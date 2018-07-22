@@ -1,0 +1,32 @@
+# This file shows all PostFix elements which is useful to test the syntax highlighter.
+
+#< comment
+with multiple lines #< nested
+multiline comment >#
+# nested single line comment
+>#
+
+# Numbers
+1 2.3
+
+# Strings
+"Hello \"world\"!"
+
+# Booleans
+true false
+
+# Sym
+:Int
+Str:
+
+# functions
+add: (a :Num, b :Num -> :Num) {
+  a b +
+} fun
+(a :Num, b :Num -> :Num) {
+  a b -
+} lam sub!
+
+# set dict entries
+2 :x !
+5 y!
