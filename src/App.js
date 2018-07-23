@@ -40,6 +40,7 @@ class App extends Component {
     if (!this.state.running) {
       const lexer = new Lexer()
       lexer.put(this.state.code)
+      this.interpreter.reset()
       this.interpreter.startRun(lexer.getTokens())
     } else {
       this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
@@ -54,7 +55,6 @@ class App extends Component {
   }
 
   stopProgram = () => {
-    // TODO reset interpreter state
     clearTimeout(this._timeoutId)
     this.setState({ running: false })
     this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
