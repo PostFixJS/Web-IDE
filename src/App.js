@@ -54,6 +54,16 @@ class App extends Component {
   }
 
   pauseProgram = () => {
+    const pos = this.state.interpreterPosition
+    this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [
+      {
+        range: new this.editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+        options: {
+          isWholeLine: false,
+          className: "pauseTokenHighlight"
+        }
+      }
+    ])
     clearTimeout(this._timeoutId)
     this.setState({ paused: true })
   }
