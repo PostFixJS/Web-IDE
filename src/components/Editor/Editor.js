@@ -10,13 +10,20 @@ export default class Editor extends React.Component {
     monaco.languages.setLanguageConfiguration('postfix', configuration)
   }
 
+  editorDidMount = (editor) => {
+    this.editor = editor
+  }
+
   render () {
     return (
       <MonacoEditor
         width={800}
         height={600}
         editorWillMount={this.editorWillMount}
+        editorDidMount={this.editorDidMount}
         language='postfix'
+        value={this.props.code}
+        onChange={this.props.onChange}
       />
     )
   }
