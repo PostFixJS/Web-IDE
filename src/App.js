@@ -69,6 +69,13 @@ class App extends Component {
           isWholeLine: false,
           className: "pauseTokenHighlight"
         }
+      },
+      {
+        range: new this.editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
+        options: {
+          isWholeLine: true,
+          className: "pauseTokenHighlightLine"
+        }
       }
     ])
     clearTimeout(this._timeoutId)
@@ -93,6 +100,13 @@ class App extends Component {
         options: {
           isWholeLine: false,
           className: "pauseTokenHighlight"
+        }
+      },
+      {
+        range: new this.editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
+        options: {
+          isWholeLine: true,
+          className: "pauseTokenHighlightLine"
         }
       }
     ])
