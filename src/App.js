@@ -7,9 +7,9 @@ import Interpreter from 'postfixjs/Interpreter'
 class App extends Component {
   state = {
     code: `1 i! {
-      i 1 + i!
-      
-  } loop`,
+  i println
+  i 1 + i!
+} loop`,
     running: false,
     paused: false
   }
@@ -33,9 +33,10 @@ class App extends Component {
     } else {
       this._timeoutId = setTimeout(this.step, 0)
     }
+    return value
   }
 
-  runProgram = () => {
+  runProgram = (pauseImmediately = false) => {
     if (!this.state.running) {
       const lexer = new Lexer()
       lexer.put(this.state.code)
@@ -43,14 +44,20 @@ class App extends Component {
     } else {
       this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
     }
-    this.setState({ running: true, paused: false })
-    this._timeoutId = setTimeout(this.step, 0)
+
+    if (pauseImmediately === true) {
+      this.setState({ running: true, paused: true })
+    } else {
+      this.setState({ running: true, paused: false })
+      this._timeoutId = setTimeout(this.step, 0)
+    }
   }
 
   stopProgram = () => {
     // TODO reset interpreter state
     clearTimeout(this._timeoutId)
     this.setState({ running: false })
+    this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
   }
 
   pauseProgram = () => {
@@ -66,6 +73,29 @@ class App extends Component {
     ])
     clearTimeout(this._timeoutId)
     this.setState({ paused: true })
+  }
+
+  stepProgram = () => {
+    if (!this.state.running) {
+      this.runProgram(true)
+    }
+
+    const { done, value: pos } = this.interpreter.step()
+    this.setState({ interpreterPosition: pos })
+    if (done) {
+      this.setState({ running: false })
+      console.log(this.interpreter._stack._stack.map((obj) => obj.toString()).join(', '))
+    }
+
+    this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [
+      {
+        range: new this.editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+        options: {
+          isWholeLine: false,
+          className: "pauseTokenHighlight"
+        }
+      }
+    ])
   }
 
   render() {
@@ -89,6 +119,12 @@ class App extends Component {
           disabled={!running || paused}
         >
           Pause
+        </button>
+        <button
+          onClick={this.stepProgram}
+          disabled={!paused && running}
+        >
+          Step
         </button>
         <button
           onClick={this.stopProgram}
