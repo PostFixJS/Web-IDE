@@ -3,6 +3,18 @@ import MonacoEditor from 'react-monaco-editor'
 import { tokensProvider, configuration } from './postfixLanguage'
 
 export default class Editor extends React.Component {
+  componentDidMount () {
+    window.addEventListener('resize', this.updateEditorSize)
+  }
+
+  componentWillUnmount () {
+    window.removeEventListener('resize', this.updateEditorSize)
+  }
+  
+  updateEditorSize = () => {
+    this.editor.layout()
+  }
+  
   editorWillMount = (monaco) => {
     this.monaco = monaco
     monaco.languages.register({ id: 'postfix' })
@@ -15,16 +27,24 @@ export default class Editor extends React.Component {
   }
 
   render () {
+    const {
+      code,
+      onChange,
+      ...other
+    } = this.props
+
     return (
-      <MonacoEditor
-        width={800}
-        height={600}
-        editorWillMount={this.editorWillMount}
-        editorDidMount={this.editorDidMount}
-        language='postfix'
-        value={this.props.code}
-        onChange={this.props.onChange}
-      />
+      <div
+        {...other}
+      >
+        <MonacoEditor
+          editorWillMount={this.editorWillMount}
+          editorDidMount={this.editorDidMount}
+          language='postfix'
+          value={code}
+          onChange={onChange}
+        />
+      </div>
     )
   }
 }

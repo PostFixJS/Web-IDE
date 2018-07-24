@@ -116,36 +116,39 @@ class App extends Component {
     const { code, running, paused } = this.state
 
     return (
-      <div>
+      <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}>
         <Editor
+          ref={this.setEditor}
           code={code}
           onChange={this.updateCode}
-          ref={this.setEditor}
+          style={{ flex: 1, overflow: 'hidden' }}
         />
-        <button
-          onClick={this.runProgram}
-          disabled={running && !paused}
-        >
-          Run
-        </button>
-        <button
-          onClick={this.pauseProgram}
-          disabled={!running || paused}
-        >
-          Pause
-        </button>
-        <button
-          onClick={this.stepProgram}
-          disabled={!paused && running}
-        >
-          Step
-        </button>
-        <button
-          onClick={this.stopProgram}
-          disabled={!running}
-        >
-          Stop
-        </button>
+        <div>
+          <button
+            onClick={this.runProgram}
+            disabled={running && !paused}
+          >
+            Run
+          </button>
+          <button
+            onClick={this.pauseProgram}
+            disabled={!running || paused}
+          >
+            Pause
+          </button>
+          <button
+            onClick={this.stepProgram}
+            disabled={!paused && running}
+          >
+            Step
+          </button>
+          <button
+            onClick={this.stopProgram}
+            disabled={!running}
+          >
+            Stop
+          </button>
+        </div>
       </div>
     );
   }
