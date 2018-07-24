@@ -49,6 +49,8 @@ export default {
 
       // numbers
       [/\d+\.\d+/, 'number.float'],
+      [/\d+e-\d+/, 'number.float'],
+      [/\d+e\+?\d+/, 'number'],
       [/\d+/, 'number'],
 
       // strings
