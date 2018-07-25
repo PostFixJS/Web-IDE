@@ -3,6 +3,7 @@ import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
 import './App.css';
 import Editor from './components/Editor/Editor'
+import * as actions from './actions'
 import Lexer from 'postfixjs/Lexer'
 import Err from 'postfixjs/types/Err'
 import Interpreter from 'postfixjs/Interpreter'
@@ -58,6 +59,7 @@ class App extends Component {
     if (!this.state.running) {
       const lexer = new Lexer()
       lexer.put(this.state.code)
+      this.props.dispatch({ type: actions.CLEAR_OUTPUT })
       this.interpreter.reset()
       this.interpreter.startRun(lexer.getTokens())
     } else {
