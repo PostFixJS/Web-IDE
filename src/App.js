@@ -42,7 +42,7 @@ class App extends Component {
         this.setState({ running: false })
         console.log(this.interpreter._stack._stack.map((obj) => obj.toString()).join(', '))
       } else {
-        this._timeoutId = setTimeout(this.step, 0)
+        this._timeoutId = setImmediate(this.step)
       }
       return value
     } catch (e) {
@@ -68,12 +68,12 @@ class App extends Component {
       this.setState({ running: true, paused: true })
     } else {
       this.setState({ running: true, paused: false })
-      this._timeoutId = setTimeout(this.step, 0)
+      this._timeoutId = setImmediate(this.step)
     }
   }
 
   stopProgram = () => {
-    clearTimeout(this._timeoutId)
+    clearImmediate(this._timeoutId)
     this.setState({ running: false })
     this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
   }
@@ -96,7 +96,7 @@ class App extends Component {
         }
       }
     ])
-    clearTimeout(this._timeoutId)
+    clearImmediate(this._timeoutId)
     this.setState({ paused: true })
   }
 
