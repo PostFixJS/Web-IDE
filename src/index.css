@@ -20,6 +20,14 @@ body {
 	background: #ffd866;
 }
 
-.pauseTokenHighlightLine {
+.pauseLineHighlight {
   background: rgba(255, 216, 102, 0.3);
+}
+
+.errorTokenHighlight {
+	background: rgba(255, 0, 24, 0.4);
+}
+
+.errorLineHighlight {
+	background: rgba(255, 0, 24, 0.15);
 }

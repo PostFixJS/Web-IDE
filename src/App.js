@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import './App.css';
 import Editor from './components/Editor/Editor'
 import Lexer from 'postfixjs/Lexer'
+import Err from 'postfixjs/types/Err'
 import Interpreter from 'postfixjs/Interpreter'
+import { registerBuiltIns } from './interpreter'
 
 class App extends Component {
   state = {
@@ -16,6 +18,11 @@ class App extends Component {
   interpreter = new Interpreter()
   lineHighlightDecorations = []
 
+  constructor (props) {
+    super(props)
+    registerBuiltIns(this.interpreter)
+  }
+
   setEditor = (ref) => {
     this.editor = ref
   }
@@ -25,15 +32,23 @@ class App extends Component {
   }
 
   step = () => {
-    const { done, value } = this.interpreter.step()
-    this.setState({ interpreterPosition: value })
-    if (done) {
-      this.setState({ running: false })
-      console.log(this.interpreter._stack._stack.map((obj) => obj.toString()).join(', '))
-    } else {
-      this._timeoutId = setTimeout(this.step, 0)
+    try {
+      const { done, value } = this.interpreter.step()
+      this.setState({ interpreterPosition: value })
+      if (done) {
+        this.setState({ running: false })
+        console.log(this.interpreter._stack._stack.map((obj) => obj.toString()).join(', '))
+      } else {
+        this._timeoutId = setTimeout(this.step, 0)
+      }
+      return value
+    } catch (e) {
+      if (e instanceof Err) {
+        this.handleInterpreterError(e)
+      } else {
+        throw e
+      }
     }
-    return value
   }
 
   runProgram = (pauseImmediately = false) => {
@@ -74,7 +89,7 @@ class App extends Component {
         range: new this.editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
         options: {
           isWholeLine: true,
-          className: "pauseTokenHighlightLine"
+          className: "pauseLineHighlight"
         }
       }
     ])
@@ -87,26 +102,54 @@ class App extends Component {
       this.runProgram(true)
     }
 
-    const { done, value: pos } = this.interpreter.step()
-    this.setState({ interpreterPosition: pos })
-    if (done) {
-      this.setState({ running: false })
-      console.log(this.interpreter._stack._stack.map((obj) => obj.toString()).join(', '))
-    }
+    try {
+      const { done, value: pos } = this.interpreter.step()
+      this.setState({ interpreterPosition: pos })
+      if (done) {
+        this.setState({ running: false })
+        console.log(this.interpreter._stack._stack.map((obj) => obj.toString()).join(', '))
+      }
 
+      this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [
+        {
+          range: new this.editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+          options: {
+            isWholeLine: false,
+            className: "pauseTokenHighlight"
+          }
+        },
+        {
+          range: new this.editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
+          options: {
+            isWholeLine: true,
+            className: "pauseLineHighlight"
+          }
+        }
+      ])
+    } catch (e) {
+      if (e instanceof Err) {
+        this.handleInterpreterError(e)
+      } else {
+        throw e
+      }
+    }
+  }
+
+  handleInterpreterError (err) {
+    const pos = err.origin
     this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [
       {
         range: new this.editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
         options: {
           isWholeLine: false,
-          className: "pauseTokenHighlight"
+          className: "errorTokenHighlight"
         }
       },
       {
         range: new this.editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
         options: {
           isWholeLine: true,
-          className: "pauseTokenHighlightLine"
+          className: "errorLineHighlight"
         }
       }
     ])
