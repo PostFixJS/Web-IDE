@@ -1,10 +1,13 @@
 import React, { Component } from 'react'
+import SplitPane from 'react-split-pane'
+import { connect } from 'react-redux'
 import './App.css';
 import Editor from './components/Editor/Editor'
 import Lexer from 'postfixjs/Lexer'
 import Err from 'postfixjs/types/Err'
 import Interpreter from 'postfixjs/Interpreter'
 import { registerBuiltIns } from './interpreter'
+import InputOutput from './components/InputOutput/InputOutput';
 
 class App extends Component {
   state = {
@@ -155,18 +158,35 @@ class App extends Component {
     ])
   }
 
+  handleGridResize = (width) => {
+    this.editor.layout({ width: Math.floor(width) })
+  }
+
   render() {
     const { code, running, paused } = this.state
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}>
-        <Editor
-          ref={this.setEditor}
-          code={code}
-          onChange={this.updateCode}
-          readOnly={running}
-          style={{ flex: 1, overflow: 'hidden' }}
-        />
+        <SplitPane
+          split='vertical'
+          minSize={300}
+          defaultSize={Math.floor(0.5 * window.innerWidth)}
+          onChange={this.handleGridResize}
+          onDragFinished={this.handleGridResize}
+          style={{ height: 'auto', position: 'static' }}
+        >
+          <Editor
+            ref={this.setEditor}
+            code={code}
+            onChange={this.updateCode}
+            readOnly={running}
+            style={{ width: '100%', height: '100%' }}
+          />
+          <InputOutput
+            value={this.props.output}
+            style={{ width: '100%', height: '100%' }}
+          />
+        </SplitPane>
         <div>
           <button
             onClick={this.runProgram}
@@ -198,4 +218,6 @@ class App extends Component {
   }
 }
 
-export default App;
+export default connect((state) => ({
+  output: state.output
+}))(App)

@@ -42,6 +42,20 @@ export default class Editor extends React.Component {
     }
   }
 
+  setRootRef = (ref) => this._rootRef = ref
+
+  /**
+   * Update the size of the editor.
+   * @public
+   * @param {object} dimensions New width and height (both optional, default to the size of this component)
+   */
+  layout (dimensions) {
+    this.editor.layout({
+      width: dimensions.width || this._rootRef.clientWidth,
+      height: dimensions.height || this._rootRef.clientHeight
+    })
+  }
+
   render () {
     const {
       code,
@@ -52,6 +66,7 @@ export default class Editor extends React.Component {
 
     return (
       <div
+        ref={this.setRootRef}
         {...other}
       >
         <MonacoEditor
