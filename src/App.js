@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import './App.css';
 import Editor from './components/Editor/Editor'
 import Lexer from 'postfixjs/Lexer'
@@ -121,6 +121,7 @@ class App extends Component {
           ref={this.setEditor}
           code={code}
           onChange={this.updateCode}
+          readOnly={running}
           style={{ flex: 1, overflow: 'hidden' }}
         />
         <div>
