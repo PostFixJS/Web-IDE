@@ -10,3 +10,12 @@ export function output (state = '', action) {
       return state
   }
 }
+
+export function stack (state = [], action) {
+  switch (action.type) {
+    case actions.SET_STACK:
+      return action.payload
+    default:
+      return state
+  }
+}

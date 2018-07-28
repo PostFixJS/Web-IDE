@@ -8,7 +8,8 @@ import Lexer from 'postfixjs/Lexer'
 import Err from 'postfixjs/types/Err'
 import Interpreter from 'postfixjs/Interpreter'
 import { registerBuiltIns } from './interpreter'
-import InputOutput from './components/InputOutput/InputOutput';
+import InputOutput from './components/InputOutput/InputOutput'
+import StackViewer from './components/StackViewer/StackViewer'
 
 class App extends Component {
   state = {
@@ -41,6 +42,7 @@ class App extends Component {
       this.setState({ interpreterPosition: value })
       if (done) {
         this.setState({ running: false })
+        this.showStack()
         console.log(this.interpreter._stack._stack.map((obj) => obj.toString()).join(', '))
       } else {
         this._timeoutId = setImmediate(this.step)
@@ -81,23 +83,8 @@ class App extends Component {
   }
 
   pauseProgram = () => {
-    const pos = this.state.interpreterPosition
-    this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [
-      {
-        range: new this.editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
-        options: {
-          isWholeLine: false,
-          className: "pauseTokenHighlight"
-        }
-      },
-      {
-        range: new this.editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
-        options: {
-          isWholeLine: true,
-          className: "pauseLineHighlight"
-        }
-      }
-    ])
+    this.showInterpreterPosition(this.state.interpreterPosition)
+    this.showStack()
     clearImmediate(this._timeoutId)
     this.setState({ paused: true })
   }
@@ -112,25 +99,9 @@ class App extends Component {
       this.setState({ interpreterPosition: pos })
       if (done) {
         this.setState({ running: false })
-        console.log(this.interpreter._stack._stack.map((obj) => obj.toString()).join(', '))
       }
-
-      this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [
-        {
-          range: new this.editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
-          options: {
-            isWholeLine: false,
-            className: "pauseTokenHighlight"
-          }
-        },
-        {
-          range: new this.editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
-          options: {
-            isWholeLine: true,
-            className: "pauseLineHighlight"
-          }
-        }
-      ])
+      this.showInterpreterPosition(pos)
+      this.showStack()
     } catch (e) {
       if (e instanceof Err) {
         this.handleInterpreterError(e)
@@ -161,6 +132,32 @@ class App extends Component {
     ])
   }
 
+  showInterpreterPosition (pos) {
+    this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [
+      {
+        range: new this.editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+        options: {
+          isWholeLine: false,
+          className: "pauseTokenHighlight"
+        }
+      },
+      {
+        range: new this.editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
+        options: {
+          isWholeLine: true,
+          className: "pauseLineHighlight"
+        }
+      }
+    ])
+  }
+
+  showStack () {
+    this.props.dispatch(actions.setStack(this.interpreter._stack.getElements().map((obj) => ({
+      value: obj.toString(),
+      type: obj.getTypeName()
+    }))))
+  }
+
   handleGridResize = (width) => {
     this.editor.layout({ width: Math.floor(width) })
   }
@@ -173,21 +170,34 @@ class App extends Component {
         <SplitPane
           split='vertical'
           minSize={300}
-          defaultSize={Math.floor(0.5 * window.innerWidth)}
+          defaultSize={Math.floor(0.7 * window.innerWidth)}
           onChange={this.handleGridResize}
           onDragFinished={this.handleGridResize}
           style={{ height: 'auto', position: 'static' }}
         >
-          <Editor
-            ref={this.setEditor}
-            code={code}
-            onChange={this.updateCode}
-            readOnly={running}
-            style={{ width: '100%', height: '100%' }}
-          />
-          <InputOutput
-            value={this.props.output}
-            style={{ width: '100%', height: '100%' }}
+          <SplitPane
+            split='horizontal'
+            minSize={300}
+            defaultSize={Math.floor(0.8 * window.innerHeight)}
+            onChange={this.handleGridResize}
+            onDragFinished={this.handleGridResize}
+            style={{ height: 'auto', position: 'static' }}
+          >
+            <Editor
+              ref={this.setEditor}
+              code={code}
+              onChange={this.updateCode}
+              readOnly={running}
+              style={{ width: '100%', height: '100%' }}
+            />
+            <InputOutput
+              value={this.props.output}
+              style={{ width: '100%', height: '100%', position: 'absolute' }}
+            />
+          </SplitPane>
+          <StackViewer
+            stack={this.props.stack}
+            invalid={!running || !paused}
           />
         </SplitPane>
         <div>
@@ -222,5 +232,6 @@ class App extends Component {
 }
 
 export default connect((state) => ({
-  output: state.output
+  output: state.output,
+  stack: state.stack
 }))(App)
