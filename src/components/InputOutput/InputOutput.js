@@ -10,9 +10,7 @@ export default class InputOutput extends React.Component {
     window.removeEventListener('resize', this.updateEditorSize)
   }
   
-  updateEditorSize = () => {
-    this.editor.layout()
-  }
+  updateEditorSize = () => this.editor.layout()
 
   editorDidMount = (editor) => {
     this.editor = editor
@@ -31,7 +29,7 @@ export default class InputOutput extends React.Component {
    * @public
    * @param {object} dimensions New width and height (both optional, default to the size of this component)
    */
-  layout (dimensions) {
+  layout (dimensions = {}) {
     this.editor.layout({
       width: dimensions.width || this._rootRef.clientWidth,
       height: dimensions.height || this._rootRef.clientHeight

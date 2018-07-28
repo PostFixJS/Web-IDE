@@ -29,7 +29,11 @@ class App extends Component {
   }
 
   setEditor = (ref) => {
-    this.editor = ref
+    this._editor = ref
+  }
+
+  setInputOutput = (ref) => {
+    this._inputOutput = ref
   }
 
   updateCode = (code) => {
@@ -65,7 +69,7 @@ class App extends Component {
       this.interpreter.reset()
       this.interpreter.startRun(lexer.getTokens())
     } else {
-      this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
+      this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
     }
 
     if (pauseImmediately === true) {
@@ -79,7 +83,7 @@ class App extends Component {
   stopProgram = () => {
     clearImmediate(this._timeoutId)
     this.setState({ running: false })
-    this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
+    this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
   }
 
   pauseProgram = () => {
@@ -113,9 +117,9 @@ class App extends Component {
 
   handleInterpreterError (err) {
     const pos = err.origin
-    this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [
+    this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [
       {
-        range: new this.editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+        range: new this._editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
         options: {
           isWholeLine: false,
           className: "errorTokenHighlight",
@@ -123,7 +127,7 @@ class App extends Component {
         }
       },
       {
-        range: new this.editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
+        range: new this._editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
         options: {
           isWholeLine: true,
           className: "errorLineHighlight"
@@ -133,16 +137,16 @@ class App extends Component {
   }
 
   showInterpreterPosition (pos) {
-    this.lineHighlightDecorations = this.editor.editor.deltaDecorations(this.lineHighlightDecorations, [
+    this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [
       {
-        range: new this.editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+        range: new this._editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
         options: {
           isWholeLine: false,
           className: "pauseTokenHighlight"
         }
       },
       {
-        range: new this.editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
+        range: new this._editor.monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
         options: {
           isWholeLine: true,
           className: "pauseLineHighlight"
@@ -158,8 +162,14 @@ class App extends Component {
     }))))
   }
 
-  handleGridResize = (width) => {
-    this.editor.layout({ width: Math.floor(width) })
+  handleGridHResize = (height) => {
+    this._editor.layout({ height })
+    this._inputOutput.layout()
+  }
+
+  handleGridVResize = (width) => {
+    this._editor.layout({ width })
+    this._inputOutput.layout({ width })
   }
 
   render() {
@@ -171,16 +181,16 @@ class App extends Component {
           split='vertical'
           minSize={300}
           defaultSize={Math.floor(0.7 * window.innerWidth)}
-          onChange={this.handleGridResize}
-          onDragFinished={this.handleGridResize}
+          onChange={this.handleGridVResize}
+          onDragFinished={this.handleGridVResize}
           style={{ height: 'auto', position: 'static' }}
         >
           <SplitPane
             split='horizontal'
             minSize={300}
             defaultSize={Math.floor(0.8 * window.innerHeight)}
-            onChange={this.handleGridResize}
-            onDragFinished={this.handleGridResize}
+            onChange={this.handleGridHResize}
+            onDragFinished={this.handleGridHResize}
             style={{ height: 'auto', position: 'static' }}
           >
             <Editor
@@ -191,6 +201,7 @@ class App extends Component {
               style={{ width: '100%', height: '100%' }}
             />
             <InputOutput
+              ref={this.setInputOutput}
               value={this.props.output}
               style={{ width: '100%', height: '100%', position: 'absolute' }}
             />

@@ -12,6 +12,8 @@ export default class Editor extends React.Component {
   componentWillUnmount () {
     window.removeEventListener('resize', this.updateEditorSize)
   }
+  
+  updateEditorSize = () => this.editor.layout()
 
   componentDidUpdate (prevProps) {
     if (prevProps.readOnly !== this.props.readOnly) {
@@ -19,10 +21,6 @@ export default class Editor extends React.Component {
         readOnly: this.props.readOnly
       })
     }
-  }
-  
-  updateEditorSize = () => {
-    this.editor.layout()
   }
   
   editorWillMount = (monaco) => {
@@ -49,7 +47,7 @@ export default class Editor extends React.Component {
    * @public
    * @param {object} dimensions New width and height (both optional, default to the size of this component)
    */
-  layout (dimensions) {
+  layout (dimensions = {}) {
     this.editor.layout({
       width: dimensions.width || this._rootRef.clientWidth,
       height: dimensions.height || this._rootRef.clientHeight
