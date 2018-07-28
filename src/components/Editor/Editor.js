@@ -12,6 +12,14 @@ export default class Editor extends React.Component {
   componentWillUnmount () {
     window.removeEventListener('resize', this.updateEditorSize)
   }
+
+  componentDidUpdate (prevProps) {
+    if (prevProps.readOnly !== this.props.readOnly) {
+      this.editor.updateOptions({
+        readOnly: this.props.readOnly
+      })
+    }
+  }
   
   updateEditorSize = () => {
     this.editor.layout()
@@ -30,16 +38,8 @@ export default class Editor extends React.Component {
       readOnly: this.props.readOnly
     })
     editor.onDidAttemptReadOnlyEdit((e) => {
-      MessageController.get(editor).showMessage('You cannot edit the code while the program is running.', editor.getPosition())
+      this.showMessage('You cannot edit the code while the program is running.')
     })
-  }
-
-  componentDidUpdate (prevProps) {
-    if (prevProps.readOnly !== this.props.readOnly) {
-      this.editor.updateOptions({
-        readOnly: this.props.readOnly
-      })
-    }
   }
 
   setRootRef = (ref) => this._rootRef = ref
@@ -54,6 +54,16 @@ export default class Editor extends React.Component {
       width: dimensions.width || this._rootRef.clientWidth,
       height: dimensions.height || this._rootRef.clientHeight
     })
+  }
+
+  /**
+   * Show a message at a specific position in the editor.
+   * @public
+   * @param {string} message Message to show
+   * @param {object} position Position to show the message at, defaults to the current cursor position
+   */
+  showMessage(message, position = this.editor.getPosition()) {
+    MessageController.get(this.editor).showMessage(message, position)
   }
 
   render () {
