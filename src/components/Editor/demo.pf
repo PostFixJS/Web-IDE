@@ -7,7 +7,7 @@ multiline comment >#
 >#
 
 # Numbers
-1 2.3
+1 2.3 10e+64 1e8 3e-5
 
 # Strings
 "Hello \"world\"!"
@@ -18,10 +18,16 @@ true false
 # Sym
 :Int
 Str:
+:otherSym1
+otherSym2:
 
 # functions
 add: (a :Num, b :Num -> :Num) {
   a b +
+  a b -
+  a b *
+  a b /
+  a b i/
 } fun
 (a :Num, b :Num -> :Num) {
   a b -

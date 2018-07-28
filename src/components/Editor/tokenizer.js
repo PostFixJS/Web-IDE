@@ -33,13 +33,13 @@ export default {
       [/[(){}[\]]/, '@brackets'],
 
       // symbols
-      [/:[A-Z][a-zA-Z_$]*/, 'type.identifier'],
-      [/:[a-zA-Z_$]*/, 'identifier'],
-      [/[A-Z][a-zA-Z_$]*:/, 'type.identifier'],
-      [/[a-zA-Z_$]+:/, 'identifier'],
+      [/:[A-Z][a-zA-Z_$\/\*]*/, 'type.identifier'],
+      [/:[a-zA-Z_$\/\*]*/, 'identifier'],
+      [/[A-Z][a-zA-Z_$\/\*]*:/, 'type.identifier'],
+      [/[a-zA-Z_$\/\*]+:/, 'identifier'],
 
       // identifiers and keywords (define these here to give precedence to symbols)
-      [/[a-zA-Z_$+!?]*[a-zA-Z_$+?]/, {
+      [/[a-zA-Z_$+!?\/\*]*[a-zA-Z_$+?\/\*]/, {
         cases: {
           '@keywords': 'keyword',
           '@default': 'identifier'
