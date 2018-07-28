@@ -104,8 +104,10 @@ class App extends Component {
       this.setState({ interpreterPosition: pos })
       if (done) {
         this.setState({ running: false })
+        this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
+      } else {
+        this.showInterpreterPosition(pos)
       }
-      this.showInterpreterPosition(pos)
       this.showStack()
     } catch (e) {
       if (e instanceof Err) {
