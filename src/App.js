@@ -10,6 +10,7 @@ import Interpreter from 'postfixjs/Interpreter'
 import { registerBuiltIns } from './interpreter'
 import InputOutput from './components/InputOutput/InputOutput'
 import StackViewer from './components/StackViewer/StackViewer'
+import DictViewer from './components/DictViewer/DictViewer'
 
 class App extends Component {
   state = {
@@ -160,6 +161,14 @@ class App extends Component {
       value: obj.toString(),
       type: obj.getTypeName()
     }))))
+
+    this.props.dispatch(actions.setDicts(this.interpreter._dictStack.getDicts().map((dict) => {
+      return Object.entries(dict).map(([name, value]) => ({
+        name,
+        value: value.toString(),
+        type: value.getTypeName()
+      })).sort((a, b) => a.name.localeCompare(b.name))
+    }).reverse()))
   }
 
   handleGridHResize = (height) => {
@@ -206,10 +215,16 @@ class App extends Component {
               style={{ width: '100%', height: '100%', position: 'absolute' }}
             />
           </SplitPane>
-          <StackViewer
-            stack={this.props.stack}
-            invalid={!running || !paused}
-          />
+          <div>
+            <StackViewer
+              stack={this.props.stack}
+              invalid={!running || !paused}
+            />
+            <DictViewer
+              dicts={this.props.dicts}
+              invalid={!running || !paused}
+            />
+          </div>
         </SplitPane>
         <div>
           <button
@@ -244,5 +259,6 @@ class App extends Component {
 
 export default connect((state) => ({
   output: state.output,
-  stack: state.stack
+  stack: state.stack,
+  dicts: state.dicts
 }))(App)

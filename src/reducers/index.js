@@ -19,3 +19,12 @@ export function stack (state = [], action) {
       return state
   }
 }
+
+export function dicts (state = [], action) {
+  switch (action.type) {
+    case actions.SET_DICTS:
+      return action.payload
+    default:
+      return state
+  }
+}

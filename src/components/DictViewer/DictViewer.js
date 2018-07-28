@@ -13,24 +13,33 @@ const styles = {
   }
 }
 
-export default class StackViewer extends React.Component {
+export default class DictViewer extends React.Component {
   render () {
-    const { stack, invalid } = this.props
+    const { dicts, invalid } = this.props
 
     return (
       <table style={styles.table}>
         <thead>
           <tr>
+            <td>Name</td>
             <td>Type</td>
             <td>Value</td>
           </tr>
         </thead>
         <tbody style={{ ...styles.tbody, opacity: invalid ? 0.5 : 1 }}>
-          {stack.map((item, i) => (
-            <tr key={i}>
-              <td style={styles.type}>{item.type}</td>
-              <td style={getValueStyle(item)}>{item.value}</td>
-            </tr>
+          {dicts.map((dict, i) => (
+            <React.Fragment key={i}>
+              <tr>
+                <td colSpan={3}>Dictionary #{i}</td>
+              </tr>
+              {dict.map((item, i) => (
+                <tr key={i} style={{ paddingLeft: 16 }}>
+                  <td>{item.name}</td>
+                  <td style={styles.type}>{item.type}</td>
+                  <td style={getValueStyle(item)}>{item.value}</td>
+                </tr>
+              ))}
+            </React.Fragment>
           ))}
         </tbody>
       </table>
@@ -38,11 +47,12 @@ export default class StackViewer extends React.Component {
   }
 }
 
-StackViewer.propTypes = {
-  stack: PropTypes.arrayOf(PropTypes.shape({
+DictViewer.propTypes = {
+  dicts: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string.isRequired,
     type: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired
-  })).isRequired,
+  }))).isRequired,
   invalid: PropTypes.bool
 }
 
