@@ -147,7 +147,8 @@ class App extends Component {
         range: new this.editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
         options: {
           isWholeLine: false,
-          className: "errorTokenHighlight"
+          className: "errorTokenHighlight",
+          hoverMessage: { value: `Error: ${err.message}` }
         }
       },
       {
