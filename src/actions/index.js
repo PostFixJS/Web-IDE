@@ -12,6 +12,5 @@ export function setStack (stack) {
 }
 
 export function setDicts (dicts) {
-  console.log(dicts)
   return { type: SET_DICTS, payload: dicts }
 }

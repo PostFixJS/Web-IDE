@@ -49,7 +49,6 @@ class App extends Component {
       if (done) {
         this.setState({ running: false })
         this.showStack()
-        console.log(this.interpreter._stack._stack.map((obj) => obj.toString()).join(', '))
       } else {
         this._timeoutId = setImmediate(this.step)
       }
