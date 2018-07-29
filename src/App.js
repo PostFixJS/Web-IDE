@@ -8,6 +8,7 @@ import Lexer from 'postfixjs/Lexer'
 import Err from 'postfixjs/types/Err'
 import Interpreter from 'postfixjs/Interpreter'
 import { registerBuiltIns } from './interpreter'
+import Toolbar from './components/Toolbar/Toolbar'
 import InputOutput from './components/InputOutput/InputOutput'
 import StackViewer from './components/StackViewer/StackViewer'
 import DictViewer from './components/DictViewer/DictViewer'
@@ -188,6 +189,14 @@ class App extends Component {
 
     return (
       <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}>
+        <Toolbar
+          running={running}
+          paused={paused}
+          onRun={this.runProgram}
+          onPause={this.pauseProgram}
+          onStop={this.stopProgram}
+          onStep={this.stepProgram}
+        />
         <SplitPane
           split='vertical'
           minSize={300}
@@ -228,32 +237,6 @@ class App extends Component {
             />
           </div>
         </SplitPane>
-        <div>
-          <button
-            onClick={this.runProgram}
-            disabled={running && !paused}
-          >
-            Run
-          </button>
-          <button
-            onClick={this.pauseProgram}
-            disabled={!running || paused}
-          >
-            Pause
-          </button>
-          <button
-            onClick={this.stepProgram}
-            disabled={!paused && running}
-          >
-            Step
-          </button>
-          <button
-            onClick={this.stopProgram}
-            disabled={!running}
-          >
-            Stop
-          </button>
-        </div>
       </div>
     );
   }
