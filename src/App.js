@@ -4,9 +4,10 @@ import { connect } from 'react-redux'
 import './App.css';
 import Editor from './components/Editor/Editor'
 import * as actions from './actions'
-import Lexer from 'postfixjs/Lexer'
 import Err from 'postfixjs/types/Err'
 import Interpreter from 'postfixjs/Interpreter'
+import Lexer from 'postfixjs/Lexer'
+import DocParser from 'postfixjs/DocParser'
 import { registerBuiltIns } from './interpreter'
 import Toolbar from './components/Toolbar/Toolbar'
 import InputOutput from './components/InputOutput/InputOutput'
@@ -15,19 +16,37 @@ import DictViewer from './components/DictViewer/DictViewer'
 
 class App extends Component {
   state = {
-    code: `1 i! {
-  i println
-  i 1 + i!
-} loop`,
+    code: `fac_tr: (n :Int, acc :Int -> :Int) {
+    n 1 >
+    { acc n * n 1 - swap fac_tr }
+    { acc } if
+} fun
+
+#<
+Calculate the factorial of a number.
+@param n A number
+@return Factorial of n
+>#
+fac: (n :Int -> :Int) {
+    n 1 fac_tr
+} fun
+
+6 fac
+`,
     running: false,
     paused: false
   }
   interpreter = new Interpreter()
   lineHighlightDecorations = []
+  functionsDecorations  = []
 
   constructor (props) {
     super(props)
     registerBuiltIns(this.interpreter)
+  }
+
+  componentDidMount () {
+    this.updateCode(this.state.code)
   }
 
   setEditor = (ref) => {
@@ -40,6 +59,49 @@ class App extends Component {
 
   updateCode = (code) => {
     this.setState({ code })
+
+    const functions = DocParser.getFunctions(code)
+    this.functionsDecorations = this._editor.editor.deltaDecorations(
+      this.functionsDecorations,
+      Lexer.parse(code)
+        .filter((token) => token.tokenType === 'REFERENCE')
+        .map((token) => {
+          const docs = functions.filter((doc) => doc.name === token.token)
+          const pos = token
+          if (docs.length > 0) {
+            const usageMessages = [].concat(...docs.map((doc) => {
+              let signature
+              const params = doc.params
+                .map(({ name, type }) => `${name}${type ? ` ${type}` : ''}`)
+                .join(', ')
+              const returns = doc.returns.map((r) => r.type).join(', ')        
+              if (returns.length > 0) {
+                signature = `(${params.length > 0 ? ` ${params}` : ''} -> ${returns} )`
+              } else {
+                signature = `(${params.length > 0 ? ` ${params}` : ''})`
+              }
+
+              return {
+                value: [
+                  `\`\`\`postfix\n${doc.name}: ${signature} fun\n\`\`\``,
+                  doc.description,
+                  ...doc.params.map((param) =>`*@param* \`${param.name}\`${param.description ? ` – ${param.description}` : ''}`),
+                  ...doc.returns.map((ret) =>`*@return* ${ret.description ? ret.description : `\`\`\`${ret.type}\`\`\``}`)
+                ].join('  \n')
+              }
+            }))
+
+            return {
+              range: new this._editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+              options: {
+                hoverMessage: usageMessages
+              }
+            }
+          }
+          return null
+        })
+        .filter((decoration) => decoration != null)
+    )
   }
 
   step = () => {
