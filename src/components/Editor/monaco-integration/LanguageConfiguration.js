@@ -1,4 +1,4 @@
-export const configuration = {
+export default {
   brackets: [
     ['(', ')'],
     ['{', '}'],
@@ -9,5 +9,3 @@ export const configuration = {
     blockComment: ['#<', '>#']
   }
 }
-
-export { default as tokensProvider } from './tokenizer'

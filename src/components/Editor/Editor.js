@@ -2,7 +2,9 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import MonacoEditor from 'react-monaco-editor'
 import { MessageController } from 'monaco-editor/esm/vs/editor/contrib/message/messageController'
-import { tokensProvider, configuration } from './postfixLanguage'
+import HoverProvider from './monaco-integration/HoverProvider'
+import LanguageConfiguration from './monaco-integration/LanguageConfiguration'
+import MonarchTokensProvider from './monaco-integration/MonarchTokensProvider'
 
 export default class Editor extends React.Component {
   componentDidMount () {
@@ -26,8 +28,9 @@ export default class Editor extends React.Component {
   editorWillMount = (monaco) => {
     this.monaco = monaco
     monaco.languages.register({ id: 'postfix' })
-    monaco.languages.setMonarchTokensProvider('postfix', tokensProvider)
-    monaco.languages.setLanguageConfiguration('postfix', configuration)
+    monaco.languages.setMonarchTokensProvider('postfix', MonarchTokensProvider)
+    monaco.languages.setLanguageConfiguration('postfix', LanguageConfiguration)
+    monaco.languages.registerHoverProvider('postfix', HoverProvider)
   }
 
   editorDidMount = (editor) => {

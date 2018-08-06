@@ -7,7 +7,6 @@ import * as actions from './actions'
 import Err from 'postfixjs/types/Err'
 import Interpreter from 'postfixjs/Interpreter'
 import Lexer from 'postfixjs/Lexer'
-import DocParser from 'postfixjs/DocParser'
 import { registerBuiltIns } from './interpreter'
 import Toolbar from './components/Toolbar/Toolbar'
 import InputOutput from './components/InputOutput/InputOutput'
@@ -38,7 +37,6 @@ fac: (n :Int -> :Int) {
   }
   interpreter = new Interpreter()
   lineHighlightDecorations = []
-  functionsDecorations  = []
 
   constructor (props) {
     super(props)
@@ -59,49 +57,6 @@ fac: (n :Int -> :Int) {
 
   updateCode = (code) => {
     this.setState({ code })
-
-    const functions = DocParser.getFunctions(code)
-    this.functionsDecorations = this._editor.editor.deltaDecorations(
-      this.functionsDecorations,
-      Lexer.parse(code)
-        .filter((token) => token.tokenType === 'REFERENCE')
-        .map((token) => {
-          const docs = functions.filter((doc) => doc.name === token.token)
-          const pos = token
-          if (docs.length > 0) {
-            const usageMessages = [].concat(...docs.map((doc) => {
-              let signature
-              const params = doc.params
-                .map(({ name, type }) => `${name}${type ? ` ${type}` : ''}`)
-                .join(', ')
-              const returns = doc.returns.map((r) => r.type).join(', ')        
-              if (returns.length > 0) {
-                signature = `(${params.length > 0 ? ` ${params}` : ''} -> ${returns} )`
-              } else {
-                signature = `(${params.length > 0 ? ` ${params}` : ''})`
-              }
-
-              return {
-                value: [
-                  `\`\`\`postfix\n${doc.name}: ${signature} fun\n\`\`\``,
-                  doc.description,
-                  ...doc.params.map((param) =>`*@param* \`${param.name}\`${param.description ? ` – ${param.description}` : ''}`),
-                  ...doc.returns.map((ret) =>`*@return* ${ret.description ? ret.description : `\`\`\`${ret.type}\`\`\``}`)
-                ].join('  \n')
-              }
-            }))
-
-            return {
-              range: new this._editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
-              options: {
-                hoverMessage: usageMessages
-              }
-            }
-          }
-          return null
-        })
-        .filter((decoration) => decoration != null)
-    )
   }
 
   step = () => {
