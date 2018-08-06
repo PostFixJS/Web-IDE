@@ -1,5 +1,6 @@
 import { getTokenAt } from '../postfixUtil'
 import DocParser from 'postfixjs/DocParser'
+import builtIns from 'postfixjs/doc/operators'
 import * as monaco from 'monaco-editor'
 
 export default {
@@ -9,8 +10,11 @@ export default {
 
     if (token != null) {
       if (token.tokenType === 'REFERENCE') {
-        const functions = DocParser.getFunctions(code)
-        const docs = functions.filter((doc) => doc.name === token.token)
+        let docs = builtIns.filter((doc) => doc.name === token.token)
+        if (docs.length === 0) { // built-in functions take precedence
+          const functions = DocParser.getFunctions(code)
+          docs = functions.filter((doc) => doc.name === token.token)
+        }
         if (docs.length > 0) {
           const usageMessages = getFunctionHoverMessages(docs)
           const pos = token
