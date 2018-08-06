@@ -7,5 +7,11 @@ export default {
   comments: {
     lineComment: '#',
     blockComment: ['#<', '>#']
+  },
+  __electricCharacterSupport: {
+    docComment: {
+      open: '#<',
+      close: ' >#'
+    }
   }
 }
