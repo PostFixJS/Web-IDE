@@ -12,6 +12,7 @@ import Toolbar from './components/Toolbar/Toolbar'
 import InputOutput from './components/InputOutput/InputOutput'
 import StackViewer from './components/StackViewer/StackViewer'
 import DictViewer from './components/DictViewer/DictViewer'
+import Repl from './components/Repl/Repl'
 
 class App extends Component {
   state = {
@@ -53,6 +54,10 @@ fac: (n :Int -> :Int) {
 
   setInputOutput = (ref) => {
     this._inputOutput = ref
+  }
+
+  setRepl = (ref) => {
+    this._repl = ref
   }
 
   updateCode = (code) => {
@@ -198,6 +203,7 @@ fac: (n :Int -> :Int) {
   handleGridVResize = (width) => {
     this._editor.layout({ width })
     this._inputOutput.layout({ width })
+    this._repl.layout()
   }
 
   render() {
@@ -242,16 +248,27 @@ fac: (n :Int -> :Int) {
               style={{ width: '100%', height: '100%', position: 'absolute' }}
             />
           </SplitPane>
-          <div>
-            <StackViewer
-              stack={this.props.stack}
-              invalid={!running || !paused}
+          <SplitPane
+            split='horizontal'
+            minSize={300}
+            defaultSize={Math.floor(0.8 * window.innerHeight)}
+            style={{ height: 'auto', position: 'static' }}
+          >
+            <div>
+              <StackViewer
+                stack={this.props.stack}
+                invalid={!running || !paused}
+              />
+              <DictViewer
+                dicts={this.props.dicts}
+                invalid={!running || !paused}
+              />
+            </div>
+            <Repl
+              ref={this.setRepl}
+              style={{ width: '100%', height: '100%', position: 'absolute' }}
             />
-            <DictViewer
-              dicts={this.props.dicts}
-              invalid={!running || !paused}
-            />
-          </div>
+          </SplitPane>
         </SplitPane>
       </div>
     );
