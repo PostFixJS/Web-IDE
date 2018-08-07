@@ -1,44 +1,54 @@
 import React from 'react'
 import MonacoEditor from 'react-monaco-editor'
+import { MessageController } from 'monaco-editor/esm/vs/editor/contrib/message/messageController'
 import Lexer from 'postfixjs/Lexer'
 import Interpreter from 'postfixjs/Interpreter'
 
 export default class Repl extends React.Component {
   state = {
-    lines: []
+    lines: [],
+    running: false
   }
   interpreter = new Interpreter()
 
   editorDidMount = (editor, monaco) => {
     this.editor = editor
+
     editor.addCommand(monaco.KeyCode.Enter, () => {
+      if (this.state.running) return
+
       const code = editor.getValue()
       editor.setValue('')
-      try {
-        const tokens = Lexer.parse(code)
-        this.interpreter.runToCompletion(tokens)
-        this.setState((state) => ({
-          lines: [
-            ...state.lines,
-            { type: 'input', value: code },
-            { type: 'output', value: this.interpreter._stack._stack.map((obj) => obj.toString()).join(', ') }
-          ]
-        }))
-      } catch (e) {
-        this.setState((state) => ({
-          lines: [
-            ...state.lines,
-            { type: 'input', value: code },
-            { type: 'output', value: e.message }
-          ]
-        }))
-      }
+      this.interpreter.startRun(Lexer.parse(code))
+      this._timeoutId = setImmediate(this.step)
+      this.setState((state) => ({
+        lines: [
+          ...state.lines,
+          { type: 'input', value: code }
+        ],
+        running: true
+      }))
     }, 'editorTextFocus')
+
+    editor.onDidAttemptReadOnlyEdit((e) => {
+      MessageController.get(this.editor).showMessage('The previous input is still being executed.', this.editor.getPosition())
+    })
   }
 
   componentDidUpdate (prevProps, prevState) {
     if (prevState.lines !== this.state.lines) {
       this._output.scrollTop = this._output.scrollHeight
+    }
+    if (prevState.running !== this.state.running) {
+      this.editor.updateOptions({
+        readOnly: this.state.running
+      })
+    }
+  }
+
+  componentWillUnmount () {
+    if (this._timeoutId) {
+      clearImmediate(this._timeoutId)
     }
   }
 
@@ -48,6 +58,33 @@ export default class Repl extends React.Component {
 
   setOutputRef = (ref) => {
     this._output = ref
+  }
+
+  step = () => {
+    try {
+      const { done } = this.interpreter.step()
+      if (done) {
+        this.setState((state) => ({
+          lines: [
+            ...state.lines,
+            { type: 'output', value: this.interpreter._stack._stack.map((obj) => obj.toString()).join(', ') }
+          ],
+          running: false
+        }))
+        clearImmediate(this._timeoutId)
+      } else {
+        this._timeoutId = setImmediate(this.step)
+      }
+    } catch (e) {
+      this.setState((state) => ({
+        lines: [
+          ...state.lines,
+          { type: 'output', value: e.message }
+        ],
+        running: false
+      }))
+      clearImmediate(this._timeoutId)
+    }
   }
 
   /**
@@ -66,6 +103,17 @@ export default class Repl extends React.Component {
     this.editor.focus()
   }
 
+  handleCancel = () => {
+    clearImmediate(this._timeoutId)
+    this.setState((state) => ({
+      lines: [
+        ...state.lines,
+        { type: 'output', value: this.interpreter._stack._stack.map((obj) => obj.toString()).join(', ') }
+      ],
+      running: false
+    }))
+  }
+
   render () {
     const {
       style,
@@ -81,7 +129,10 @@ export default class Repl extends React.Component {
       >
         <div style={{ flex: 1, overflowX: 'auto' }} ref={this.setOutputRef}>
           {this.state.lines.map((line, i) => line.type === 'input' ? (
-            <p key={i}>&gt; {line.value}</p>
+            <p key={i}>
+              &gt; {line.value}
+              {i === this.state.lines.length - 1 && (<span> – <a onClick={this.handleCancel}>Cancel</a></span>)}
+            </p>
           ) : (
             <p key={i}>{line.value}</p>
           ))}
