@@ -10,7 +10,8 @@ const styles = {
     flex: 1,
     overflowX: 'auto',
     fontSize: 14,
-    fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"'
+    fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
+    padding: 8
   },
   line: {
     margin: 0,
@@ -119,7 +120,10 @@ export default class Repl extends React.Component {
   }
 
   handleClick = () => {
-    this.editor.focus()
+    // don't focus the editor if the user is selecting text from the output, which would cancel the selection
+    if (window.getSelection().toString() === '') {
+      this.editor.focus()
+    }
   }
 
   handleCancel = () => {
