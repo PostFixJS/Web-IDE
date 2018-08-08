@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
 
 const styles = {
   table: {
@@ -36,7 +37,7 @@ export default class DictViewer extends React.Component {
                 <tr key={i} style={{ paddingLeft: 16 }}>
                   <td>{item.name}</td>
                   <td style={styles.type}>{item.type}</td>
-                  <td style={getValueStyle(item)}>{item.value}</td>
+                  <td><ObjectHighlighter objects={[item.value]}/></td>
                 </tr>
               ))}
             </React.Fragment>
@@ -54,22 +55,4 @@ DictViewer.propTypes = {
     value: PropTypes.string.isRequired
   }))).isRequired,
   invalid: PropTypes.bool
-}
-
-function getValueStyle ({ type, value }) {
-  switch (type) {
-    case ':Num':
-    case ':Int':
-    case ':Flt':
-      return { color: '#09885a' }
-    case ':Str':
-      return { color: '#a31515' }
-    case ':Bool':
-      return { color: '#0000ff' }
-    case ':Sym': {
-      return value[1] === value[1].toUpperCase() ? { color: '#008080' } : {}
-    }
-    default:
-      return {}
-  }
 }
