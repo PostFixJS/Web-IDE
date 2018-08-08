@@ -3,6 +3,25 @@ import MonacoEditor from 'react-monaco-editor'
 import { MessageController } from 'monaco-editor/esm/vs/editor/contrib/message/messageController'
 import Lexer from 'postfixjs/Lexer'
 import Interpreter from 'postfixjs/Interpreter'
+import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
+
+const styles = {
+  output: {
+    flex: 1,
+    overflowX: 'auto',
+    fontSize: 14,
+    fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"'
+  },
+  line: {
+    margin: 0,
+    padding: 0
+  },
+  error: {
+    margin: 0,
+    padding: 0,
+    color: 'rgb(255, 0, 24)'
+  }
+}
 
 export default class Repl extends React.Component {
   state = {
@@ -67,7 +86,7 @@ export default class Repl extends React.Component {
         this.setState((state) => ({
           lines: [
             ...state.lines,
-            { type: 'output', value: this.interpreter._stack._stack.map((obj) => obj.toString()).join(', ') }
+            { type: 'output', value: this.interpreter._stack._stack.map((obj) => obj.toString()) }
           ],
           running: false
         }))
@@ -79,7 +98,7 @@ export default class Repl extends React.Component {
       this.setState((state) => ({
         lines: [
           ...state.lines,
-          { type: 'output', value: e.message }
+          { type: 'error', value: e.message }
         ],
         running: false
       }))
@@ -108,7 +127,7 @@ export default class Repl extends React.Component {
     this.setState((state) => ({
       lines: [
         ...state.lines,
-        { type: 'output', value: this.interpreter._stack._stack.map((obj) => obj.toString()).join(', ') }
+        { type: 'output', value: this.interpreter._stack._stack.map((obj) => obj.toString()) }
       ],
       running: false
     }))
@@ -127,14 +146,16 @@ export default class Repl extends React.Component {
         style={{ ...style, display: 'flex', flexDirection: 'column' }}
         onClick={this.handleClick}
       >
-        <div style={{ flex: 1, overflowX: 'auto' }} ref={this.setOutputRef}>
+        <div style={styles.output} ref={this.setOutputRef}>
           {this.state.lines.map((line, i) => line.type === 'input' ? (
-            <p key={i}>
+            <p key={i} style={styles.line}>
               &gt; {line.value}
               {i === this.state.lines.length - 1 && (<span> – <a onClick={this.handleCancel}>Cancel</a></span>)}
             </p>
+          ) : line.type === 'error' ? (
+            <p key={i} style={styles.error}>Error: {line.value}</p>
           ) : (
-            <p key={i}>{line.value}</p>
+            <p key={i} style={styles.line}><ObjectHighlighter objects={line.value}/></p>
           ))}
         </div>
         <MonacoEditor
