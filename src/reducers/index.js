@@ -21,6 +21,11 @@ export function input (state = {
         ...state,
         value: action.payload
       }
+    case actions.SET_INPUT_POSITION:
+      return {
+        ...state,
+        position: action.payload
+      }
     case actions.CLEAR_OUTPUT:
       return {
         ...state,
