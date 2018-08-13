@@ -1,7 +1,7 @@
 import { getTokenAt } from '../postfixUtil'
 import DocParser from 'postfixjs/DocParser'
-import builtIns from 'postfixjs/doc/operators'
 import * as monaco from 'monaco-editor'
+import * as builtIns from '../../../interpreter/doc'
 
 export default {
   provideHover: (model, position) => {
@@ -59,7 +59,7 @@ function getFunctionHoverMessages (functionDocs) {
     if (returns.length > 0) {
       signature = `(${params.length > 0 ? ` ${params}` : ''} -> ${returns} )`
     } else {
-      signature = `(${params.length > 0 ? ` ${params}` : ''})`
+      signature = `(${params.length > 0 ? ` ${params} ` : ''})`
     }
 
     return {
