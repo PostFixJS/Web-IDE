@@ -257,7 +257,7 @@ fac: (n :Int -> :Int) {
             defaultSize={Math.floor(0.8 * window.innerHeight)}
             style={{ height: 'auto', position: 'static' }}
           >
-            <div>
+            <div style={{ width: '100%', overflowY: 'auto' }}>
               <StackViewer
                 stack={this.props.stack}
                 invalid={!running || !paused}
