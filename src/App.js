@@ -243,8 +243,11 @@ fac: (n :Int -> :Int) {
               style={{ width: '100%', height: '100%' }}
             />
             <InputOutput
-              ref={this.setInputOutput}
-              value={this.props.output}
+              innerRef={this.setInputOutput}
+              output={this.props.output}
+              input={this.props.input.value}
+              onInputChange={this.props.onInputChange}
+              readOnly={running}
               style={{ width: '100%', height: '100%', position: 'absolute' }}
             />
           </SplitPane>
@@ -276,7 +279,11 @@ fac: (n :Int -> :Int) {
 }
 
 export default connect((state) => ({
+  input: state.input,
   output: state.output,
   stack: state.stack,
   dicts: state.dicts
+}), (dispatch) => ({
+  dispatch,
+  onInputChange: (input) => dispatch(actions.setInput(input))
 }))(App)

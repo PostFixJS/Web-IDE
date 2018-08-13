@@ -11,6 +11,26 @@ export function output (state = '', action) {
   }
 }
 
+export function input (state = {
+  value: '',
+  position: 0
+}, action) {
+  switch (action.type) {
+    case actions.SET_INPUT:
+      return {
+        ...state,
+        value: action.payload
+      }
+    case actions.CLEAR_OUTPUT:
+      return {
+        ...state,
+        position: 0
+      }
+    default:
+      return state
+  }
+}
+
 export function stack (state = [], action) {
   switch (action.type) {
     case actions.SET_STACK:
