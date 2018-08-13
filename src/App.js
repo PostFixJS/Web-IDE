@@ -166,7 +166,6 @@ fac: (n :Int -> :Int) {
       {
         range: new this._editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
         options: {
-          isWholeLine: false,
           className: "pauseTokenHighlight"
         }
       },
@@ -246,6 +245,7 @@ fac: (n :Int -> :Int) {
               innerRef={this.setInputOutput}
               output={this.props.output}
               input={this.props.input.value}
+              inputPosition={this.props.input.position}
               onInputChange={this.props.onInputChange}
               readOnly={running}
               style={{ width: '100%', height: '100%', position: 'absolute' }}

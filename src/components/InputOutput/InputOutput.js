@@ -1,6 +1,7 @@
 import React from 'react'
 import injectSheet from 'react-jss'
 import MonacoEditor from 'react-monaco-editor'
+import * as monaco from 'monaco-editor'
 
 const styles = {
   root: {
@@ -21,6 +22,7 @@ class InputOutput extends React.Component {
   state = {
     visible: 'output'
   }
+  inputDecorations = []
 
   componentDidMount () {
     window.addEventListener('resize', this.updateEditorSize)
@@ -34,6 +36,22 @@ class InputOutput extends React.Component {
       this.inputEditor.updateOptions({
         readOnly: this.props.readOnly
       })
+    }
+    if (prevProps.inputPosition !== this.props.inputPosition) {
+      const pos = this.inputEditor.getModel().getPositionAt(this.props.inputPosition)
+      this.inputDecorations = this.inputEditor.deltaDecorations(this.inputDecorations, [
+        {
+          range: new monaco.Range(1, 1, pos.lineNumber, pos.column),
+          options: {
+            className: 'readInputHighlight',
+            inlineClassName: 'readInputInline',
+            hoverMessage: { value: 'This input was already read by the program.' }
+          }
+        }
+      ])
+    }
+    if (prevProps.input !== this.props.input) {
+      this.inputDecorations = this.inputEditor.deltaDecorations(this.inputDecorations, [])
     }
   }
 
@@ -115,7 +133,9 @@ class InputOutput extends React.Component {
                 minimap: {
                   enabled: false
                 },
-                wordWrap: 'on'
+                wordWrap: 'on',
+                renderWhitespace: 'all',
+                renderControlCharacters: true
               }}
               language='text'
             />

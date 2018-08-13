@@ -32,6 +32,14 @@ body {
 	background: rgba(255, 0, 24, 0.15);
 }
 
+.readInputHighlight {
+  background: #eee;
+}
+
+.readInputInline {
+  color: #777 !important;
+}
+
 .Resizer {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
