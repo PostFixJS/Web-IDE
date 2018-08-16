@@ -55,7 +55,7 @@ function getFunctionHoverMessages (functionDocs) {
     const params = doc.params
       .map(({ name, type }) => `${name}${type ? ` ${type}` : ''}`)
       .join(', ')
-    const returns = doc.returns.map((r) => r.type).join(', ')        
+    const returns = doc.returns.map((r) => r.type).join(', ')
     if (returns.length > 0) {
       signature = `(${params.length > 0 ? ` ${params}` : ''} -> ${returns} )`
     } else {
