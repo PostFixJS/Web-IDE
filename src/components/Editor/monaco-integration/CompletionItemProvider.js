@@ -13,13 +13,13 @@ export default {
         label: fun.name,
         kind: monaco.languages.CompletionItemKind.Function,
         detail: getFunctionSignature(fun),
-        documentation: fun.description
+        documentation: getFunctionHoverMessage(fun)
       })),
       ...builtIns.functions.map((fun) => ({
         label: fun.name,
         kind: monaco.languages.CompletionItemKind.Function,
         detail: getFunctionSignature(fun),
-        documentation: fun.description
+        documentation: getFunctionHoverMessage(fun)
       })),
       ...variables.map((fun) => ({
         label: fun.name,
@@ -52,4 +52,19 @@ function getFunctionSignature (doc) {
     signature = `(${params.length > 0 ? ` ${params} ` : ''})`
   }
   return `${signature} fun`
+}
+
+/**
+ * Generate markdown text for documentation of a function.
+ * @param {object} doc DocParser output object for a function
+ * @returns Markdown object that document the function
+ */
+export function getFunctionHoverMessage (doc) {
+  return {
+    value: [
+      doc.description,
+      ...doc.params.map((param) => `*@param* \`${param.name}\`${param.description ? ` – ${param.description}` : ''}`),
+      ...doc.returns.map((ret) => `*@return* ${ret.description ? ret.description : `\`\`\`${ret.type}\`\`\``}`)
+    ].join('  \n')
+  }
 }
