@@ -33,16 +33,16 @@ function readChar () {
 
 export function registerBuiltIns (interpreter) {
   registerFunctions({
-    name: 'println',
-    description: 'Print a value and a line break.',
+    name: 'print',
+    description: 'Print a value.',
     params: [{
       name: 'value',
       description: 'Value to print'
     }],
     returns: []
   }, {
-    name: 'print',
-    description: 'Print a value.',
+    name: 'println',
+    description: 'Print a value and a line break.',
     params: [{
       name: 'value',
       description: 'Value to print'
@@ -81,6 +81,13 @@ export function registerBuiltIns (interpreter) {
       description: 'The integer that was read from the input'
     }]
   })
+
+  interpreter.registerBuiltIn({
+    name: 'print',
+    execute: (interpreter) => {
+      print(interpreter._stack.pop().value)
+    }
+  })
  
   interpreter.registerBuiltIn({
     name: 'println',
@@ -90,9 +97,26 @@ export function registerBuiltIns (interpreter) {
   })
 
   interpreter.registerBuiltIn({
-    name: 'print',
-    execute: (interpreter) => {
-      print(interpreter._stack.pop().value)
+    name: 'printf',
+    execute: (interpreter, token) => {
+      const params = interpreter._stack.pop()
+      if (!(params instanceof types.Arr)) {
+        throw new types.Err(`printf expects an :Arr with parameters as second argument but got ${params.getTypeName()} instead`, token)
+      }
+      const formatStr = interpreter._stack.popString().value
+      print(interpreter._builtIns.format(formatStr, params))
+    }
+  })
+
+  interpreter.registerBuiltIn({
+    name: 'printfln',
+    execute: (interpreter, token) => {
+      const params = interpreter._stack.pop()
+      if (!(params instanceof types.Arr)) {
+        throw new types.Err(`printfln expects an :Arr with parameters as second argument but got ${params.getTypeName()} instead`, token)
+      }
+      const formatStr = interpreter._stack.popString().value
+      print(interpreter._builtIns.format(formatStr, params))
     }
   })
 
