@@ -215,11 +215,26 @@ fac: (n :Int -> :Int) {
     this.setState({ code })
   }
 
+  handleDragOver = (e) => {
+    e.preventDefault()
+  }
+
+  handleDrop = (e) => {
+    e.preventDefault()
+    if (e.dataTransfer.files.length > 0) {
+      const reader = new FileReader()
+      reader.onloadend = (e) => this.handleOpen(e.target.result)
+      reader.readAsText(e.dataTransfer.files[0])
+    }
+  }
+
   render() {
     const { code, running, paused } = this.state
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}>
+      <div
+        style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}
+      >
         <Toolbar
           running={running}
           paused={paused}
@@ -252,6 +267,8 @@ fac: (n :Int -> :Int) {
               onChange={this.updateCode}
               readOnly={running}
               style={{ width: '100%', height: '100%' }}
+              onDragOver={this.handleDragOver}
+              onDrop={this.handleDrop}
             />
             <InputOutput
               innerRef={this.setInputOutput}
