@@ -7,6 +7,7 @@ import * as actions from './actions'
 import Err from 'postfixjs/types/Err'
 import Interpreter from 'postfixjs/Interpreter'
 import Lexer from 'postfixjs/Lexer'
+import { saveAs } from 'file-saver'
 import { registerBuiltIns } from './interpreter'
 import Toolbar from './components/Toolbar/Toolbar'
 import InputOutput from './components/InputOutput/InputOutput'
@@ -205,6 +206,15 @@ fac: (n :Int -> :Int) {
     this._repl.layout()
   }
 
+  handleSave = () => {
+    const filename = `postfix-${new Date().toISOString()}.pf`
+    saveAs(new Blob([this.state.code], { type: 'text/plain;charset=utf-8' }), filename)
+  }
+
+  handleOpen = (code) => {
+    this.setState({ code })
+  }
+
   render() {
     const { code, running, paused } = this.state
 
@@ -217,6 +227,8 @@ fac: (n :Int -> :Int) {
           onPause={this.pauseProgram}
           onStop={this.stopProgram}
           onStep={this.stepProgram}
+          onSave={this.handleSave}
+          onOpen={this.handleOpen}
         />
         <SplitPane
           split='vertical'
