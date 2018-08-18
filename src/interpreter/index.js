@@ -1,4 +1,5 @@
 import * as types from 'postfixjs/types'
+import { format } from 'postfixjs/operators/impl/format'
 import * as actions from '../actions'
 import store from '../store'
 import { registerFunctions } from './doc'
@@ -104,7 +105,7 @@ export function registerBuiltIns (interpreter) {
         throw new types.Err(`printf expects an :Arr with parameters as second argument but got ${params.getTypeName()} instead`, token)
       }
       const formatStr = interpreter._stack.popString().value
-      print(interpreter._builtIns.format(formatStr, params))
+      print(format(formatStr, params))
     }
   })
 
@@ -116,7 +117,7 @@ export function registerBuiltIns (interpreter) {
         throw new types.Err(`printfln expects an :Arr with parameters as second argument but got ${params.getTypeName()} instead`, token)
       }
       const formatStr = interpreter._stack.popString().value
-      print(interpreter._builtIns.format(formatStr, params))
+      print(format(formatStr, params))
     }
   })
 
