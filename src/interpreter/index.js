@@ -38,7 +38,8 @@ export function registerBuiltIns (interpreter) {
     description: 'Print a value.',
     params: [{
       name: 'value',
-      description: 'Value to print'
+      description: 'Value to print',
+      type: ':Obj'
     }],
     returns: []
   }, {
@@ -46,7 +47,34 @@ export function registerBuiltIns (interpreter) {
     description: 'Print a value and a line break.',
     params: [{
       name: 'value',
-      description: 'Value to print'
+      description: 'Value to print',
+      type: ':Obj'
+    }],
+    returns: []
+  }, {
+    name: 'printf',
+    description: 'Format the given string using the given parameters and print it. This uses a C-style format string, e.g. `%d` is used for integers, `%s` for strings and so on.',
+    params: [{
+      name: 'format',
+      description: 'Format string',
+      type: ':Str'
+    }, {
+      name: 'params',
+      description: 'Parameters',
+      type: ':Arr'
+    }],
+    returns: []
+  }, {
+    name: 'printfln',
+    description: 'Format the given string using the given parameters and print it and a line break. This uses a C-style format string, e.g. `%d` is used for integers, `%s` for strings and so on.',
+    params: [{
+      name: 'format',
+      description: 'Format string',
+      type: ':Str'
+    }, {
+      name: 'params',
+      description: 'Parameters',
+      type: ':Arr'
     }],
     returns: []
   }, {
@@ -117,7 +145,7 @@ export function registerBuiltIns (interpreter) {
         throw new types.Err(`printfln expects an :Arr with parameters as second argument but got ${params.getTypeName()} instead`, token)
       }
       const formatStr = interpreter._stack.popString().value
-      print(format(formatStr, params))
+      print(format(formatStr, params) + '\n')
     }
   })
 
