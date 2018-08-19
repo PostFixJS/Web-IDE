@@ -17,7 +17,8 @@ export default {
     'lam',
     'true',
     'false',
-    'err'
+    'err',
+    'debugger'
   ],
   brackets: [
     ['(', ')', 'delimiter.parenthesis'],

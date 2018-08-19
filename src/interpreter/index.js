@@ -109,6 +109,11 @@ export function registerBuiltIns (interpreter) {
       type: ':Int',
       description: 'The integer that was read from the input'
     }]
+  }, {
+    name: 'debugger',
+    description: 'Pause the program execution and invoke the debugger. This is equivalent to setting a breakpoint.',
+    params: [],
+    returns: []
   })
 
   interpreter.registerBuiltIn({
@@ -185,5 +190,10 @@ export function registerBuiltIns (interpreter) {
       }
       interpreter._stack.push(new types.Int(int))
     }
+  })
+
+  interpreter.registerBuiltIn({
+    name: 'debugger',
+    execute: () => {}
   })
 }

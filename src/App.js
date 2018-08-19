@@ -83,7 +83,7 @@ fac: (n :Int -> :Int) {
         this.showStack()
       } else {
         // TODO check for breakpoint more efficiently?
-        if (this.breakpoints.some(({position}) => position.line === value.line && position.col === value.col)) {
+        if (value.token === 'debugger' || this.breakpoints.some(({position}) => position.line === value.line && position.col === value.col)) {
           this.pauseProgram()
         } else {
           this._timeoutId = setImmediate(this.step)
