@@ -9,12 +9,15 @@ import CompletionItemProvider from './monaco-integration/CompletionItemProvider'
 import * as snippetProviders from './monaco-integration/snippets'
 
 export default class Editor extends React.Component {
+  disposables = []
+
   componentDidMount () {
     window.addEventListener('resize', this.updateEditorSize)
   }
 
   componentWillUnmount () {
     window.removeEventListener('resize', this.updateEditorSize)
+    this.disposables.forEach((d) => d.dispose())
   }
   
   updateEditorSize = () => this.editor.layout()
@@ -44,9 +47,31 @@ export default class Editor extends React.Component {
     editor.updateOptions({
       readOnly: this.props.readOnly
     })
-    editor.onDidAttemptReadOnlyEdit((e) => {
-      this.showMessage('You cannot edit the code while the program is running.')
-    })
+    this.disposables.push(
+      editor.onDidAttemptReadOnlyEdit((e) => {
+        this.showMessage('You cannot edit the code while the program is running.')
+      }),
+      editor.onMouseUp(this.handleEditorMouseUp),
+      editor.addAction({
+        id: 'toggle-breakpoint',
+        label: 'Toggle Breakpoint',
+        keybindings: [this.monaco.KeyCode.F9],
+        contextMenuGroupId: '1_modification',
+        run: (editor) => {
+          const position = editor.getPosition()
+          this.props.onToggleBreakpoint({ line: position.lineNumber - 1, col: position.column - 1 })
+        }
+      })
+    )
+  }
+
+  handleEditorMouseUp = (e) => {
+    if (e.target.element.classList.contains('breakpoint')) {
+      this.props.onRemoveBreakpoint({
+        col: e.target.position.column - 1,
+        line: e.target.position.lineNumber - 1
+      })
+    }
   }
 
   setRootRef = (ref) => this._rootRef = ref
@@ -78,6 +103,9 @@ export default class Editor extends React.Component {
       code,
       onChange,
       readOnly,
+      onAddBreakpoint,
+      onRemoveBreakpoint,
+      onToggleBreakpoint,
       ...other
     } = this.props
 
@@ -105,5 +133,8 @@ Editor.defaultProps = {
 Editor.propTypes = {
   code: PropTypes.string,
   onChange: PropTypes.func,
-  readOnly: PropTypes.bool
+  readOnly: PropTypes.bool,
+  onAddBreakpoint: PropTypes.func.isRequired,
+  onRemoveBreakpoint: PropTypes.func.isRequired,
+  onToggleBreakpoint: PropTypes.func.isRequired
 }

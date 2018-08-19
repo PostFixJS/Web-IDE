@@ -40,6 +40,15 @@ body {
   color: #777 !important;
 }
 
+.breakpoint::before {
+  color: red;
+  content: "🌑";
+  display: inline-block;
+  margin: 0 2px;
+  vertical-align: middle;
+  cursor: default;
+}
+
 .Resizer {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
