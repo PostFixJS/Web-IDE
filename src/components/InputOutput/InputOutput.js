@@ -93,6 +93,7 @@ class InputOutput extends React.Component {
     const {
       classes,
       input,
+      inputPosition,
       output,
       onInputChange,
       readOnly,
