@@ -48,14 +48,6 @@ fac: (n :Int -> :Int) {
 
   componentDidMount () {
     this.updateCode(this.state.code)
-    this._editor.editor.onMouseUp((e) => {
-      if (e.target.element.classList.contains('breakpoint')) {
-        this.unsetBreakpoint({
-          col: e.target.position.column - 1,
-          line: e.target.position.lineNumber - 1
-        })
-      }
-    })
   }
 
   setEditor = (ref) => {
@@ -155,40 +147,8 @@ fac: (n :Int -> :Int) {
     }
   }
 
-  setBreakpoint (pos) {
-    const [newBreakpoint] = this._editor.editor.deltaDecorations([], [{
-      range: new this._editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1),
-      options: {
-        isWholeLine: false,
-        beforeContentClassName: 'breakpoint',
-        stickiness: this._editor.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
-      }
-    }])
-    this.breakpoints.push({
-      decorationId: newBreakpoint,
-      position: pos
-    })
-  }
-
-  unsetBreakpoint (pos) {
-    const breakpointIndex = this.breakpoints.findIndex((b) => b.position.col === pos.col && b.position.line === pos.line)
-    if (breakpointIndex >= 0) {
-      const breakpoint = this.breakpoints[breakpointIndex]
-      this.breakpoints.splice(breakpointIndex, 1)
-      this._editor.editor.deltaDecorations([breakpoint.decorationId], [])
-      return true
-    }
-    return false
-  }
-
-  handleAddBreakpoint = (pos) => this.setBreakpoint(pos)
-
-  handleRemoveBreakpoint = (pos) => this.unsetBreakpoint(pos)
-
-  handleToggleBreakpoint = (pos) => {
-    if (!this.unsetBreakpoint(pos)) {
-      this.setBreakpoint(pos)
-    }
+  handleChangeBreakpoints = (breakpoints) => {
+    this.breakpoints = breakpoints
   }
 
   handleInterpreterError (err) {
@@ -319,9 +279,7 @@ fac: (n :Int -> :Int) {
               style={{ width: '100%', height: '100%' }}
               onDragOver={this.handleDragOver}
               onDrop={this.handleDrop}
-              onAddBreakpoint={this.handleAddBreakpoint}
-              onRemoveBreakpoint={this.handleRemoveBreakpoint}
-              onToggleBreakpoint={this.handleToggleBreakpoint}
+              onBreakpointsChange={this.handleChangeBreakpoints}
             />
             <InputOutput
               innerRef={this.setInputOutput}

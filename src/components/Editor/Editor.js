@@ -7,10 +7,11 @@ import LanguageConfiguration from './monaco-integration/LanguageConfiguration'
 import MonarchTokensProvider from './monaco-integration/MonarchTokensProvider'
 import CompletionItemProvider from './monaco-integration/CompletionItemProvider'
 import * as snippetProviders from './monaco-integration/snippets'
-import { getTokenAtOrNext } from './postfixUtil'
+import { getTokenAtOrNext, getTokenAt} from './postfixUtil'
 
 export default class Editor extends React.Component {
   disposables = []
+  breakpoints = []
 
   componentDidMount () {
     window.addEventListener('resize', this.updateEditorSize)
@@ -62,19 +63,102 @@ export default class Editor extends React.Component {
           const position = editor.getPosition()
           const token = getTokenAtOrNext(editor.getValue(), position.lineNumber - 1, position.column - 1)
           if (token) {
-            this.props.onToggleBreakpoint({ line: token.line, col: token.col })
+            this.toggleBreakpoint({ line: token.line, col: token.col })
           }
         }
-      })
+      }),
+      editor.getModel().onDidChangeDecorations(this.handleDecorationsChanged)
     )
+  }
+
+  setBreakpoint (pos) {
+    const [newBreakpoint] = this.editor.deltaDecorations([], [{
+      range: new this.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1),
+      options: {
+        isWholeLine: false,
+        beforeContentClassName: 'breakpoint',
+        stickiness: this.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+      }
+    }])
+    this.breakpoints.push({
+      decorationId: newBreakpoint,
+      position: pos
+    })
+    this.props.onBreakpointsChange(this.breakpoints)
+  }
+
+  unsetBreakpoint (pos) {
+    const breakpointIndex = this.breakpoints.findIndex((b) => b.position.col === pos.col && b.position.line === pos.line)
+    if (breakpointIndex >= 0) {
+      const breakpoint = this.breakpoints[breakpointIndex]
+      this.breakpoints.splice(breakpointIndex, 1)
+      this.editor.deltaDecorations([breakpoint.decorationId], [])
+      this.props.onBreakpointsChange(this.breakpoints)
+      return true
+    }
+    return false
+  }
+
+  toggleBreakpoint (pos) {
+    if (!this.unsetBreakpoint(pos)) {
+      this.setBreakpoint(pos)
+    }
   }
 
   handleEditorMouseUp = (e) => {
     if (e.target.element.classList.contains('breakpoint')) {
-      this.props.onRemoveBreakpoint({
+      this.unsetBreakpoint({
         col: e.target.position.column - 1,
         line: e.target.position.lineNumber - 1
       })
+    }
+  }
+
+  handleDecorationsChanged = () => {
+    const code = this.editor.getValue()
+    let changes = false
+    const newBreakpoints = []
+    const removeBreakpoints = []
+
+    for (let i = 0; i < this.breakpoints.length; i++) {
+      const breakpoint = this.breakpoints[i]
+      const decorationRange = this.editor.getModel().getDecorationRange(breakpoint.decorationId)
+      const token = getTokenAt(code, decorationRange.startLineNumber - 1, decorationRange.startColumn - 1)
+      if (token) {
+        if (breakpoint.position.col !== token.col || breakpoint.position.line !== token.line) {
+          // breakpoint has moved, update it
+          breakpoint.position = {
+            col: token.col,
+            line: token.line
+          }
+          newBreakpoints.push(breakpoint)
+          removeBreakpoints.push(breakpoint.decorationId)
+          changes = true
+        }
+      } else {
+        // breakpoint is not valid anymore
+        this.breakpoints.splice(i, 1)
+        removeBreakpoints.push(breakpoint.decorationId)
+        changes = true
+      }
+    }
+
+    this.editor.deltaDecorations(removeBreakpoints, newBreakpoints.map((breakpoint) => ({
+      range: new this.monaco.Range(
+        breakpoint.position.line + 1, breakpoint.position.col + 1,
+        breakpoint.position.line + 1, breakpoint.position.col + 1),
+      options: {
+        isWholeLine: false,
+        beforeContentClassName: 'breakpoint',
+        stickiness: this.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+      }
+    })))
+      .forEach((decorationId, i) => {
+        newBreakpoints[i].decorationId = decorationId
+      })
+
+    if (changes) {
+      this.props.onBreakpointsChange(this.breakpoints)
     }
   }
 
@@ -107,9 +191,7 @@ export default class Editor extends React.Component {
       code,
       onChange,
       readOnly,
-      onAddBreakpoint,
-      onRemoveBreakpoint,
-      onToggleBreakpoint,
+      onBreakpointsChange,
       ...other
     } = this.props
 
@@ -138,7 +220,5 @@ Editor.propTypes = {
   code: PropTypes.string,
   onChange: PropTypes.func,
   readOnly: PropTypes.bool,
-  onAddBreakpoint: PropTypes.func.isRequired,
-  onRemoveBreakpoint: PropTypes.func.isRequired,
-  onToggleBreakpoint: PropTypes.func.isRequired
+  onBreakpointsChange: PropTypes.func.isRequired
 }
