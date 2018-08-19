@@ -122,7 +122,6 @@ fac: (n :Int -> :Int) {
     clearImmediate(this._timeoutId)
     this.setState({ running: false })
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
-    this.setBreakpoint({ line: 15, col: 2 })
   }
 
   pauseProgram = () => {
