@@ -5,8 +5,9 @@ import { MessageController } from 'monaco-editor/esm/vs/editor/contrib/message/m
 import HoverProvider from './monaco-integration/HoverProvider'
 import LanguageConfiguration from './monaco-integration/LanguageConfiguration'
 import MonarchTokensProvider from './monaco-integration/MonarchTokensProvider'
-import CompletionItemProvider from './monaco-integration/CompletionItemProvider';
+import CompletionItemProvider from './monaco-integration/CompletionItemProvider'
 import * as snippetProviders from './monaco-integration/snippets'
+import { getTokenAtOrNext } from './postfixUtil'
 
 export default class Editor extends React.Component {
   disposables = []
@@ -59,7 +60,10 @@ export default class Editor extends React.Component {
         contextMenuGroupId: '1_modification',
         run: (editor) => {
           const position = editor.getPosition()
-          this.props.onToggleBreakpoint({ line: position.lineNumber - 1, col: position.column - 1 })
+          const token = getTokenAtOrNext(editor.getValue(), position.lineNumber - 1, position.column - 1)
+          if (token) {
+            this.props.onToggleBreakpoint({ line: token.line, col: token.col })
+          }
         }
       })
     )

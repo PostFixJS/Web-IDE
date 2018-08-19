@@ -12,3 +12,16 @@ export function getTokenAt (code, line, col) {
   }
   return null
 }
+
+export function getTokenAtOrNext (code, line, col) {
+  const lexer = new Lexer()
+  lexer.put(code)
+  for (const token of lexer.getTokens()) {
+    if (token.line === line && token.col <= col && token.token.length + token.col >= col) {
+      return token
+    } else if (token.line > line || (token.line === line && token.col > col)) {
+      return token
+    }
+  }
+  return null
+}
