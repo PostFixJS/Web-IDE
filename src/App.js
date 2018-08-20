@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
+import injectSheet from 'react-jss'
+import cx from 'classnames'
 import './App.css';
 import Editor from './components/Editor/Editor'
 import * as actions from './actions'
@@ -14,6 +16,42 @@ import InputOutput from './components/InputOutput/InputOutput'
 import StackViewer from './components/StackViewer/StackViewer'
 import DictViewer from './components/DictViewer/DictViewer'
 import Repl from './components/Repl/Repl'
+
+const styles = {
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    height: '100%',
+    background: '#efefef',
+    padding: 5
+  },
+  card: {
+    background: '#fff',
+    borderRadius: 5,
+    padding: 5,
+    margin: 5
+  },
+  editor: {
+    width: '100%',
+    height: '100%'
+  },
+  editorCard: {
+    width: 'calc(100% - 10px)',
+    height: 'calc(100% - 10px)',
+    margin: 0,
+    padding: 0
+  },
+  stackDict: {
+    width: '100%',
+    overflowY: 'auto'
+  },
+  repl: {
+    width: 'calc(100% - 10px)',
+    height: 'calc(100% - 10px)',
+    position: 'absolute'
+  }
+}
 
 class App extends Component {
   state = {
@@ -242,10 +280,11 @@ fac: (n :Int -> :Int) {
 
   render() {
     const { code, running, paused } = this.state
+    const { classes } = this.props
 
     return (
       <div
-        style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%' }}
+        className={classes.root}
       >
         <Toolbar
           running={running}
@@ -273,16 +312,18 @@ fac: (n :Int -> :Int) {
             onDragFinished={this.handleGridHResize}
             style={{ height: 'auto', position: 'static' }}
           >
-            <Editor
-              ref={this.setEditor}
-              code={code}
-              onChange={this.updateCode}
-              readOnly={running}
-              style={{ width: '100%', height: '100%' }}
-              onDragOver={this.handleDragOver}
-              onDrop={this.handleDrop}
-              onBreakpointsChange={this.handleChangeBreakpoints}
-            />
+            <div className={cx(classes.card, classes.editorCard)}>
+              <Editor
+                ref={this.setEditor}
+                code={code}
+                onChange={this.updateCode}
+                readOnly={running}
+                className={classes.editor}
+                onDragOver={this.handleDragOver}
+                onDrop={this.handleDrop}
+                onBreakpointsChange={this.handleChangeBreakpoints}
+              />
+            </div>
             <InputOutput
               innerRef={this.setInputOutput}
               output={this.props.output}
@@ -299,7 +340,7 @@ fac: (n :Int -> :Int) {
             defaultSize={Math.floor(0.8 * window.innerHeight)}
             style={{ height: 'auto', position: 'static' }}
           >
-            <div style={{ width: '100%', overflowY: 'auto' }}>
+            <div className={cx(classes.card, classes.stackDict)}>
               <StackViewer
                 stack={this.props.stack}
                 invalid={!running || !paused}
@@ -309,10 +350,12 @@ fac: (n :Int -> :Int) {
                 invalid={!running || !paused}
               />
             </div>
-            <Repl
-              ref={this.setRepl}
-              style={{ width: '100%', height: '100%', position: 'absolute' }}
-            />
+            <div className={cx(classes.card, classes.repl)}>
+              <Repl
+                ref={this.setRepl}
+                style={{ width: '100%', height: '100%' }}
+              />
+            </div>
           </SplitPane>
         </SplitPane>
       </div>
@@ -328,4 +371,4 @@ export default connect((state) => ({
 }), (dispatch) => ({
   dispatch,
   onInputChange: (input) => dispatch(actions.setInput(input))
-}))(App)
+}))(injectSheet(styles)(App))
