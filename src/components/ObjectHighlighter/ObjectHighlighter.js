@@ -49,7 +49,9 @@ const keywords = [
   'lam',
   'true',
   'false',
-  'err'
+  'nil',
+  'err',
+  'debugger'
 ]
 
 function getType (value) {

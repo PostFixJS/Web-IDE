@@ -17,6 +17,7 @@ export default {
     'lam',
     'true',
     'false',
+    'nil',
     'err',
     'debugger'
   ],
