@@ -75,7 +75,7 @@ fac: (n :Int -> :Int) {
         this.showStack()
       } else {
         // TODO check for breakpoint more efficiently?
-        if (value.token === 'debugger' || this.breakpoints.some(({position}) => position.line === value.line && position.col === value.col)) {
+        if (value && (value.token === 'debugger' || this.breakpoints.some(({position}) => position && position.line === value.line && position.col === value.col))) {
           this.pauseProgram()
         } else {
           this._timeoutId = setImmediate(this.step)
@@ -173,6 +173,8 @@ fac: (n :Int -> :Int) {
   }
 
   showInterpreterPosition (pos) {
+    if (!pos) return
+
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [
       {
         range: new this._editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
