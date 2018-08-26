@@ -40,6 +40,8 @@ const colors = {
 const keywords = [
   '!',
   'if',
+  'cond',
+  'cond-fun',
   'for',
   'fori',
   'loop',

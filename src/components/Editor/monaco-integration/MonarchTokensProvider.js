@@ -8,6 +8,8 @@ export default {
   keywords: [
     '!',
     'if',
+    'cond',
+    'cond-fun',
     'for',
     'fori',
     'loop',
