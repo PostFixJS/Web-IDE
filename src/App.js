@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
 import injectSheet from 'react-jss'
-import cx from 'classnames'
 import './App.css';
 import Editor from './components/Editor/Editor'
 import * as actions from './actions'
@@ -16,6 +15,7 @@ import InputOutput from './components/InputOutput/InputOutput'
 import StackViewer from './components/StackViewer/StackViewer'
 import DictViewer from './components/DictViewer/DictViewer'
 import Repl from './components/Repl/Repl'
+import Card from './components/Card'
 
 const styles = {
   root: {
@@ -26,12 +26,6 @@ const styles = {
     background: '#efefef',
     padding: 5
   },
-  card: {
-    background: '#fff',
-    borderRadius: 5,
-    padding: 5,
-    margin: 5
-  },
   editor: {
     width: '100%',
     height: '100%'
@@ -39,8 +33,6 @@ const styles = {
   editorCard: {
     width: 'calc(100% - 10px)',
     height: 'calc(100% - 10px)',
-    margin: 0,
-    padding: 0
   },
   stackDict: {
     width: '100%',
@@ -246,13 +238,18 @@ fac: (n :Int -> :Int) {
   }
 
   handleGridHResize = (height) => {
-    this._editor.layout({ height })
+    this._editor.layout({ height: height - 20 })
     this._inputOutput.layout()
   }
 
   handleGridVResize = (width) => {
-    this._editor.layout({ width })
-    this._inputOutput.layout({ width })
+    this._editor.layout({ width: width - 20 })
+    this._inputOutput.layout({ width: width - 30 })
+    this._repl.layout()
+  }
+
+  handleReplResize = (height) => {
+    console.log(height)
     this._repl.layout()
   }
 
@@ -312,7 +309,7 @@ fac: (n :Int -> :Int) {
             onDragFinished={this.handleGridHResize}
             style={{ height: 'auto', position: 'static' }}
           >
-            <div className={cx(classes.card, classes.editorCard)}>
+            <Card className={classes.editorCard}>
               <Editor
                 ref={this.setEditor}
                 code={code}
@@ -323,7 +320,7 @@ fac: (n :Int -> :Int) {
                 onDrop={this.handleDrop}
                 onBreakpointsChange={this.handleChangeBreakpoints}
               />
-            </div>
+            </Card>
             <InputOutput
               innerRef={this.setInputOutput}
               output={this.props.output}
@@ -339,8 +336,13 @@ fac: (n :Int -> :Int) {
             minSize={300}
             defaultSize={Math.floor(0.8 * window.innerHeight)}
             style={{ height: 'auto', position: 'static' }}
+            onChange={this.handleReplResize}
           >
-            <div className={cx(classes.card, classes.stackDict)}>
+            <Card
+              className={classes.stackDict}
+              title='Stack &amp; Dictionaries'
+              scrollable
+            >
               <StackViewer
                 stack={this.props.stack}
                 invalid={!running || !paused}
@@ -349,13 +351,13 @@ fac: (n :Int -> :Int) {
                 dicts={this.props.dicts}
                 invalid={!running || !paused}
               />
-            </div>
-            <div className={cx(classes.card, classes.repl)}>
+            </Card>
+            <Card className={classes.repl} title='REPL'>
               <Repl
                 ref={this.setRepl}
                 style={{ width: '100%', height: '100%' }}
               />
-            </div>
+            </Card>
           </SplitPane>
         </SplitPane>
       </div>

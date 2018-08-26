@@ -2,6 +2,7 @@ import React from 'react'
 import injectSheet from 'react-jss'
 import MonacoEditor from 'react-monaco-editor'
 import * as monaco from 'monaco-editor'
+import Card from '../Card'
 
 const styles = {
   root: {
@@ -80,12 +81,12 @@ class InputOutput extends React.Component {
    */
   layout (dimensions = {}) {
     this.inputEditor.layout({
-      width: dimensions.width / 2 || this._rootRef.clientWidth / 2,
-      height: dimensions.height || this._rootRef.clientHeight
+      width: (dimensions.width / 2 || (this._rootRef.clientWidth - 30) / 2) - 5,
+      height: dimensions.height || (this._rootRef.clientHeight - 20)
     })
     this.outputEditor.layout({
-      width: dimensions.width / 2 || this._rootRef.clientWidth / 2,
-      height: dimensions.height || this._rootRef.clientHeight
+      width: (dimensions.width / 2 || (this._rootRef.clientWidth - 30) / 2) - 5,
+      height: dimensions.height || (this._rootRef.clientHeight - 20)
     })
   }
 
@@ -107,7 +108,7 @@ class InputOutput extends React.Component {
         {...other}
       >
         <div className={classes.editors}>
-          <div className={classes.editorContainer}>
+          <Card className={classes.editorContainer} title='Output'>
             <MonacoEditor
               editorDidMount={this.outputEditorDidMount}
               value={output}
@@ -122,8 +123,8 @@ class InputOutput extends React.Component {
               }}
               language='text'
               />
-          </div>
-          <div className={classes.editorContainer}>
+          </Card>
+          <Card className={classes.editorContainer} title='Input'>
             <MonacoEditor
               editorDidMount={this.inputEditorDidMount}
               value={input}
@@ -140,7 +141,7 @@ class InputOutput extends React.Component {
               }}
               language='text'
             />
-          </div>
+          </Card>
         </div>
       </div>
     )
