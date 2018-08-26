@@ -23,8 +23,10 @@ const styles = {
     flexDirection: 'column',
     width: '100%',
     height: '100%',
-    background: '#efefef',
-    padding: 5
+    background: '#efefef'
+  },
+  toolbar: {
+    padding: '5px 5px 0'
   },
   editor: {
     width: '100%',
@@ -284,6 +286,7 @@ fac: (n :Int -> :Int) {
         className={classes.root}
       >
         <Toolbar
+          className={classes.toolbar}
           running={running}
           paused={paused}
           onRun={this.runProgram}

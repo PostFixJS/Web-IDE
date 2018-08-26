@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import KeyListener from '../KeyListener'
+import Button from './Button'
+import Divider from './Divider'
 
 export default class Toolbar extends React.Component {
   handleOpen = () => {
@@ -25,18 +27,21 @@ export default class Toolbar extends React.Component {
       onPause,
       onStop,
       onStep,
-      onSave
+      onSave,
+      ...other
     } = this.props
 
     return (
-      <div>
+      <div {...other}>
         <KeyListener
           keyCode={79} // O
           ctrl
           onKeyDown={this.handleOpen}
         />
-        <button
+        <Button
           onClick={this.handleOpen}
+          title='Open (Ctrl+O)'
+          icon={require('./icons/open.svg')}
         >
           <input
             type='file'
@@ -46,63 +51,67 @@ export default class Toolbar extends React.Component {
             style={{ display: 'none' }}
             accept='.pf'
           />
-          Open
-        </button>
+        </Button>
         <KeyListener
           keyCode={83} // S
           ctrl
           onKeyDown={onSave}
         />
-        <button
+        <Button
           onClick={onSave}
-        >
-          Save
-        </button>
+          title='Save (Ctrl+S)'
+          icon={require('./icons/save.svg')}
+        />
+        <Divider />
         <KeyListener
           keyCode={116} // F5
           onKeyDown={onRun}
           disabled={running && !paused}
         />
-        <button
+        <Button
           onClick={onRun}
           disabled={running && !paused}
-        >
-          {running ? 'Continue' : 'Run'} (F5)
-        </button>
+          title={`${running ? 'Continue' : 'Run'} (F5)`}
+          label={running ? 'Continue' : 'Run'}
+          icon={require('./icons/run.svg')}
+        />
         <KeyListener
           keyCode={119} // F8
           onKeyDown={onPause}
           disabled={!running || paused}
         />
-        <button
+        <Button
           onClick={onPause}
           disabled={!running || paused}
-        >
-          Pause (F8)
-        </button>
+          title='Pause (F8)'
+          icon={require('./icons/pause.svg')}
+        />
         <KeyListener
           keyCode={117} // F6
           onKeyDown={onStep}
           disabled={!paused && running}
         />
-        <button
+        <Button
           onClick={onStep}
           disabled={!paused && running}
-        >
-          Step (F6)
-        </button>
+          title='Step (F6)'
+          icon={require('./icons/step.svg')}
+        />
         <KeyListener
           keyCode={116} // F5
           ctrl
           onKeyDown={onStop}
           disabled={!running}
         />
-        <button
+        <Button
           onClick={onStop}
           disabled={!running}
-        >
-          Stop (Ctrl+F5)
-        </button>
+          title='Stop (Ctrl+F5)'
+          icon={require('./icons/stop.svg')}
+        />
+        <span style={{ float: 'right', lineHeight: '32px', fontSize: '9pt', marginRight: 5 }}>
+          Icons made by <a href=''>Smashicons</a> from <a href='https://www.flaticon.com'>www.flaticon.com</a>
+        </span>
       </div>
     )
   }
