@@ -8,6 +8,7 @@ import MonarchTokensProvider from './monaco-integration/MonarchTokensProvider'
 import CompletionItemProvider from './monaco-integration/CompletionItemProvider'
 import * as snippetProviders from './monaco-integration/snippets'
 import { getTokenAtOrNext, getTokenAt} from './postfixUtil'
+import ConditionalBreakpointWidget from './ConditionalBreakpointWidget'
 
 export default class Editor extends React.Component {
   disposables = []
@@ -65,6 +66,18 @@ export default class Editor extends React.Component {
           if (token) {
             this.toggleBreakpoint({ line: token.line, col: token.col })
           }
+        }
+      }),
+      editor.addAction({
+        id: 'add-conditional-breakpoint',
+        label: 'Add Conditional Breakpoint',
+        keybindings: [this.monaco.KeyCode.F10],
+        contextMenuGroupId: '1_modification',
+        run: (editor) => {
+          const position = editor.getPosition()
+          const widget = new ConditionalBreakpointWidget(editor)
+          widget.create()
+          widget.show(position, 2)
         }
       }),
       editor.getModel().onDidChangeDecorations(this.handleDecorationsChanged)
