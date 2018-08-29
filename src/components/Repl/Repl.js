@@ -1,9 +1,9 @@
 import React from 'react'
-import MonacoEditor from 'react-monaco-editor'
 import { MessageController } from 'monaco-editor/esm/vs/editor/contrib/message/messageController'
 import Lexer from 'postfixjs/Lexer'
 import Interpreter from 'postfixjs/Interpreter'
 import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
+import OneLineEditor from '../OneLineEditor';
 
 const styles = {
   output: {
@@ -235,25 +235,8 @@ export default class Repl extends React.Component {
             <p key={i} style={styles.line}><ObjectHighlighter objects={line.value}/></p>
           ))}
         </div>
-        <MonacoEditor
-          height={19}
+        <OneLineEditor
           language='postfix'
-          options={{
-            scrollbar: {
-              vertical: 'hidden',
-              horizontal: 'hidden',
-              verticalSliderSize: 0
-            },
-            lineNumbers: 'off',
-            scrollBeyondLastLine: false,
-            minimap: {
-              enabled: false
-            },
-            overviewRulerBorder: false,
-            overviewRulerLanes: 0,
-            hideCursorInOverviewRuler: true,
-            lineDecorationsWidth: 0
-          }}
           editorDidMount={this.editorDidMount}
         />
       </div>
