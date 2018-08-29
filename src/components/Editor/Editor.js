@@ -13,6 +13,7 @@ import ConditionalBreakpointWidget from './ConditionalBreakpointWidget'
 export default class Editor extends React.Component {
   disposables = []
   breakpoints = []
+  breakpointWidget = null
 
   componentDidMount () {
     window.addEventListener('resize', this.updateEditorSize)
@@ -75,9 +76,30 @@ export default class Editor extends React.Component {
         contextMenuGroupId: '1_modification',
         run: (editor) => {
           const position = editor.getPosition()
-          const widget = new ConditionalBreakpointWidget(editor)
+          const widget = new ConditionalBreakpointWidget(editor, () => {
+            this.breakpointWidget.widget.dispose()
+            if (!editor.isFocused()) {
+              editor.setPosition(this.breakpointWidget.position)
+              editor.focus()
+            }
+            this.breakpointWidget = null
+          })
           widget.create()
           widget.show(position, 2)
+          this.breakpointWidget = {
+            widget,
+            position
+          }
+          editor.addCommand(this.monaco.KeyCode.Escape, () => {
+            if (this.breakpointWidget) {
+              this.breakpointWidget.widget.dispose()
+              if (!editor.isFocused()) {
+                editor.setPosition(this.breakpointWidget.position)
+                editor.focus()
+              }
+              this.breakpointWidget = null
+            }
+          })
         }
       }),
       editor.getModel().onDidChangeDecorations(this.handleDecorationsChanged)

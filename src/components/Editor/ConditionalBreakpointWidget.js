@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import * as monaco from 'monaco-editor'
 import { ZoneWidget } from 'monaco-editor/esm/vs/editor/contrib/zoneWidget/zoneWidget'
 import OneLineEditor from '../OneLineEditor';
 
@@ -8,6 +9,10 @@ class Widget extends React.Component {
     setImmediate(() => {
       editor.layout()
       editor.focus()
+    })
+    editor.addCommand(monaco.KeyCode.Enter, () => {
+      // TODO provide actual input
+      this.props.onAccept()
     })
   }
 
@@ -22,6 +27,7 @@ class Widget extends React.Component {
         <OneLineEditor
           language='postfix'
           editorDidMount={this.editorDidMount}
+          options={{ fixedOverflowWidgets: true }}
         />
       </div>
     )
@@ -29,16 +35,17 @@ class Widget extends React.Component {
 }
 
 export default class ConditionalBreakpointWidget extends ZoneWidget {
-  constructor (editor) {
+  constructor (editor, onAccept) {
     super(editor, {
       showFrame: true,
       showArrow: true,
       frameWidth: 1
     })
+    this.onAccept = onAccept
   }
 
   _fillContainer (container) {
-    ReactDOM.render(<Widget />, container)
+    ReactDOM.render(<Widget onAccept={this.onAccept} />, container)
   }
 
   _onWidth(width) {
