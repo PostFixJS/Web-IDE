@@ -2,6 +2,7 @@ import { getTokenAt } from '../postfixUtil'
 import DocParser from 'postfixjs/DocParser'
 import * as monaco from 'monaco-editor'
 import * as builtIns from '../../../interpreter/doc'
+import { getDatadefFunctions } from './datadef'
 
 export default {
   provideHover: (model, position) => {
@@ -14,6 +15,20 @@ export default {
         if (docs.length === 0) { // built-in functions take precedence
           const functions = DocParser.getFunctions(code)
           docs = functions.filter((doc) => doc.name === token.token)
+        }
+        if (docs.length === 0) {
+          const datadefs = DocParser.getDatadefs(code)
+          for (const datadef of datadefs) {
+            // all generated functions start with the datadef name
+            if (token.token.indexOf(datadef.name.substr(1).toLowerCase()) !== 0) {
+              continue
+            }
+            const fun = getDatadefFunctions(datadef).find(({name}) => name === token.token)
+            if (fun) {
+              docs = [fun]
+              break
+            }
+          }
         }
         if (docs.length > 0) {
           const usageMessages = getFunctionHoverMessages(docs)
