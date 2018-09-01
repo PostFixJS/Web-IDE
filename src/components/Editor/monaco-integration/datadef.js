@@ -21,7 +21,7 @@ export function getDatadefFunctions (datadef) {
       params: datadef.fields,
       returns: [{
         type: datadef.name,
-        description: `New ${datadef.name}`
+        description: `New ${datadef.name} instance`
       }]
     }, {
       name: `${datadefName}?`,
