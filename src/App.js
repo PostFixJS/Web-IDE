@@ -106,8 +106,7 @@ fac: (n :Int -> :Int) {
         this.setState({ running: false })
         this.showStack()
       } else {
-        // TODO check for breakpoint more efficiently?
-        if (value && (value.token === 'debugger' || this.breakpoints.some(({position}) => position && position.line === value.line && position.col === value.col))) {
+        if (value && this.shouldBreakAt(value)) {
           this.pauseProgram()
         } else {
           this._timeoutId = setImmediate(this.step)
@@ -121,6 +120,34 @@ fac: (n :Int -> :Int) {
         throw e
       }
     }
+  }
+
+  shouldBreakAt ({ token, line, col }) {
+    if (token === 'debugger') return true
+
+    const breakpoint = this.breakpoints.find(({ position }) => position && position.line === line && position.col === col)
+    if (breakpoint) {
+      switch (breakpoint.type) {
+        case 'expression':
+          // TODO handle infinite loops and errors in expressions
+          const interpreter = this.interpreter.copy()
+          interpreter.runToCompletion(Lexer.parse(breakpoint.expression))
+          if (interpreter._stack.count > 0 && interpreter._stack.pop().value === true) {
+            return true
+          }
+          break
+        case 'hit':
+          // TODO
+          break
+        case 'log':
+          // TODO
+          break
+        default:
+          return true
+      }
+    }
+
+    return false
   }
 
   runProgram = (pauseImmediately = false) => {

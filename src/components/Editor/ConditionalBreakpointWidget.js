@@ -5,21 +5,31 @@ import { ZoneWidget } from 'monaco-editor/esm/vs/editor/contrib/zoneWidget/zoneW
 import OneLineEditor from '../OneLineEditor';
 
 class Widget extends React.Component {
+  state = {
+    type: 'expression'
+  }
+
   editorDidMount = (editor) => {
     setImmediate(() => {
       editor.layout()
       editor.focus()
     })
     editor.addCommand(monaco.KeyCode.Enter, () => {
-      // TODO provide actual input
-      this.props.onAccept()
+      this.props.onAccept({
+        type: this.state.type,
+        expression: editor.getValue()
+      })
     })
+  }
+
+  handleChangeType = (e) => {
+    this.setState({ type: e.target.value })
   }
 
   render () {
     return (
       <div style={{ display: 'flex' }}>
-        <select>
+        <select onChange={this.handleChangeType} value={this.state.type}>
           <option value='expression'>Expression</option>
           <option value='hit'>Hit count</option>
           <option value='log'>Log a message</option>

@@ -76,37 +76,39 @@ export default class Editor extends React.Component {
         contextMenuGroupId: '1_modification',
         run: (editor) => {
           const position = editor.getPosition()
-          const widget = new ConditionalBreakpointWidget(editor, () => {
-            this.breakpointWidget.widget.dispose()
-            if (!editor.isFocused()) {
-              editor.setPosition(this.breakpointWidget.position)
-              editor.focus()
+          const token = getTokenAtOrNext(editor.getValue(), position.lineNumber - 1, position.column - 1)
+          if (token) {
+            const monacoPosition = { lineNumber: token.line + 1, column: token.col + 1 }
+            const widget = new ConditionalBreakpointWidget(editor, ({ type, expression }) => {
+              this.closeBreakpointWidget()
+              this.setBreakpoint(token, type, expression)
+            })
+            widget.create()
+            widget.show(monacoPosition, 2)
+            this.breakpointWidget = {
+              widget,
+              position: monacoPosition
             }
-            this.breakpointWidget = null
-          })
-          widget.create()
-          widget.show(position, 2)
-          this.breakpointWidget = {
-            widget,
-            position
+            editor.addCommand(this.monaco.KeyCode.Escape, this.closeBreakpointWidget)
           }
-          editor.addCommand(this.monaco.KeyCode.Escape, () => {
-            if (this.breakpointWidget) {
-              this.breakpointWidget.widget.dispose()
-              if (!editor.isFocused()) {
-                editor.setPosition(this.breakpointWidget.position)
-                editor.focus()
-              }
-              this.breakpointWidget = null
-            }
-          })
         }
       }),
       editor.getModel().onDidChangeDecorations(this.handleDecorationsChanged)
     )
   }
 
-  setBreakpoint (pos) {
+  closeBreakpointWidget = () => {
+    if (this.breakpointWidget) {
+      this.breakpointWidget.widget.dispose()
+      if (!this.editor.isFocused()) {
+        this.editor.setPosition(this.breakpointWidget.position)
+        this.editor.focus()
+      }
+      this.breakpointWidget = null
+    }
+  }
+
+  setBreakpoint (pos, type = 'unconditional', expression) {
     const [newBreakpoint] = this.editor.deltaDecorations([], [{
       range: new this.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1),
       options: {
@@ -117,7 +119,9 @@ export default class Editor extends React.Component {
     }])
     this.breakpoints.push({
       decorationId: newBreakpoint,
-      position: pos
+      position: pos,
+      type,
+      expression
     })
     this.props.onBreakpointsChange(this.breakpoints)
   }
