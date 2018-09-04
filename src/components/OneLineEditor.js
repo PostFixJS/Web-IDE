@@ -19,6 +19,7 @@ export default function OneLineEditor ({ options, ...other }) {
         overviewRulerBorder: false,
         overviewRulerLanes: 0,
         hideCursorInOverviewRuler: true,
+        renderLineHighlight: 'none',
         lineDecorationsWidth: 0,
         ...options
       }}

@@ -119,7 +119,8 @@ class InputOutput extends React.Component {
                 minimap: {
                   enabled: false
                 },
-                wordWrap: 'on'
+                wordWrap: 'on',
+                renderLineHighlight: 'none'
               }}
               language='text'
               />
