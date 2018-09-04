@@ -1,10 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import injectSheet from 'react-jss'
 import * as monaco from 'monaco-editor'
 import { ZoneWidget } from 'monaco-editor/esm/vs/editor/contrib/zoneWidget/zoneWidget'
 import OneLineEditor from '../OneLineEditor';
 
-class Widget extends React.Component {
+const styles = {
+  select: {
+    border: 'none',
+    background: '#eee'
+  }
+}
+
+class RawWidget extends React.Component {
   constructor (props) {
     super(props)
 
@@ -54,9 +62,10 @@ class Widget extends React.Component {
   }
 
   render () {
+    const { classes } = this.props
     return (
       <div style={{ display: 'flex' }}>
-        <select onChange={this.handleChangeType} value={this.state.type}>
+        <select onChange={this.handleChangeType} value={this.state.type} className={classes.select}>
           <option value='expression'>Expression</option>
           <option value='hit'>Hit count</option>
           <option value='log'>Log a message</option>
@@ -72,6 +81,8 @@ class Widget extends React.Component {
     )
   }
 }
+
+const Widget = injectSheet(styles)(RawWidget)
 
 export default class ConditionalBreakpointWidget extends ZoneWidget {
   constructor (editor, onAccept, breakpoint) {
