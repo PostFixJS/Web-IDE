@@ -78,23 +78,31 @@ export default class Editor extends React.Component {
           const position = editor.getPosition()
           const token = getTokenAtOrNext(editor.getValue(), position.lineNumber - 1, position.column - 1)
           if (token) {
-            const monacoPosition = { lineNumber: token.line + 1, column: token.col + 1 }
-            const widget = new ConditionalBreakpointWidget(editor, ({ type, expression }) => {
-              this.closeBreakpointWidget()
-              this.setBreakpoint(token, type, expression)
-            })
-            widget.create()
-            widget.show(monacoPosition, 2)
-            this.breakpointWidget = {
-              widget,
-              position: monacoPosition
-            }
-            editor.addCommand(this.monaco.KeyCode.Escape, this.closeBreakpointWidget)
+            this.showBreakpointWidget({ lineNumber: token.line + 1, column: token.col + 1 })
           }
         }
       }),
       editor.getModel().onDidChangeDecorations(this.handleDecorationsChanged)
     )
+  }
+
+  showBreakpointWidget = (monacoPosition, breakpoint) => {
+    this.closeBreakpointWidget()
+    const widget = new ConditionalBreakpointWidget(this.editor, ({ type, expression }) => {
+      this.closeBreakpointWidget()
+      if (breakpoint) { // edit the existing breakpoint
+        this.unsetBreakpoint({ line: monacoPosition.lineNumber - 1, col: monacoPosition.column - 1})
+      }
+      // add new breakpoint
+      this.setBreakpoint({ line: monacoPosition.lineNumber - 1, col: monacoPosition.column - 1}, type, expression)
+    }, breakpoint)
+    widget.create()
+    widget.show(monacoPosition, 2)
+    this.breakpointWidget = {
+      widget,
+      position: monacoPosition
+    }
+    this.editor.addCommand(this.monaco.KeyCode.Escape, this.closeBreakpointWidget)
   }
 
   closeBreakpointWidget = () => {
@@ -145,12 +153,23 @@ export default class Editor extends React.Component {
   }
 
   handleEditorMouseUp = (e) => {
-    // TODO allow editing a conditional breakpoint
     if (e.target.element.classList.contains('breakpoint')) {
-      this.unsetBreakpoint({
+      const breakpointPos = {
         col: e.target.position.column - 1,
         line: e.target.position.lineNumber - 1
-      })
+      }
+
+      if (e.event.shiftKey) {
+        this.unsetBreakpoint(breakpointPos)
+        return
+      }
+
+      const breakpoint = this.breakpoints.find(({ position }) => position.col === breakpointPos.col && position.line === breakpointPos.line)
+      if (breakpoint.type === 'unconditional') {
+        this.unsetBreakpoint(breakpointPos)
+      } else {
+        this.showBreakpointWidget(e.target.position, breakpoint)
+      }
     }
   }
 

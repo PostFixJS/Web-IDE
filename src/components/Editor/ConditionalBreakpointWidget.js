@@ -5,8 +5,22 @@ import { ZoneWidget } from 'monaco-editor/esm/vs/editor/contrib/zoneWidget/zoneW
 import OneLineEditor from '../OneLineEditor';
 
 class Widget extends React.Component {
-  state = {
-    type: 'expression'
+  constructor (props) {
+    super(props)
+
+    if (props.breakpoint) {
+      this.state = {
+        expressions: {
+          [props.breakpoint.type]: props.breakpoint.expression
+        },
+        type: props.breakpoint.type
+      }
+    } else {
+      this.state = {
+        expressions: {},
+        type: 'expression'
+      }
+    }
   }
 
   editorDidMount = (editor) => {
@@ -23,7 +37,20 @@ class Widget extends React.Component {
   }
 
   handleChangeType = (e) => {
-    this.setState({ type: e.target.value })
+    const type = e.target.value
+    this.setState((state) => ({
+      type,
+      expression: state.expressions[type]
+    }))
+  }
+
+  handleChangeExpression = (expression) => {
+    this.setState((state) => ({
+      expressions: {
+        ...state.expressions,
+        [state.type]: expression
+      }
+    }))
   }
 
   render () {
@@ -38,6 +65,8 @@ class Widget extends React.Component {
           language='postfix'
           editorDidMount={this.editorDidMount}
           options={{ fixedOverflowWidgets: true }}
+          value={this.state.expressions[this.state.type] || ''}
+          onChange={this.handleChangeExpression}
         />
       </div>
     )
@@ -45,17 +74,23 @@ class Widget extends React.Component {
 }
 
 export default class ConditionalBreakpointWidget extends ZoneWidget {
-  constructor (editor, onAccept) {
+  constructor (editor, onAccept, breakpoint) {
     super(editor, {
       showFrame: true,
       showArrow: true,
       frameWidth: 1
     })
     this.onAccept = onAccept
+    this.breakpoint = breakpoint
   }
 
   _fillContainer (container) {
-    ReactDOM.render(<Widget onAccept={this.onAccept} />, container)
+    ReactDOM.render((
+      <Widget
+        onAccept={this.onAccept}
+        breakpoint={this.breakpoint}
+      />
+    ), container)
   }
 
   _onWidth(width) {
