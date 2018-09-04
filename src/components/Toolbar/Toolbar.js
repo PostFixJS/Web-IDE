@@ -27,6 +27,7 @@ export default class Toolbar extends React.Component {
       onPause,
       onStop,
       onStep,
+      onOpen,
       onSave,
       ...other
     } = this.props
