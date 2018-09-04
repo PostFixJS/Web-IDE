@@ -11,7 +11,9 @@ const styles = {
     overflowX: 'auto',
     fontSize: 14,
     fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
-    padding: 8
+    padding: 8,
+    borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+    marginBottom: 8
   },
   line: {
     margin: 0,
