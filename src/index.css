@@ -46,11 +46,18 @@ body {
 
 .breakpoint::before {
   color: red;
-  content: "🌑";
+  content: "●";
+  font-size: 1.8em;
   display: inline-block;
   margin: 0 2px;
   vertical-align: middle;
   cursor: default;
+}
+
+.breakpoint.expression::before {
+  content: '◒';
+  font-size: 1em;
+  margin-top: -1px;
 }
 
 .Resizer {

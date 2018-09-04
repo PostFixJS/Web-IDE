@@ -113,7 +113,7 @@ export default class Editor extends React.Component {
       range: new this.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1),
       options: {
         isWholeLine: false,
-        beforeContentClassName: 'breakpoint',
+        beforeContentClassName: `breakpoint ${type}`,
         stickiness: this.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
       }
     }])
@@ -145,6 +145,7 @@ export default class Editor extends React.Component {
   }
 
   handleEditorMouseUp = (e) => {
+    // TODO allow editing a conditional breakpoint
     if (e.target.element.classList.contains('breakpoint')) {
       this.unsetBreakpoint({
         col: e.target.position.column - 1,
@@ -188,7 +189,7 @@ export default class Editor extends React.Component {
         breakpoint.position.line + 1, breakpoint.position.col + 1),
       options: {
         isWholeLine: false,
-        beforeContentClassName: 'breakpoint',
+        beforeContentClassName: `breakpoint ${breakpoint.type}`,
         stickiness: this.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
       }
     })))
