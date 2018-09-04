@@ -9,6 +9,7 @@ import CompletionItemProvider from './monaco-integration/CompletionItemProvider'
 import * as snippetProviders from './monaco-integration/snippets'
 import { getTokenAtOrNext, getTokenAt} from './postfixUtil'
 import ConditionalBreakpointWidget from './ConditionalBreakpointWidget'
+import { positionToMonaco, positionFromMonaco } from './monaco-integration/util';
 
 export default class Editor extends React.Component {
   disposables = []
@@ -62,8 +63,8 @@ export default class Editor extends React.Component {
         keybindings: [this.monaco.KeyCode.F9],
         contextMenuGroupId: '1_modification',
         run: (editor) => {
-          const position = editor.getPosition()
-          const token = getTokenAtOrNext(editor.getValue(), position.lineNumber - 1, position.column - 1)
+          const position = positionFromMonaco(editor.getPosition())
+          const token = getTokenAtOrNext(editor.getValue(), position.line, position.col)
           if (token) {
             this.toggleBreakpoint({ line: token.line, col: token.col })
           }
@@ -75,10 +76,10 @@ export default class Editor extends React.Component {
         keybindings: [this.monaco.KeyCode.F10],
         contextMenuGroupId: '1_modification',
         run: (editor) => {
-          const position = editor.getPosition()
-          const token = getTokenAtOrNext(editor.getValue(), position.lineNumber - 1, position.column - 1)
+          const position = positionFromMonaco(editor.getPosition())
+          const token = getTokenAtOrNext(editor.getValue(), position.line, position.col)
           if (token) {
-            this.showBreakpointWidget({ lineNumber: token.line + 1, column: token.col + 1 })
+            this.showBreakpointWidget(positionToMonaco(token))
           }
         }
       }),
@@ -91,10 +92,10 @@ export default class Editor extends React.Component {
     const widget = new ConditionalBreakpointWidget(this.editor, ({ type, expression }) => {
       this.closeBreakpointWidget()
       if (breakpoint) { // edit the existing breakpoint
-        this.unsetBreakpoint({ line: monacoPosition.lineNumber - 1, col: monacoPosition.column - 1})
+        this.unsetBreakpoint(positionFromMonaco(monacoPosition))
       }
       // add new breakpoint
-      this.setBreakpoint({ line: monacoPosition.lineNumber - 1, col: monacoPosition.column - 1}, type, expression)
+      this.setBreakpoint(positionFromMonaco(monacoPosition), type, expression)
     }, breakpoint)
     widget.create()
     widget.show(monacoPosition, 2)
@@ -154,10 +155,7 @@ export default class Editor extends React.Component {
 
   handleEditorMouseUp = (e) => {
     if (e.target.element.classList.contains('breakpoint')) {
-      const breakpointPos = {
-        col: e.target.position.column - 1,
-        line: e.target.position.lineNumber - 1
-      }
+      const breakpointPos = positionFromMonaco(e.target.position)
 
       if (e.event.shiftKey) {
         this.unsetBreakpoint(breakpointPos)
