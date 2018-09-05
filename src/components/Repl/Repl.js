@@ -1,9 +1,9 @@
 import React from 'react'
-import { MessageController } from 'monaco-editor/esm/vs/editor/contrib/message/messageController'
 import Lexer from 'postfixjs/Lexer'
 import Interpreter from 'postfixjs/Interpreter'
 import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
 import OneLineEditor from '../OneLineEditor';
+import { showMessage } from '../Editor/monaco-integration/util'
 
 const styles = {
   output: {
@@ -126,7 +126,7 @@ export default class Repl extends React.Component {
     }, 'editorTextFocus')
 
     editor.onDidAttemptReadOnlyEdit((e) => {
-      MessageController.get(this.editor).showMessage('The previous input is still being executed.', this.editor.getPosition())
+      showMessage(this.editor, 'The previous input is still being executed.')
     })
   }
 

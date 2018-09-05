@@ -1,7 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import MonacoEditor from 'react-monaco-editor'
-import { MessageController } from 'monaco-editor/esm/vs/editor/contrib/message/messageController'
 import HoverProvider from './monaco-integration/HoverProvider'
 import LanguageConfiguration from './monaco-integration/LanguageConfiguration'
 import MonarchTokensProvider from './monaco-integration/MonarchTokensProvider'
@@ -9,7 +8,7 @@ import CompletionItemProvider from './monaco-integration/CompletionItemProvider'
 import * as snippetProviders from './monaco-integration/snippets'
 import { getTokenAtOrNext, getTokenAt} from './postfixUtil'
 import ConditionalBreakpointWidget from './ConditionalBreakpointWidget'
-import { positionToMonaco, positionFromMonaco } from './monaco-integration/util';
+import { positionToMonaco, positionFromMonaco, showMessage } from './monaco-integration/util'
 
 export default class Editor extends React.Component {
   disposables = []
@@ -54,7 +53,7 @@ export default class Editor extends React.Component {
     })
     this.disposables.push(
       editor.onDidAttemptReadOnlyEdit((e) => {
-        this.showMessage('You cannot edit the code while the program is running.')
+        showMessage(this.editor, 'You cannot edit the code while the program is running.')
       }),
       editor.onMouseUp(this.handleEditorMouseUp),
       editor.addAction({
@@ -231,16 +230,6 @@ export default class Editor extends React.Component {
       width: dimensions.width || this._rootRef.clientWidth,
       height: dimensions.height || this._rootRef.clientHeight
     })
-  }
-
-  /**
-   * Show a message at a specific position in the editor.
-   * @public
-   * @param {string} message Message to show
-   * @param {object} position Position to show the message at, defaults to the current cursor position
-   */
-  showMessage(message, position = this.editor.getPosition()) {
-    MessageController.get(this.editor).showMessage(message, position)
   }
 
   render () {

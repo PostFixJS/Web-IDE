@@ -4,6 +4,7 @@ import injectSheet from 'react-jss'
 import * as monaco from 'monaco-editor'
 import { ZoneWidget } from 'monaco-editor/esm/vs/editor/contrib/zoneWidget/zoneWidget'
 import OneLineEditor from '../OneLineEditor';
+import { showMessage } from './monaco-integration/util'
 
 const styles = {
   select: {
@@ -37,10 +38,14 @@ class RawWidget extends React.Component {
       editor.focus()
     })
     editor.addCommand(monaco.KeyCode.Enter, () => {
-      this.props.onAccept({
-        type: this.state.type,
-        expression: editor.getValue()
-      })
+      const { type } = this.state
+      const expression = editor.getValue()
+
+      if (this.state.type === 'hit' && !/^\d+$/.test(expression)) {
+        showMessage(editor, 'Hit count must be a non-negative number.')
+      } else {
+        this.props.onAccept({ type, expression })
+      }
     })
   }
 
