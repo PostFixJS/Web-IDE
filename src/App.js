@@ -128,17 +128,24 @@ fac: (n :Int -> :Int) {
     const breakpoint = this.breakpoints.find(({ position }) => position && position.line === line && position.col === col)
     if (breakpoint) {
       switch (breakpoint.type) {
-        case 'expression':
+        case 'expression': {
           // TODO handle infinite loops and errors in expressions
+          // this._editor.showBreakpointWidget(positionToMonaco(breakpoint.position), breakpoint)
           const interpreter = this.interpreter.copy()
           interpreter.runToCompletion(Lexer.parse(breakpoint.expression))
           if (interpreter._stack.count > 0 && interpreter._stack.pop().value === true) {
             return true
           }
           break
-        case 'hit':
-          // TODO
+        }
+        case 'hit': {
+          breakpoint.hits = (breakpoint.hits || 0) + 1
+          const hitCount = parseInt(breakpoint.expression, 10)
+          if (breakpoint.hits >= hitCount) {
+            return true
+          }
           break
+        }
         case 'log':
           // TODO
           break
@@ -152,6 +159,12 @@ fac: (n :Int -> :Int) {
 
   runProgram = (pauseImmediately = false) => {
     if (!this.state.running) {
+      for (const breakpoint of this.breakpoints) {
+        if (breakpoint.type === 'hit') {
+          breakpoint.hits = 0
+        }
+      }
+
       const lexer = new Lexer()
       lexer.put(this.state.code)
       this.props.dispatch({ type: actions.CLEAR_OUTPUT })
