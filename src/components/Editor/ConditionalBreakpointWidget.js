@@ -71,7 +71,7 @@ class RawWidget extends React.Component {
           <option value='log'>Log a message</option>
         </select>
         <OneLineEditor
-          language='postfix'
+          language={this.state.type === 'expression' ? 'postfix' : 'text'}
           editorDidMount={this.editorDidMount}
           options={{ fixedOverflowWidgets: true }}
           value={this.state.expressions[this.state.type] || ''}
