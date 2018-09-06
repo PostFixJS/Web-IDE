@@ -6,7 +6,6 @@ import './App.css';
 import Editor from './components/Editor/Editor'
 import * as actions from './actions'
 import Err from 'postfixjs/types/Err'
-import Interpreter from 'postfixjs/Interpreter'
 import Lexer from 'postfixjs/Lexer'
 import { saveAs } from 'file-saver'
 import { registerBuiltIns } from './interpreter'
@@ -16,6 +15,7 @@ import StackViewer from './components/StackViewer/StackViewer'
 import DictViewer from './components/DictViewer/DictViewer'
 import Repl from './components/Repl/Repl'
 import Card from './components/Card'
+import Runner from './postfix-runner/PostFixRunner'
 
 const styles = {
   root: {
@@ -69,13 +69,24 @@ fac: (n :Int -> :Int) {
     running: false,
     paused: false
   }
-  interpreter = new Interpreter()
+  runner = new Runner()
   lineHighlightDecorations = []
   breakpoints = []
 
   constructor (props) {
     super(props)
-    registerBuiltIns(this.interpreter)
+    registerBuiltIns(this.runner.interpreter)
+    this.runner.on('position', (position) => {
+      this.setState({ interpreterPosition: position })
+      if (this.shouldBreakAt(position)) {
+        this.pauseProgram()
+      }
+    })
+    this.runner.on('pause', (position) => {
+      this.showInterpreterPosition(position)
+      this.setState({ paused: true })
+    })
+    this.runner.on('continue', () => this.setState({ paused: false }))
   }
 
   componentDidMount () {
@@ -98,29 +109,7 @@ fac: (n :Int -> :Int) {
     this.setState({ code })
   }
 
-  step = () => {
-    try {
-      const { done, value } = this.interpreter.step()
-      this.setState({ interpreterPosition: value })
-      if (done) {
-        this.setState({ running: false })
-        this.showStack()
-      } else {
-        if (value && this.shouldBreakAt(value)) {
-          this.pauseProgram()
-        } else {
-          this._timeoutId = setImmediate(this.step)
-        }
-      }
-      return value
-    } catch (e) {
-      if (e instanceof Err) {
-        this.handleInterpreterError(e)
-      } else {
-        throw e
-      }
-    }
-  }
+  step = () => this.runner.step()
 
   shouldBreakAt ({ token, line, col }) {
     if (token === 'debugger') return true
@@ -129,12 +118,17 @@ fac: (n :Int -> :Int) {
     if (breakpoint) {
       switch (breakpoint.type) {
         case 'expression': {
-          // TODO handle infinite loops and errors in expressions
-          // this._editor.showBreakpointWidget(positionToMonaco(breakpoint.position), breakpoint)
-          const interpreter = this.interpreter.copy()
-          interpreter.runToCompletion(Lexer.parse(breakpoint.expression))
-          if (interpreter._stack.count > 0 && interpreter._stack.pop().value === true) {
-            return true
+          const runner = new Runner()
+          runner.interpreter = this.runner.interpreter.copy()
+          try {
+            await runner.run(Lexer.parse(breakpoint.expression))
+            if (runner.interpreter._stack.count > 0 && runner.interpreter._stack.pop().value === true) {
+              return true
+            }
+          } catch (e) {
+            // TODO handle errors
+            // this._editor.showBreakpointWidget(positionToMonaco(breakpoint.position), breakpoint)
+            console.error(e)
           }
           break
         }
@@ -157,7 +151,7 @@ fac: (n :Int -> :Int) {
     return false
   }
 
-  runProgram = (pauseImmediately = false) => {
+  runProgram = async (pauseImmediately = false) => {
     if (!this.state.running) {
       for (const breakpoint of this.breakpoints) {
         if (breakpoint.type === 'hit') {
@@ -165,58 +159,36 @@ fac: (n :Int -> :Int) {
         }
       }
 
-      const lexer = new Lexer()
-      lexer.put(this.state.code)
-      this.props.dispatch({ type: actions.CLEAR_OUTPUT })
-      this.interpreter.reset()
-      this.interpreter.startRun(lexer.getTokens())
+      try {
+        await this.runner.run(this.state.code, pauseImmediately)
+        this.setState({ running: false })
+        this.showStack()
+      } catch (e) {
+        if (e.message === 'Interrupted') {
+          // TODO this will be a custom exception later
+          this.setState({ running: false, paused: false })
+        } else {
+          this.handleInterpreterError(e)
+        }
+      }
     } else {
       this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
-    }
-
-    if (pauseImmediately === true) {
-      this.setState({ running: true, paused: true })
-    } else {
-      this.setState({ running: true, paused: false })
-      this._timeoutId = setImmediate(this.step)
     }
   }
 
   stopProgram = () => {
-    clearImmediate(this._timeoutId)
+    this.runner.stop()
     this.setState({ running: false })
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
   }
 
-  pauseProgram = () => {
-    this.showInterpreterPosition(this.state.interpreterPosition)
-    this.showStack()
-    clearImmediate(this._timeoutId)
-    this.setState({ paused: true })
-  }
+  pauseProgram = () => this.runner.pause()
 
   stepProgram = () => {
     if (!this.state.running) {
       this.runProgram(true)
     }
-
-    try {
-      const { done, value: pos } = this.interpreter.step()
-      this.setState({ interpreterPosition: pos })
-      if (done) {
-        this.setState({ running: false })
-        this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
-      } else {
-        this.showInterpreterPosition(pos)
-      }
-      this.showStack()
-    } catch (e) {
-      if (e instanceof Err) {
-        this.handleInterpreterError(e)
-      } else {
-        throw e
-      }
-    }
+    this.runner.step()
   }
 
   handleChangeBreakpoints = (breakpoints) => {
@@ -265,12 +237,12 @@ fac: (n :Int -> :Int) {
   }
 
   showStack () {
-    this.props.dispatch(actions.setStack(this.interpreter._stack.getElements().map((obj) => ({
+    this.props.dispatch(actions.setStack(this.runner.interpreter._stack.getElements().map((obj) => ({
       value: obj.toString(),
       type: obj.getTypeName()
     }))))
 
-    this.props.dispatch(actions.setDicts(this.interpreter._dictStack.getDicts().map((dict) => {
+    this.props.dispatch(actions.setDicts(this.runner.interpreter._dictStack.getDicts().map((dict) => {
       return Object.entries(dict).map(([name, value]) => ({
         name,
         value: value.toString(),
