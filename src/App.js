@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
 import injectSheet from 'react-jss'
+import Err from 'postfixjs/types/Err'
 import './App.css';
 import Editor from './components/Editor/Editor'
 import * as actions from './actions'
@@ -13,7 +14,7 @@ import StackViewer from './components/StackViewer/StackViewer'
 import DictViewer from './components/DictViewer/DictViewer'
 import Repl from './components/Repl/Repl'
 import Card from './components/Card'
-import Runner from './postfix-runner/PostFixRunner'
+import Runner, { InterruptedException } from './postfix-runner/PostFixRunner'
 
 const styles = {
   root: {
@@ -74,7 +75,6 @@ fac: (n :Int -> :Int) {
     super(props)
     registerBuiltIns(this.runner.interpreter)
     this.runner.on('position', (position) => {
-      // TODO if this is async, we would have to pause the program first and start it if it shouldn't break (bad)
       this.setState({ interpreterPosition: position })
       if (this.state.paused) {
         this.showInterpreterPosition(position)
@@ -114,19 +114,19 @@ fac: (n :Int -> :Int) {
       try {
         this.setState({ running: true, paused: false })
         await this.runner.run(this.state.code, pauseImmediately)
+        this.setState({ running: false })
         this.showStack()
       } catch (e) {
-        if (e.message === 'Interrupted') {
-          // TODO this will be a custom exception later
-        } else if (e.breakpoint != null) {
-          // TODO show breakpoint evaluation errors
-          // this._editor.showBreakpointWidget(positionToMonaco(breakpoint.position), breakpoint)
-        } else {
-          this.handleInterpreterError(e)
+        if (e instanceof InterruptedException) {
+          this.setState({ running: false })
+        } else if (e instanceof Err) {
+          if (e.breakpoint != null) {
+            // TODO show breakpoint evaluation errors
+            // this._editor.showBreakpointWidget(positionToMonaco(breakpoint.position), breakpoint)
+          } else {
+            this.handleInterpreterError(e)
+          }
         }
-        console.log(e)
-      } finally {
-        this.setState({ running: false })
       }
     } else {
       this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
@@ -135,6 +135,7 @@ fac: (n :Int -> :Int) {
   }
 
   runProgram = () => {
+    this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
     this.run(false)
   }
 

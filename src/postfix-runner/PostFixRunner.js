@@ -56,7 +56,7 @@ export default class PostFixRunner {
         }
       }
     } catch (e) {
-      if (e.message !== 'Interrupted') { // TODO custom exception
+      if (!(e instanceof InterruptedException)) {
         this._rejectRun(e)
       }
     }
@@ -101,7 +101,7 @@ export default class PostFixRunner {
       }
 
       clearImmediate(this._timeoutId)
-      this._rejectRun(new Error('Interrupted')) // TODO throw custom exception
+      this._rejectRun(new InterruptedException())
       this._resolveRun = null
       this._rejectRun = null
     }
@@ -147,7 +147,7 @@ export default class PostFixRunner {
               return true
             }
           } catch (e) {
-            if (e.message === 'Interrupted') { // TODO custom exception
+            if (e instanceof InterruptedException) {
               throw e
             } else {
               e.breakpoint = breakpoint
@@ -174,4 +174,7 @@ export default class PostFixRunner {
 
     return false
   }
+}
+
+export class InterruptedException extends Error {
 }
