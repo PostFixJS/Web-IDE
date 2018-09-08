@@ -14,6 +14,8 @@ const styles = {
 }
 
 class RawWidget extends React.Component {
+  lineHighlightDecorations = []
+
   constructor (props) {
     super(props)
 
@@ -32,7 +34,29 @@ class RawWidget extends React.Component {
     }
   }
 
+  showError (err) {
+    const pos = err.origin
+    this.lineHighlightDecorations = this._editor.deltaDecorations(this.lineHighlightDecorations, [
+      {
+        range: new monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+        options: {
+          isWholeLine: false,
+          className: "errorTokenHighlight",
+          hoverMessage: { value: `Error: ${err.message}` }
+        }
+      },
+      {
+        range: new monaco.Range(pos.line + 1, 1, pos.line + 1, 1),
+        options: {
+          isWholeLine: true,
+          className: "errorLineHighlight"
+        }
+      }
+    ])
+  }
+
   editorDidMount = (editor) => {
+    this._editor = editor
     setImmediate(() => {
       editor.layout()
       editor.focus()
@@ -46,6 +70,9 @@ class RawWidget extends React.Component {
       } else {
         this.props.onAccept({ type, expression })
       }
+    })
+    editor.onDidChangeModelContent(() => {
+      this.lineHighlightDecorations = this._editor.deltaDecorations(this.lineHighlightDecorations, [])
     })
   }
 
@@ -90,7 +117,7 @@ class RawWidget extends React.Component {
 const Widget = injectSheet(styles)(RawWidget)
 
 export default class ConditionalBreakpointWidget extends ZoneWidget {
-  constructor (editor, onAccept, breakpoint) {
+  constructor (editor, onAccept, breakpoint, mountedCallback) {
     super(editor, {
       showFrame: true,
       showArrow: true,
@@ -98,15 +125,21 @@ export default class ConditionalBreakpointWidget extends ZoneWidget {
     })
     this.onAccept = onAccept
     this.breakpoint = breakpoint
+    this.mountedCallback = mountedCallback
+  }
+
+  _setRef = (ref) => {
+    this._widget = ref
   }
 
   _fillContainer (container) {
     ReactDOM.render((
       <Widget
+        innerRef={this._setRef}
         onAccept={this.onAccept}
         breakpoint={this.breakpoint}
       />
-    ), container)
+    ), container, this.mountedCallback)
   }
 
   _onWidth(width) {
@@ -115,5 +148,9 @@ export default class ConditionalBreakpointWidget extends ZoneWidget {
 
   _doLayout(height, width) {
     // TODO
+  }
+
+  showError (err) {
+    this._widget.showError(err)
   }
 }

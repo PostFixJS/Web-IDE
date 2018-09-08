@@ -86,7 +86,7 @@ export default class Editor extends React.Component {
     )
   }
 
-  showBreakpointWidget = (monacoPosition, breakpoint) => {
+  showBreakpointWidget = (monacoPosition, breakpoint, callback) => {
     this.closeBreakpointWidget()
     const widget = new ConditionalBreakpointWidget(this.editor, ({ type, expression }) => {
       this.closeBreakpointWidget()
@@ -95,7 +95,7 @@ export default class Editor extends React.Component {
       }
       // add new breakpoint
       this.setBreakpoint(positionFromMonaco(monacoPosition), type, expression)
-    }, breakpoint)
+    }, breakpoint, callback ? () => callback(widget) : null)
     widget.create()
     widget.show(monacoPosition, 2)
     this.breakpointWidget = {

@@ -15,6 +15,7 @@ import DictViewer from './components/DictViewer/DictViewer'
 import Repl from './components/Repl/Repl'
 import Card from './components/Card'
 import Runner, { InterruptedException } from './postfix-runner/PostFixRunner'
+import { positionToMonaco } from './components/Editor/monaco-integration/util'
 
 const styles = {
   root: {
@@ -121,8 +122,9 @@ fac: (n :Int -> :Int) {
           this.setState({ running: false })
         } else if (e instanceof Err) {
           if (e.breakpoint != null) {
-            // TODO show breakpoint evaluation errors
-            // this._editor.showBreakpointWidget(positionToMonaco(breakpoint.position), breakpoint)
+            this._editor.showBreakpointWidget(positionToMonaco(e.breakpoint.position), e.breakpoint, (widget) => {
+              widget.showError(e)
+            })
           } else {
             this.handleInterpreterError(e)
           }
