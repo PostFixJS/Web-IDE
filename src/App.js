@@ -5,8 +5,6 @@ import injectSheet from 'react-jss'
 import './App.css';
 import Editor from './components/Editor/Editor'
 import * as actions from './actions'
-import Err from 'postfixjs/types/Err'
-import Lexer from 'postfixjs/Lexer'
 import { saveAs } from 'file-saver'
 import { registerBuiltIns } from './interpreter'
 import Toolbar from './components/Toolbar/Toolbar'
@@ -71,22 +69,24 @@ fac: (n :Int -> :Int) {
   }
   runner = new Runner()
   lineHighlightDecorations = []
-  breakpoints = []
 
   constructor (props) {
     super(props)
     registerBuiltIns(this.runner.interpreter)
     this.runner.on('position', (position) => {
+      // TODO if this is async, we would have to pause the program first and start it if it shouldn't break (bad)
       this.setState({ interpreterPosition: position })
-      if (this.shouldBreakAt(position)) {
-        this.pauseProgram()
+      if (this.state.paused) {
+        this.showInterpreterPosition(position)
+        this.showStack()
       }
     })
     this.runner.on('pause', (position) => {
       this.showInterpreterPosition(position)
-      this.setState({ paused: true })
+      this.showStack()
+      this.setState({ running: true, paused: true })
     })
-    this.runner.on('continue', () => this.setState({ paused: false }))
+    this.runner.on('continue', () => this.setState({ running: true, paused: false }))
   }
 
   componentDidMount () {
@@ -109,71 +109,33 @@ fac: (n :Int -> :Int) {
     this.setState({ code })
   }
 
-  step = () => this.runner.step()
-
-  shouldBreakAt ({ token, line, col }) {
-    if (token === 'debugger') return true
-
-    const breakpoint = this.breakpoints.find(({ position }) => position && position.line === line && position.col === col)
-    if (breakpoint) {
-      switch (breakpoint.type) {
-        case 'expression': {
-          const runner = new Runner()
-          runner.interpreter = this.runner.interpreter.copy()
-          try {
-            await runner.run(Lexer.parse(breakpoint.expression))
-            if (runner.interpreter._stack.count > 0 && runner.interpreter._stack.pop().value === true) {
-              return true
-            }
-          } catch (e) {
-            // TODO handle errors
-            // this._editor.showBreakpointWidget(positionToMonaco(breakpoint.position), breakpoint)
-            console.error(e)
-          }
-          break
-        }
-        case 'hit': {
-          breakpoint.hits = (breakpoint.hits || 0) + 1
-          const hitCount = parseInt(breakpoint.expression, 10)
-          if (breakpoint.hits >= hitCount) {
-            return true
-          }
-          break
-        }
-        case 'log':
-          // TODO
-          break
-        default:
-          return true
-      }
-    }
-
-    return false
-  }
-
-  runProgram = async (pauseImmediately = false) => {
-    if (!this.state.running) {
-      for (const breakpoint of this.breakpoints) {
-        if (breakpoint.type === 'hit') {
-          breakpoint.hits = 0
-        }
-      }
-
+  async run (pauseImmediately = false) {
+    if (!this.runner.running) {
       try {
+        this.setState({ running: true, paused: false })
         await this.runner.run(this.state.code, pauseImmediately)
-        this.setState({ running: false })
         this.showStack()
       } catch (e) {
         if (e.message === 'Interrupted') {
           // TODO this will be a custom exception later
-          this.setState({ running: false, paused: false })
+        } else if (e.breakpoint != null) {
+          // TODO show breakpoint evaluation errors
+          // this._editor.showBreakpointWidget(positionToMonaco(breakpoint.position), breakpoint)
         } else {
           this.handleInterpreterError(e)
         }
+        console.log(e)
+      } finally {
+        this.setState({ running: false })
       }
     } else {
       this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
+      this.runner.continue()
     }
+  }
+
+  runProgram = () => {
+    this.run(false)
   }
 
   stopProgram = () => {
@@ -185,14 +147,15 @@ fac: (n :Int -> :Int) {
   pauseProgram = () => this.runner.pause()
 
   stepProgram = () => {
-    if (!this.state.running) {
-      this.runProgram(true)
+    if (!this.runner.running) {
+      this.run(true)
+    } else {
+      this.runner.step()
     }
-    this.runner.step()
   }
 
   handleChangeBreakpoints = (breakpoints) => {
-    this.breakpoints = breakpoints
+    this.runner.breakpoints = breakpoints
   }
 
   handleInterpreterError (err) {
