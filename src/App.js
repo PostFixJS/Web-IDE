@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
 import injectSheet from 'react-jss'
+import { debounce } from 'throttle-debounce'
 import './App.css';
 import Editor from './components/Editor/Editor'
 import * as actions from './actions'
@@ -92,7 +93,18 @@ fac: (n :Int -> :Int) {
 
   componentDidMount () {
     this.updateCode(this.state.code)
+    window.addEventListener('resize', this.handleResize)
   }
+
+  componentWillUnmount () {
+    window.removeEventListener('resize', this.handleResize)
+  }
+
+  handleResize = debounce(200, () => {
+    this._editor.layout()
+    this._inputOutput.layout()
+    this._repl.layout()
+  })
 
   setEditor = (ref) => {
     this._editor = ref
@@ -252,7 +264,6 @@ fac: (n :Int -> :Int) {
   }
 
   handleReplResize = (height) => {
-    console.log(height)
     this._repl.layout()
   }
 
