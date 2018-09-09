@@ -153,7 +153,7 @@ export default class Editor extends React.Component {
   }
 
   handleEditorMouseUp = (e) => {
-    if (e.target.element.classList.contains('breakpoint')) {
+    if (e.event.leftButton && e.target.element.classList.contains('breakpoint')) {
       const breakpointPos = positionFromMonaco(e.target.position)
 
       if (e.event.shiftKey) {
