@@ -21,7 +21,8 @@ const styles = {
     userSelect: 'none'
   },
   content: {
-    flex: 1
+    flex: 1,
+    overflow: 'hidden'
   },
   scrollable: {
     overflow: 'auto'
