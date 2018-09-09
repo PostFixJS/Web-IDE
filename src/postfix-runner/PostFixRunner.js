@@ -13,7 +13,7 @@ export default class PostFixRunner {
     return this._resolveRun != null
   }
 
-  run (code, pauseImmediately = false) {
+  run (code, pauseImmediately = false, reset = true) {
     for (const breakpoint of this.breakpoints) {
       if (breakpoint.type === 'hit') {
         breakpoint.hits = 0
@@ -22,7 +22,9 @@ export default class PostFixRunner {
 
     const lexer = new Lexer()
     lexer.put(code)
-    this.interpreter.reset()
+    if (reset) {
+      this.interpreter.reset()
+    }
     this.interpreter.startRun(lexer.getTokens())
 
     return new Promise((resolve, reject) => {
@@ -177,4 +179,11 @@ export default class PostFixRunner {
 }
 
 export class InterruptedException extends Error {
+  constructor () {
+    super('Interrupted')
+
+    // workaround for Babel not supporting inheritance from Error
+    this.constructor = InterruptedException 
+    this.__proto__ = InterruptedException.prototype
+  }
 }

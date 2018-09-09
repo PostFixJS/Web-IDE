@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
 import injectSheet from 'react-jss'
-import Err from 'postfixjs/types/Err'
 import './App.css';
 import Editor from './components/Editor/Editor'
 import * as actions from './actions'
@@ -118,9 +117,10 @@ fac: (n :Int -> :Int) {
         this.setState({ running: false })
         this.showStack()
       } catch (e) {
+        this.showStack()
         if (e instanceof InterruptedException) {
           this.setState({ running: false })
-        } else if (e instanceof Err) {
+        } else {
           if (e.breakpoint != null) {
             this._editor.showBreakpointWidget(positionToMonaco(e.breakpoint.position), e.breakpoint, (widget) => {
               widget.showError(e)

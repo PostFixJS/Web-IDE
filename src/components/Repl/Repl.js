@@ -1,6 +1,5 @@
 import React from 'react'
-import Lexer from 'postfixjs/Lexer'
-import Interpreter from 'postfixjs/Interpreter'
+import Runner, { InterruptedException } from '../../postfix-runner/PostFixRunner'
 import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
 import OneLineEditor from '../OneLineEditor';
 import { showMessage } from '../Editor/monaco-integration/util'
@@ -51,7 +50,7 @@ export default class Repl extends React.Component {
     currentInput: '',
     oldInputIndex: -1
   }
-  interpreter = new Interpreter()
+  runner = new Runner()
 
   editorDidMount = (editor, monaco) => {
     this.editor = editor
@@ -61,8 +60,6 @@ export default class Repl extends React.Component {
 
       const code = editor.getValue()
       editor.setValue('')
-      this.interpreter.startRun(Lexer.parse(code))
-      this._timeoutId = setImmediate(this.step)
       this.setState((state) => ({
         lines: [
           ...state.lines,
@@ -71,6 +68,29 @@ export default class Repl extends React.Component {
         running: true,
         oldInputIndex: -1
       }))
+
+      this.runner.run(code, false, false)
+        .then(() => {
+          this.setState((state) => ({
+            lines: [
+              ...state.lines,
+              { type: 'output', value: this.runner.interpreter._stack._stack.map((obj) => obj.toString()) }
+            ],
+            running: false
+          }))
+        })
+        .catch((e) => {
+          console.log(e instanceof InterruptedException, e)
+          if (!(e instanceof InterruptedException)) {
+            this.setState((state) => ({
+              lines: [
+                ...state.lines,
+                { type: 'error', value: e.message }
+              ],
+              running: false
+            }))
+          }
+        })
     }, 'editorTextFocus')
 
     editor.addCommand(monaco.KeyCode.UpArrow, () => {
@@ -141,45 +161,12 @@ export default class Repl extends React.Component {
     }
   }
 
-  componentWillUnmount () {
-    if (this._timeoutId) {
-      clearImmediate(this._timeoutId)
-    }
-  }
-
   setRootRef = (ref) => {
     this._rootRef = ref
   }
 
   setOutputRef = (ref) => {
     this._output = ref
-  }
-
-  step = () => {
-    try {
-      const { done } = this.interpreter.step()
-      if (done) {
-        this.setState((state) => ({
-          lines: [
-            ...state.lines,
-            { type: 'output', value: this.interpreter._stack._stack.map((obj) => obj.toString()) }
-          ],
-          running: false
-        }))
-        clearImmediate(this._timeoutId)
-      } else {
-        this._timeoutId = setImmediate(this.step)
-      }
-    } catch (e) {
-      this.setState((state) => ({
-        lines: [
-          ...state.lines,
-          { type: 'error', value: e.message }
-        ],
-        running: false
-      }))
-      clearImmediate(this._timeoutId)
-    }
   }
 
   /**
@@ -202,11 +189,11 @@ export default class Repl extends React.Component {
   }
 
   handleCancel = () => {
-    clearImmediate(this._timeoutId)
+    this.runner.stop()
     this.setState((state) => ({
       lines: [
         ...state.lines,
-        { type: 'output', value: this.interpreter._stack._stack.map((obj) => obj.toString()) }
+        { type: 'output', value: this.runner.interpreter._stack._stack.map((obj) => obj.toString()) }
       ],
       running: false
     }))
