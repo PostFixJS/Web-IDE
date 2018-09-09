@@ -28,9 +28,9 @@ const styles = {
   }
 }
 
-function Card ({ classes, children, className, title, scrollable = false }) {
+function Card ({ classes, children, className, title, scrollable = false, ...other }) {
   return (
-    <div className={cx(classes.root, className)}>
+    <div className={cx(classes.root, className)} {...other}>
       {title && <div className={classes.title}>{title}</div>}
       <div className={cx(classes.content, {[classes.scrollable]: scrollable })}>
         {children}

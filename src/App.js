@@ -66,7 +66,8 @@ fac: (n :Int -> :Int) {
 6 fac
 `,
     running: false,
-    paused: false
+    paused: false,
+    showStack: 'program'
   }
   runner = new Runner()
   lineHighlightDecorations = []
@@ -215,7 +216,29 @@ fac: (n :Int -> :Int) {
         type: value.getTypeName()
       })).sort((a, b) => a.name.localeCompare(b.name))
     }).reverse()))
+
+    this.setState({ showStack: 'program' })
   }
+
+  updateReplStack = (interpreter) => {
+    this.props.dispatch(actions.setReplStack(interpreter._stack.getElements().map((obj) => ({
+      value: obj.toString(),
+      type: obj.getTypeName()
+    }))))
+
+    this.props.dispatch(actions.setReplDicts(interpreter._dictStack.getDicts().map((dict) => {
+      return Object.entries(dict).map(([name, value]) => ({
+        name,
+        value: value.toString(),
+        type: value.getTypeName()
+      })).sort((a, b) => a.name.localeCompare(b.name))
+    }).reverse()))
+
+    this.setState({ showStack: 'repl' })
+  }
+
+  showReplStack = () => this.setState({ showStack: 'repl' })
+  showProgramStack = () => this.setState({ showStack: 'program' })
 
   handleGridHResize = (height) => {
     this._editor.layout({ height: height - 20 })
@@ -256,7 +279,7 @@ fac: (n :Int -> :Int) {
   }
 
   render() {
-    const { code, running, paused } = this.state
+    const { code, running, paused, showStack } = this.state
     const { classes } = this.props
 
     return (
@@ -290,7 +313,7 @@ fac: (n :Int -> :Int) {
             onDragFinished={this.handleGridHResize}
             style={{ height: 'auto', position: 'static' }}
           >
-            <Card className={classes.editorCard}>
+            <Card className={classes.editorCard} onClick={this.showProgramStack}>
               <Editor
                 ref={this.setEditor}
                 code={code}
@@ -321,22 +344,23 @@ fac: (n :Int -> :Int) {
           >
             <Card
               className={classes.stackDict}
-              title='Stack &amp; Dictionaries'
+              title={showStack === 'repl' ? 'Stack & Dictionaries (REPL)' : 'Stack & Dictionaries'}
               scrollable
             >
               <StackViewer
-                stack={this.props.stack}
-                invalid={!running || !paused}
+                stack={showStack === 'repl' ? this.props.replStack : this.props.stack}
+                invalid={showStack === 'program' && (!running || !paused)}
               />
               <DictViewer
-                dicts={this.props.dicts}
-                invalid={!running || !paused}
+                dicts={showStack === 'repl' ? this.props.replDicts : this.props.dicts}
+                invalid={showStack === 'program' && (!running || !paused)}
               />
             </Card>
-            <Card className={classes.repl} title='REPL'>
+            <Card className={classes.repl} title='REPL' onClick={this.showReplStack}>
               <Repl
                 ref={this.setRepl}
                 style={{ width: '100%', height: '100%' }}
+                onExecutionFinished={this.updateReplStack}
               />
             </Card>
           </SplitPane>
@@ -350,7 +374,9 @@ export default connect((state) => ({
   input: state.input,
   output: state.output,
   stack: state.stack,
-  dicts: state.dicts
+  dicts: state.dicts,
+  replStack: state.replStack,
+  replDicts: state.replDicts
 }), (dispatch) => ({
   dispatch,
   onInputChange: (input) => dispatch(actions.setInput(input))

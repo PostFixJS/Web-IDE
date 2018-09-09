@@ -78,9 +78,9 @@ export default class Repl extends React.Component {
             ],
             running: false
           }))
+          if (this.props.onExecutionFinished) this.props.onExecutionFinished(this.runner.interpreter)
         })
         .catch((e) => {
-          console.log(e instanceof InterruptedException, e)
           if (!(e instanceof InterruptedException)) {
             this.setState((state) => ({
               lines: [
@@ -90,6 +90,7 @@ export default class Repl extends React.Component {
               running: false
             }))
           }
+          if (this.props.onExecutionFinished) this.props.onExecutionFinished(this.runner.interpreter)
         })
     }, 'editorTextFocus')
 
@@ -202,6 +203,7 @@ export default class Repl extends React.Component {
   render () {
     const {
       style,
+      onExecutionFinished,
       ...other
     } = this.props
 
