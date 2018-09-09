@@ -229,6 +229,7 @@ export default class Repl extends React.Component {
         <OneLineEditor
           language='postfix'
           editorDidMount={this.editorDidMount}
+          options={{ fixedOverflowWidgets: true }}
         />
       </div>
     )
