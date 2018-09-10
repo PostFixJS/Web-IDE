@@ -75,11 +75,13 @@ class ExpandableItem extends React.Component {
 }
 
 ExpandableItem.propTypes = {
-  stack: PropTypes.arrayOf(PropTypes.shape({
+  classes: PropTypes.object.isRequired,
+  depth: PropTypes.number.isRequired,
+  item: PropTypes.shape({
+    name: PropTypes.string,
     type: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired
-  })).isRequired,
-  invalid: PropTypes.bool
+  }).isRequired
 }
 
 const StyledExpandableItem = injectStyles(styles)(ExpandableItem)
