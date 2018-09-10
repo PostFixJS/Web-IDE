@@ -35,7 +35,7 @@ class StackViewer extends React.Component {
               item={item}
               depth={0}
             />
-          ): (
+          ) : (
             <tr key={i}>
               <td className={classes.type}>{item.type}</td>
               <td><ObjectHighlighter objects={[item.value]}/></td>

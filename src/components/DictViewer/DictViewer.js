@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
+import ExpandableItem from './ExpandableItem'
 
 const styles = {
   table: {
@@ -33,7 +34,13 @@ export default class DictViewer extends React.Component {
               <tr>
                 <td colSpan={3}>Dictionary #{i}</td>
               </tr>
-              {dict.map((item, i) => (
+              {dict.map((item, i) => item.children ? (
+                <ExpandableItem
+                  key={i}
+                  item={item}
+                  depth={0}
+                />
+              ) : (
                 <tr key={i} style={{ paddingLeft: 16 }}>
                   <td>{item.name}</td>
                   <td style={styles.type}>{item.type}</td>

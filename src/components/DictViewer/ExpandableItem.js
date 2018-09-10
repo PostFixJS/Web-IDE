@@ -35,15 +35,15 @@ class ExpandableItem extends React.Component {
     return (
       <React.Fragment>
         <tr onClick={this.toggle} className={classes.topRow}>
-          <td
-            className={classes.type}
-            style={{ paddingLeft: 16 * depth }}
-          >
+          <td style={{ paddingLeft: 16 * depth }}>
             <ShowHideToggle
               show={expanded}
               size={6}
               style={{ marginRight: 4 }}
             />
+            {item.name}
+          </td>
+          <td className={classes.type}>
             {item.type}
           </td>
           <td>
@@ -59,9 +59,11 @@ class ExpandableItem extends React.Component {
         ) : (
           <tr key={i} className={classes.nestedRow}>
             <td
-              className={classes.type}
               style={{ paddingLeft: 16 * (depth + 1) }}
             >
+              {child.name}
+            </td>
+            <td className={classes.type}>
               {child.type}
             </td>
             <td><ObjectHighlighter objects={[child.value]}/></td>
