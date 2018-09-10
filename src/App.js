@@ -3,10 +3,11 @@ import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
 import injectSheet from 'react-jss'
 import { debounce } from 'throttle-debounce'
+import { saveAs } from 'file-saver'
+import * as types from 'postfixjs/types'
 import './App.css';
 import Editor from './components/Editor/Editor'
 import * as actions from './actions'
-import { saveAs } from 'file-saver'
 import { registerBuiltIns } from './interpreter'
 import Toolbar from './components/Toolbar/Toolbar'
 import InputOutput from './components/InputOutput/InputOutput'
@@ -50,21 +51,21 @@ const styles = {
 class App extends Component {
   state = {
     code: `fac_tr: (n :Int, acc :Int -> :Int) {
-    n 1 >
-    { acc n * n 1 - swap fac_tr }
-    { acc } if
-} fun
-
-#<
-Calculate the factorial of a number.
-@param n A number
-@return Factorial of n
->#
-fac: (n :Int -> :Int) {
-    n 1 fac_tr
-} fun
-
-6 fac
+      n 1 >
+      { acc n * n 1 - swap fac_tr }
+      { acc } if
+  } fun
+  
+  #<
+  Calculate the factorial of a number.
+  @param n A number
+  @return Factorial of n
+  >#
+  fac: (n :Int -> :Int) {
+      n 1 fac_tr
+  } fun
+  
+  6 fac
 `,
     running: false,
     paused: false,
@@ -215,17 +216,21 @@ fac: (n :Int -> :Int) {
     ])
   }
 
-  showStack () {
-    this.props.dispatch(actions.setStack(this.runner.interpreter._stack.getElements().map((obj) => ({
+  static mapObjectForViewer (obj) {
+    return {
       value: obj.toString(),
+      children: obj instanceof types.Arr ? obj.items.map(App.mapObjectForViewer) : null,
       type: obj.getTypeName()
-    }))))
+    }
+  }
+
+  showStack () {
+    this.props.dispatch(actions.setStack(this.runner.interpreter._stack.getElements().map(App.mapObjectForViewer)))
 
     this.props.dispatch(actions.setDicts(this.runner.interpreter._dictStack.getDicts().map((dict) => {
       return Object.entries(dict).map(([name, value]) => ({
         name,
-        value: value.toString(),
-        type: value.getTypeName()
+        ...App.mapObjectForViewer(value)
       })).sort((a, b) => a.name.localeCompare(b.name))
     }).reverse()))
 

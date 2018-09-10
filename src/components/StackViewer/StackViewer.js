@@ -1,6 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import injectStyles from 'react-jss'
 import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
+import ExpandableItem from './ExpandableItem'
 
 const styles = {
   table: {
@@ -14,22 +16,28 @@ const styles = {
   }
 }
 
-export default class StackViewer extends React.Component {
+class StackViewer extends React.Component {
   render () {
-    const { stack, invalid } = this.props
+    const { classes, stack, invalid } = this.props
 
     return (
-      <table style={styles.table}>
+      <table className={classes.table}>
         <thead>
           <tr>
             <td>Type</td>
             <td>Value</td>
           </tr>
         </thead>
-        <tbody style={{ ...styles.tbody, opacity: invalid ? 0.5 : 1 }}>
-          {stack.map((item, i) => (
+        <tbody className={classes.tbody} style={{ opacity: invalid ? 0.5 : 1 }}>
+          {stack.map((item, i) => item.children ? (
+            <ExpandableItem
+              key={i}
+              item={item}
+              depth={0}
+            />
+          ): (
             <tr key={i}>
-              <td style={styles.type}>{item.type}</td>
+              <td className={classes.type}>{item.type}</td>
               <td><ObjectHighlighter objects={[item.value]}/></td>
             </tr>
           ))}
@@ -47,3 +55,4 @@ StackViewer.propTypes = {
   invalid: PropTypes.bool
 }
 
+export default injectStyles(styles)(StackViewer)
