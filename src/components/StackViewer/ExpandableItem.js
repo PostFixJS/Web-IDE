@@ -16,6 +16,12 @@ const styles = {
   },
   type: {
     color: '#008080' // match syntax highlighter for types
+  },
+  value: {
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    maxWidth: 0,
+    whiteSpace: 'nowrap'
   }
 }
 
@@ -36,7 +42,7 @@ class ExpandableItem extends React.Component {
       <React.Fragment>
         <tr onClick={this.toggle} className={classes.topRow}>
           <td
-            className={classes.type}
+            className={classes.value}
             style={{ paddingLeft: 16 * depth }}
           >
             <ShowHideToggle
@@ -44,10 +50,12 @@ class ExpandableItem extends React.Component {
               size={6}
               style={{ marginRight: 4 }}
             />
-            {item.type}
+            {item.value}
           </td>
-          <td>
-            {!expanded && item.value}
+          <td
+            className={classes.type}
+          >
+            {item.type}
           </td>
         </tr>
         {expanded && item.children.map((child, i) => child.children ? (
@@ -58,13 +66,14 @@ class ExpandableItem extends React.Component {
           />
         ) : (
           <tr key={i} className={classes.nestedRow}>
+            <td style={{ paddingLeft: 16 * (depth + 1) }}>
+              <ObjectHighlighter objects={[child.value]}/>
+            </td>
             <td
               className={classes.type}
-              style={{ paddingLeft: 16 * (depth + 1) }}
             >
               {child.type}
             </td>
-            <td><ObjectHighlighter objects={[child.value]}/></td>
           </tr>
         ))}
       </React.Fragment>

@@ -16,6 +16,12 @@ const styles = {
   },
   type: {
     color: '#008080' // match syntax highlighter for types
+  },
+  value: {
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    maxWidth: 0,
+    whiteSpace: 'nowrap'
   }
 }
 
@@ -36,18 +42,27 @@ class ExpandableItem extends React.Component {
       <React.Fragment>
         <tr onClick={this.toggle} className={classes.topRow}>
           <td style={{ paddingLeft: 16 * depth }}>
-            <ShowHideToggle
-              show={expanded}
-              size={6}
-              style={{ marginRight: 4 }}
-            />
+            {depth === 0 && (
+              <ShowHideToggle
+                show={expanded}
+                size={6}
+                style={{ marginRight: 4 }}
+              />
+            )}
             {item.name}
+          </td>
+          <td className={classes.value}>
+            {depth > 0 && (
+              <ShowHideToggle
+                show={expanded}
+                size={6}
+                style={{ marginRight: 4 }}
+              />
+            )}
+            {item.value}
           </td>
           <td className={classes.type}>
             {item.type}
-          </td>
-          <td>
-            {!expanded && item.value}
           </td>
         </tr>
         {expanded && item.children.map((child, i) => child.children ? (
@@ -58,15 +73,18 @@ class ExpandableItem extends React.Component {
           />
         ) : (
           <tr key={i} className={classes.nestedRow}>
-            <td
-              style={{ paddingLeft: 16 * (depth + 1) }}
-            >
+            <td>
               {child.name}
+            </td>
+            <td
+              className={classes.value}
+              style={{ paddingLeft: 16 * depth }}
+            >
+              <ObjectHighlighter objects={[child.value]}/>
             </td>
             <td className={classes.type}>
               {child.type}
             </td>
-            <td><ObjectHighlighter objects={[child.value]}/></td>
           </tr>
         ))}
       </React.Fragment>

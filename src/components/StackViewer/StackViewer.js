@@ -13,6 +13,12 @@ const styles = {
   },
   type: {
     color: '#008080' // match syntax highlighter for types
+  },
+  value: {
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+    maxWidth: 0,
+    whiteSpace: 'nowrap'
   }
 }
 
@@ -24,8 +30,8 @@ class StackViewer extends React.Component {
       <table className={classes.table}>
         <thead>
           <tr>
+            <td style={{ width: '100%' }}>Value</td>
             <td>Type</td>
-            <td>Value</td>
           </tr>
         </thead>
         <tbody className={classes.tbody} style={{ opacity: invalid ? 0.5 : 1 }}>
@@ -37,8 +43,10 @@ class StackViewer extends React.Component {
             />
           ) : (
             <tr key={i}>
+              <td className={classes.value}>
+                <ObjectHighlighter objects={[item.value]} />
+              </td>
               <td className={classes.type}>{item.type}</td>
-              <td><ObjectHighlighter objects={[item.value]}/></td>
             </tr>
           ))}
         </tbody>
