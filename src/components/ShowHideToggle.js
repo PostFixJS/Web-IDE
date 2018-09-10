@@ -1,14 +1,12 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import toggle from './toggle.svg'
 
 /**
  * A toggle component that animates a triangle between ▶ and ◢.
  */
 export default function ShowHideToggle ({ show, size, style, ...other }) {
   return (
-    <img
-      src={toggle}
+    <svg
       style={{
         transition: 'all 100ms',
         transform: show ? 'rotate(0)' : 'rotate(-45deg)',
@@ -16,8 +14,16 @@ export default function ShowHideToggle ({ show, size, style, ...other }) {
         height: size,
         ...style
       }}
+      viewBox='0 0 16 16'
       {...other}
-    />
+    >
+      <g>
+        <path
+          d='M 16 0 L 16 16 L 0 16 Z'
+          fill='#4d4d4d'
+        />
+      </g>
+    </svg>
   )
 }
 
@@ -31,7 +37,7 @@ ShowHideToggle.propTypes = {
    */
   size: PropTypes.number.isRequired,
   /**
-   * Additional styles to be applied to the image.
+   * Additional styles to be applied to the svg image.
    */
   style: PropTypes.object
 }
