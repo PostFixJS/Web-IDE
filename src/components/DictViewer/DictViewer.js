@@ -34,7 +34,7 @@ export default class DictViewer extends React.Component {
               <tr>
                 <td colSpan={3}>Dictionary #{i}</td>
               </tr>
-              {dict.map((item, i) => item.children ? (
+              {dict.map((item, i) => item.children && item.children.length > 0 ? (
                 <ExpandableItem
                   key={i}
                   item={item}

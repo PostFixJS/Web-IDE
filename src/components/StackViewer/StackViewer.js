@@ -29,7 +29,7 @@ class StackViewer extends React.Component {
           </tr>
         </thead>
         <tbody className={classes.tbody} style={{ opacity: invalid ? 0.5 : 1 }}>
-          {stack.map((item, i) => item.children ? (
+          {stack.map((item, i) => item.children && item.children.length > 0 ? (
             <ExpandableItem
               key={i}
               item={item}
