@@ -14,6 +14,9 @@ const styles = {
   topRow: {
     userSelect: 'none'
   },
+  name: {
+    whiteSpace: 'nowrap'
+  },
   type: {
     color: '#008080' // match syntax highlighter for types
   },
@@ -22,6 +25,11 @@ const styles = {
     overflow: 'hidden',
     maxWidth: 0,
     whiteSpace: 'nowrap'
+  },
+  svg: {
+    marginRight: 4,
+    display: 'inline-block',
+    verticalAlign: 'middle'
   }
 }
 
@@ -41,12 +49,12 @@ class ExpandableItem extends React.Component {
     return (
       <React.Fragment>
         <tr onClick={this.toggle} className={classes.topRow}>
-          <td style={{ paddingLeft: 16 * depth }}>
+          <td style={{ paddingLeft: 16 * depth }} className={classes.name}>
             {depth === 0 && (
               <ShowHideToggle
                 show={expanded}
                 size={6}
-                style={{ marginRight: 4 }}
+                className={classes.svg}
               />
             )}
             {item.name}
@@ -56,7 +64,7 @@ class ExpandableItem extends React.Component {
               <ShowHideToggle
                 show={expanded}
                 size={6}
-                style={{ marginRight: 4 }}
+                className={classes.svg}
               />
             )}
             {item.value}
