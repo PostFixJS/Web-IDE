@@ -111,6 +111,9 @@ class App extends Component {
 
   async run (pauseImmediately = false) {
     if (!this.runner.running) {
+      this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
+      this.props.dispatch(actions.setInputPosition(0))
+
       try {
         this.setState({ running: true, paused: false })
         await this.runner.run(this.state.code, pauseImmediately)
@@ -136,10 +139,7 @@ class App extends Component {
     }
   }
 
-  runProgram = () => {
-    this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
-    this.run(false)
-  }
+  runProgram = () => this.run(false)
 
   stopProgram = () => {
     this.runner.stop()
