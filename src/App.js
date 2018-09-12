@@ -50,22 +50,8 @@ const styles = {
 
 class App extends Component {
   state = {
-    code: `fac_tr: (n :Int, acc :Int -> :Int) {
-      n 1 >
-      { acc n * n 1 - swap fac_tr }
-      { acc } if
-  } fun
-  
-  #<
-  Calculate the factorial of a number.
-  @param n A number
-  @return Factorial of n
-  >#
-  fac: (n :Int -> :Int) {
-      n 1 fac_tr
-  } fun
-  
-  6 fac
+    code: `"hello"
+[1 2 3 [ 4 5 6 ]] dup x!
 `,
     running: false,
     paused: false,
@@ -319,7 +305,7 @@ class App extends Component {
           defaultSize={Math.floor(0.7 * window.innerWidth)}
           onChange={this.handleGridVResize}
           onDragFinished={this.handleGridVResize}
-          style={{ height: 'auto', position: 'static' }}
+          style={{ height: 'auto', position: 'static', overflow: 'visible' }}
         >
           <SplitPane
             split='horizontal'
@@ -327,7 +313,7 @@ class App extends Component {
             defaultSize={Math.floor(0.8 * window.innerHeight)}
             onChange={this.handleGridHResize}
             onDragFinished={this.handleGridHResize}
-            style={{ height: 'auto', position: 'static' }}
+            style={{ height: 'auto', position: 'static', overflow: 'visible' }}
           >
             <Card className={classes.editorCard} onClick={this.showProgramStack}>
               <Editor
@@ -355,7 +341,7 @@ class App extends Component {
             split='horizontal'
             minSize={300}
             defaultSize={Math.floor(0.8 * window.innerHeight)}
-            style={{ height: 'auto', position: 'static' }}
+            style={{ height: 'auto', position: 'static', overflow: 'visible' }}
             onChange={this.handleReplResize}
           >
             <Card
