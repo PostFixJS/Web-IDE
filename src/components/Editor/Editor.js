@@ -53,7 +53,7 @@ export default class Editor extends React.Component {
     })
     this.disposables.push(
       editor.onDidAttemptReadOnlyEdit((e) => {
-        showMessage(this.editor, 'You cannot edit the code while the program is running.')
+        showMessage(this.editor, 'You need to stop the program to edit the code.')
       }),
       editor.onMouseUp(this.handleEditorMouseUp),
       editor.addAction({
