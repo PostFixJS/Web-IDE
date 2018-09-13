@@ -9,6 +9,7 @@ import * as snippetProviders from './monaco-integration/snippets'
 import { getTokenAtOrNext, getTokenAt} from './postfixUtil'
 import ConditionalBreakpointWidget from './ConditionalBreakpointWidget'
 import { positionToMonaco, positionFromMonaco, showMessage } from './monaco-integration/util'
+import ErrorWidget from './ErrorWidget';
 
 export default class Editor extends React.Component {
   disposables = []
@@ -113,6 +114,20 @@ export default class Editor extends React.Component {
         this.editor.focus()
       }
       this.breakpointWidget = null
+    }
+  }
+
+  showErrorWidget = (monacoPosition, error) => {
+    this.closeErrorWidget()
+    this.errorWidget = new ErrorWidget(this.editor, error, this.closeErrorWidget)
+    this.errorWidget.create()
+    this.errorWidget.show(monacoPosition, 2)
+  }
+
+  closeErrorWidget = () => {
+    if (this.errorWidget) {
+      this.errorWidget.dispose()
+      this.errorWidget = null
     }
   }
 

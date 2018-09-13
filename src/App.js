@@ -112,6 +112,7 @@ class App extends Component {
   async run (pauseImmediately = false) {
     if (!this.runner.running) {
       this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
+      this._editor.closeErrorWidget()
       this.props.dispatch(actions.setInputPosition(0))
 
       try {
@@ -145,6 +146,7 @@ class App extends Component {
     this.runner.stop()
     this.setState({ running: false })
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
+    this._editor.closeErrorWidget()
   }
 
   pauseProgram = () => this.runner.pause()
@@ -180,6 +182,7 @@ class App extends Component {
         }
       }
     ])
+    this._editor.showErrorWidget(positionToMonaco(err.origin), err)
   }
 
   showInterpreterPosition (pos) {
