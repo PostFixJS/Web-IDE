@@ -100,7 +100,6 @@ class RawWidget extends React.Component {
         <select onChange={this.handleChangeType} value={this.state.type} className={classes.select}>
           <option value='expression'>Expression</option>
           <option value='hit'>Hit count</option>
-          <option value='log'>Log a message</option>
         </select>
         <OneLineEditor
           language={this.state.type === 'expression' ? 'postfix' : 'text'}

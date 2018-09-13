@@ -166,9 +166,6 @@ export default class PostFixRunner {
           }
           break
         }
-        case 'log':
-          // TODO
-          break
         default:
           return true
       }
