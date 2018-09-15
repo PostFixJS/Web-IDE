@@ -347,6 +347,7 @@ class App extends Component {
                 ref={this.setRepl}
                 style={{ width: '100%', height: '100%' }}
                 runner={this.runner}
+                disabled={running && !paused}
                 onExecutionFinished={this.handleReplExecutionFinished}
               />
             </Card>

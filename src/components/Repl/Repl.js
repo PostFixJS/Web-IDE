@@ -146,7 +146,11 @@ export default class Repl extends React.Component {
     }, 'editorTextFocus')
 
     editor.onDidAttemptReadOnlyEdit((e) => {
-      showMessage(this.editor, 'The previous input is still being executed.')
+      if (this.props.disabled) {
+        showMessage(this.editor, 'Wait for the program to finish executing or pause it to use the REPL.')
+      } else {
+        showMessage(this.editor, 'Cancel the previous program to run a new one.')
+      }
     })
   }
 
@@ -154,9 +158,9 @@ export default class Repl extends React.Component {
     if (prevState.lines !== this.state.lines) {
       this._output.scrollTop = this._output.scrollHeight
     }
-    if (prevState.running !== this.state.running) {
+    if (prevState.running !== this.state.running || prevProps.disabled !== this.props.disabled) {
       this.editor.updateOptions({
-        readOnly: this.state.running
+        readOnly: this.state.running || this.props.disabled
       })
     }
   }
@@ -204,6 +208,7 @@ export default class Repl extends React.Component {
       style,
       onRunCommand,
       runner,
+      disabled,
       ...other
     } = this.props
 
