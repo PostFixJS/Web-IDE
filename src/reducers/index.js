@@ -53,21 +53,3 @@ export function dicts (state = [], action) {
       return state
   }
 }
-
-export function replStack (state = [], action) {
-  switch (action.type) {
-    case actions.SET_REPL_STACK:
-      return action.payload
-    default:
-      return state
-  }
-}
-
-export function replDicts (state = [], action) {
-  switch (action.type) {
-    case actions.SET_REPL_DICTS:
-      return action.payload
-    default:
-      return state
-  }
-}

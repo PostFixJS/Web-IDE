@@ -1,5 +1,5 @@
 import React from 'react'
-import Runner, { InterruptedException } from '../../postfix-runner/PostFixRunner'
+import { InterruptedException } from '../../postfix-runner/PostFixRunner'
 import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
 import OneLineEditor from '../OneLineEditor';
 import { showMessage } from '../Editor/monaco-integration/util'
@@ -50,7 +50,6 @@ export default class Repl extends React.Component {
     currentInput: '',
     oldInputIndex: -1
   }
-  runner = new Runner()
 
   editorDidMount = (editor, monaco) => {
     this.editor = editor
@@ -69,16 +68,16 @@ export default class Repl extends React.Component {
         oldInputIndex: -1
       }))
 
-      this.runner.run(code, false, false)
+      this.props.runner.run(code, false, false)
         .then(() => {
           this.setState((state) => ({
             lines: [
               ...state.lines,
-              { type: 'output', value: this.runner.interpreter._stack._stack.map((obj) => obj.toString()) }
+              { type: 'output', value: this.props.runner.interpreter._stack._stack.map((obj) => obj.toString()) }
             ],
             running: false
           }))
-          if (this.props.onExecutionFinished) this.props.onExecutionFinished(this.runner.interpreter)
+          this.props.onExecutionFinished()
         })
         .catch((e) => {
           if (!(e instanceof InterruptedException)) {
@@ -90,7 +89,7 @@ export default class Repl extends React.Component {
               running: false
             }))
           }
-          if (this.props.onExecutionFinished) this.props.onExecutionFinished(this.runner.interpreter)
+          this.props.onExecutionFinished()
         })
     }, 'editorTextFocus')
 
@@ -190,11 +189,11 @@ export default class Repl extends React.Component {
   }
 
   handleCancel = () => {
-    this.runner.stop()
+    this.props.runner.stop()
     this.setState((state) => ({
       lines: [
         ...state.lines,
-        { type: 'output', value: this.runner.interpreter._stack._stack.map((obj) => obj.toString()) }
+        { type: 'output', value: this.props.runner.interpreter._stack._stack.map((obj) => obj.toString()) }
       ],
       running: false
     }))
@@ -203,7 +202,8 @@ export default class Repl extends React.Component {
   render () {
     const {
       style,
-      onExecutionFinished,
+      onRunCommand,
+      runner,
       ...other
     } = this.props
 
