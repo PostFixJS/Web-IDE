@@ -9,6 +9,18 @@ export default class PostFixRunner {
     this.breakpoints = []
   }
 
+  /**
+   * Create a new runner with the same interpreter. The new runner
+   * can even run code while this runner is paused. It will modify
+   * its stack and dict, though.
+   * @returns A new runner that uses the same interpreter
+   */
+  fork () {
+    const runner = new PostFixRunner()
+    runner.interpreter = this.interpreter
+    return runner
+  }
+
   get running () {
     return this._resolveRun != null
   }
@@ -25,7 +37,7 @@ export default class PostFixRunner {
     if (reset) {
       this.interpreter.reset()
     }
-    this.interpreter.startRun(lexer.getTokens())
+    this._stepper = this.interpreter.startRun(lexer.getTokens())
 
     return new Promise((resolve, reject) => {
       this._resolveRun = resolve
@@ -71,11 +83,12 @@ export default class PostFixRunner {
     }
 
     try {
-      const { done, value } = this.interpreter.step()
+      const { done, value } = this._stepper.next()
       if (done) {
         this._resolveRun()
         this._resolveRun = null
         this._rejectRun = null
+        this._stepper = null
       } else {
         this._lastPosition = value
         this._emit('position', value)
@@ -84,6 +97,7 @@ export default class PostFixRunner {
       this._rejectRun(e)
       this._resolveRun = null
       this._rejectRun = null
+      this._stepper = null
     }
   }
 
@@ -106,6 +120,7 @@ export default class PostFixRunner {
       this._rejectRun(new InterruptedException())
       this._resolveRun = null
       this._rejectRun = null
+      this._stepper = null
     }
   }
 

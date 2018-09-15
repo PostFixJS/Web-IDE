@@ -57,6 +57,7 @@ class App extends Component {
     paused: false
   }
   runner = new Runner()
+  replRunner = this.runner.fork()
   lineHighlightDecorations = []
 
   constructor (props) {
@@ -346,7 +347,7 @@ class App extends Component {
               <Repl
                 ref={this.setRepl}
                 style={{ width: '100%', height: '100%' }}
-                runner={this.runner}
+                runner={this.replRunner}
                 disabled={running && !paused}
                 onExecutionFinished={this.handleReplExecutionFinished}
               />
