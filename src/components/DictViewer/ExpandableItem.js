@@ -4,7 +4,7 @@ import injectStyles from 'react-jss'
 import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
 import ShowHideToggle from '../ShowHideToggle'
 
-const styles = {
+const styles = (theme) => ({
   table: {
     fontSize: 14
   },
@@ -18,7 +18,7 @@ const styles = {
     whiteSpace: 'nowrap'
   },
   type: {
-    color: '#008080' // match syntax highlighter for types
+    color: theme.highlighting.symType
   },
   value: {
     textOverflow: 'ellipsis',
@@ -31,7 +31,7 @@ const styles = {
     display: 'inline-block',
     verticalAlign: 'middle'
   }
-}
+})
 
 class ExpandableItem extends React.Component {
   state = {

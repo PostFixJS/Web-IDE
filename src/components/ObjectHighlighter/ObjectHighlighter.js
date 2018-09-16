@@ -1,40 +1,34 @@
 import React from 'react'
+import { withTheme } from 'react-jss'
 
-export default function ObjectHighlighter({ objects }) {
+function ObjectHighlighter({ objects, theme }) {
   return (
     <React.Fragment>
       {objects.map((obj, i) => i > 0 ? (
         <React.Fragment key={i}>
           <span>, </span>
-          <span style={{ color: getColor(obj) }}>{obj}</span>
+          <span style={{ color: getColor(obj, theme) }}>{obj}</span>
         </React.Fragment>
       ) : (
-        <span key={i} style={{ color: getColor(obj) }}>{obj}</span>
+        <span key={i} style={{ color: getColor(obj, theme) }}>{obj}</span>
       ))}
     </React.Fragment>
   )
 }
 
-function getColor (value) {
-  return colors[getType(value)] || '#000'
+export default withTheme(ObjectHighlighter)
+
+function getColor (value, theme) {
+  return theme.highlighting[getType(value)] || '#000'
 }
 
 const highlightTypes = {
-  BOOL: 1,
-  STR: 2,
-  SYM_TYPE: 3,
-  SYM: 4,
-  SYM_HIGHLIGHT: 5,
-  NUM: 6
-}
-
-const colors = {
-  [highlightTypes.BOOL]: '#0000ff',
-  [highlightTypes.STR]: '#a31515',
-  [highlightTypes.SYM_TYPE]: '#008080',
-  [highlightTypes.SYM]: '#000',
-  [highlightTypes.SYM_HIGHLIGHT]: '#0000ff',
-  [highlightTypes.NUM]: '#09885a',
+  BOOL: 'bool',
+  STR: 'str',
+  SYM_TYPE: 'symType',
+  SYM: 'sym',
+  SYM_HIGHLIGHT: 'symHighlight',
+  NUM: 'num'
 }
 
 const keywords = [

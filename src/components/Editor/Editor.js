@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { withTheme } from 'react-jss'
 import MonacoEditor from 'react-monaco-editor'
 import HoverProvider from './monaco-integration/HoverProvider'
 import LanguageConfiguration from './monaco-integration/LanguageConfiguration'
@@ -11,18 +12,20 @@ import ConditionalBreakpointWidget from './ConditionalBreakpointWidget'
 import { positionToMonaco, positionFromMonaco, showMessage } from './monaco-integration/util'
 import ErrorWidget from './ErrorWidget';
 
-export default class Editor extends React.Component {
+class Editor extends React.Component {
   disposables = []
   breakpoints = []
   breakpointWidget = null
 
   componentDidMount () {
     window.addEventListener('resize', this.updateEditorSize)
+    if (this.props.innerRef) this.props.innerRef(this)
   }
 
   componentWillUnmount () {
     window.removeEventListener('resize', this.updateEditorSize)
     this.disposables.forEach((d) => d.dispose())
+    if (this.props.innerRef) this.props.innerRef(null)
   }
   
   updateEditorSize = () => this.editor.layout()
@@ -31,6 +34,11 @@ export default class Editor extends React.Component {
     if (prevProps.readOnly !== this.props.readOnly) {
       this.editor.updateOptions({
         readOnly: this.props.readOnly
+      })
+    }
+    if (prevProps.theme !== this.props.theme) {
+      this.editor.updateOptions({
+        theme: this.props.theme.monaco.baseTheme
       })
     }
   }
@@ -253,6 +261,7 @@ export default class Editor extends React.Component {
       onChange,
       readOnly,
       onBreakpointsChange,
+      theme,
       ...other
     } = this.props
 
@@ -267,6 +276,7 @@ export default class Editor extends React.Component {
           language='postfix'
           value={code}
           onChange={onChange}
+          options={{ theme: this.props.theme.monaco.baseTheme }}
         />
       </div>
     )
@@ -281,5 +291,8 @@ Editor.propTypes = {
   code: PropTypes.string,
   onChange: PropTypes.func,
   readOnly: PropTypes.bool,
-  onBreakpointsChange: PropTypes.func.isRequired
+  onBreakpointsChange: PropTypes.func.isRequired,
+  innerRef: PropTypes.func,
 }
+
+export default withTheme(Editor)

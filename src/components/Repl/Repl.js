@@ -1,17 +1,18 @@
 import React from 'react'
+import injectSheet from 'react-jss'
 import { InterruptedException } from '../../postfix-runner/PostFixRunner'
 import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
 import OneLineEditor from '../OneLineEditor';
 import { showMessage } from '../Editor/monaco-integration/util'
 
-const styles = {
+const styles = (theme) => ({
   output: {
     flex: 1,
     overflowX: 'auto',
     fontSize: 14,
     fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
     padding: 8,
-    borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+    borderBottom: theme.type === 'light' ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(255, 255, 255, 0.1)',
     marginBottom: 8
   },
   line: {
@@ -23,7 +24,7 @@ const styles = {
     padding: 0,
     color: 'rgb(255, 0, 24)'
   }
-}
+})
 
 function findIndexFromEnd (arr, predicate, startIndex = arr.length - 1) {
   for (let i = startIndex; i >= 0; i--) {
@@ -43,7 +44,7 @@ function findIndex (arr, predicate, startIndex = 0) {
   return -1
 }
 
-export default class Repl extends React.Component {
+class Repl extends React.Component {
   state = {
     lines: [],
     running: false,
@@ -205,6 +206,7 @@ export default class Repl extends React.Component {
 
   render () {
     const {
+      classes,
       style,
       onRunCommand,
       runner,
@@ -219,16 +221,16 @@ export default class Repl extends React.Component {
         style={{ ...style, display: 'flex', flexDirection: 'column' }}
         onClick={this.handleClick}
       >
-        <div style={styles.output} ref={this.setOutputRef}>
+        <div className={classes.output} ref={this.setOutputRef}>
           {this.state.lines.map((line, i) => line.type === 'input' ? (
-            <p key={i} style={styles.line}>
+            <p key={i} className={classes.line}>
               &gt; {line.value}
               {i === this.state.lines.length - 1 && (<span> – <a onClick={this.handleCancel}>Cancel</a></span>)}
             </p>
           ) : line.type === 'error' ? (
-            <p key={i} style={styles.error}>Error: {line.value}</p>
+            <p key={i} className={classes.error}>Error: {line.value}</p>
           ) : (
-            <p key={i} style={styles.line}><ObjectHighlighter objects={line.value}/></p>
+            <p key={i} className={classes.line}><ObjectHighlighter objects={line.value}/></p>
           ))}
         </div>
         <OneLineEditor
@@ -240,3 +242,5 @@ export default class Repl extends React.Component {
     )
   }
 }
+
+export default injectSheet(styles)(Repl)

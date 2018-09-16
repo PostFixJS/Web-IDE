@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import SplitPane from 'react-split-pane'
 import { connect } from 'react-redux'
-import injectSheet from 'react-jss'
+import injectSheet, { ThemeProvider } from 'react-jss'
 import { debounce } from 'throttle-debounce'
 import { saveAs } from 'file-saver'
 import * as types from 'postfixjs/types'
@@ -17,14 +17,15 @@ import Repl from './components/Repl/Repl'
 import Card from './components/Card'
 import Runner, { InterruptedException } from './postfix-runner/PostFixRunner'
 import { positionToMonaco } from './components/Editor/monaco-integration/util'
+import * as themes from './themes'
 
-const styles = {
+const styles = (theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
     width: '100%',
     height: '100%',
-    background: '#efefef'
+    background: theme.background
   },
   toolbar: {
     padding: '5px 5px 0'
@@ -46,7 +47,7 @@ const styles = {
     height: 'calc(100% - 10px)',
     position: 'absolute'
   }
-}
+})
 
 class App extends Component {
   state = {
@@ -302,7 +303,7 @@ class App extends Component {
           >
             <Card className={classes.editorCard} onClick={this.showProgramStack}>
               <Editor
-                ref={this.setEditor}
+                innerRef={this.setEditor}
                 code={code}
                 onChange={this.updateCode}
                 readOnly={running}
@@ -359,12 +360,19 @@ class App extends Component {
   }
 }
 
+const StyledApp = injectSheet(styles)(App)
+
 export default connect((state) => ({
   input: state.input,
   output: state.output,
   stack: state.stack,
-  dicts: state.dicts
+  dicts: state.dicts,
+  theme: 'dark'
 }), (dispatch) => ({
   dispatch,
   onInputChange: (input) => dispatch(actions.setInput(input))
-}))(injectSheet(styles)(App))
+}))(({ theme, ...other }) => (
+  <ThemeProvider theme={themes[theme]}>
+    <StyledApp {...other} />
+  </ThemeProvider>
+))

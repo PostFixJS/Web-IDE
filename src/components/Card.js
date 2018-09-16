@@ -2,9 +2,10 @@ import React from 'react'
 import injectSheet from 'react-jss'
 import cx from 'classnames'
 
-const styles = {
+const styles = (theme) => ({
   root: {
-    background: '#fff',
+    background: theme.card.background,
+    color: theme.card.color,
     boxShadow: '0 0 3px rgba(0, 0, 0, 0.1)',
     borderRadius: 3,
     padding: 5,
@@ -16,7 +17,7 @@ const styles = {
     fontSize: '9pt',
     fontWeight: 500,
     textTransform: 'uppercase',
-    color: 'rgba(0, 0, 0, 0.5)',
+    color: theme.card.titleColor,
     cursor: 'default',
     userSelect: 'none'
   },
@@ -27,7 +28,7 @@ const styles = {
   scrollable: {
     overflow: 'auto'
   }
-}
+})
 
 function Card ({ classes, children, className, title, scrollable = false, ...other }) {
   return (

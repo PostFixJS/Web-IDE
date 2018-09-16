@@ -4,7 +4,7 @@ import injectStyles from 'react-jss'
 import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
 import ExpandableItem from './ExpandableItem'
 
-const styles = {
+const styles = (theme) => ({
   table: {
     fontSize: 14
   },
@@ -12,7 +12,7 @@ const styles = {
     fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"'
   },
   type: {
-    color: '#008080' // match syntax highlighter for types
+    color: theme.highlighting.symType
   },
   value: {
     textOverflow: 'ellipsis',
@@ -20,7 +20,7 @@ const styles = {
     maxWidth: 0,
     whiteSpace: 'nowrap'
   }
-}
+})
 
 class StackViewer extends React.Component {
   render () {

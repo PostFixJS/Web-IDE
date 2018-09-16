@@ -1,7 +1,7 @@
 import React from 'react'
 import injectStyle from 'react-jss'
 
-const styles = {
+const styles = (theme) => ({
   root: {
     border: 0,
     background: 'transparent',
@@ -10,9 +10,10 @@ const styles = {
     outline: 'none',
     float: 'left',
     borderRadius: 2,
+    color: theme.type === 'light' ? '#000' : '#fff',
 
     '&:hover': {
-      background: 'rgba(255, 255, 255, 0.6)'
+      background: theme.type === 'light' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.2)'
     },
 
     '&:disabled': {
@@ -25,7 +26,7 @@ const styles = {
     },
 
     '&:active': {
-      background: 'rgba(0, 0, 0, 0.1)'
+      background: theme.type === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)'
     }
   },
   icon: {
@@ -39,7 +40,7 @@ const styles = {
     lineHeight: '16px',
     float: 'left'
   }
-}
+})
 
 function Button ({ classes, children, icon, label, ...other }) {
   return (
