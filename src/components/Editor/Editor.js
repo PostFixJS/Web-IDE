@@ -258,9 +258,10 @@ class Editor extends React.Component {
   render () {
     const {
       code,
+      innerRef,
+      onBreakpointsChange,
       onChange,
       readOnly,
-      onBreakpointsChange,
       theme,
       ...other
     } = this.props

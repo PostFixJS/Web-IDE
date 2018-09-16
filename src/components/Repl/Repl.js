@@ -12,7 +12,7 @@ const styles = (theme) => ({
     fontSize: 14,
     fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
     padding: 8,
-    borderBottom: theme.type === 'light' ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(255, 255, 255, 0.1)',
+    borderBottom: `1px solid ${theme.divider.color}`,
     marginBottom: 8
   },
   line: {
@@ -207,10 +207,11 @@ class Repl extends React.Component {
   render () {
     const {
       classes,
-      style,
+      disabled,
+      onExecutionFinished,
       onRunCommand,
       runner,
-      disabled,
+      style,
       ...other
     } = this.props
 
