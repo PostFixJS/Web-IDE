@@ -346,7 +346,7 @@ class App extends Component {
             </Card>
             <Card className={classes.repl} title='REPL'>
               <Repl
-                ref={this.setRepl}
+                innerRef={this.setRepl}
                 style={{ width: '100%', height: '100%' }}
                 runner={this.replRunner}
                 disabled={running && !paused}
