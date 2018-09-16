@@ -4,6 +4,7 @@ export const SET_STACK = 'stack/SET_STACK'
 export const SET_DICTS = 'dicts/SET_DICTS'
 export const SET_INPUT = 'input/SET_INPUT'
 export const SET_INPUT_POSITION = 'input/SET_POSITION'
+export const TOGGLE_THEME = 'theme/TOGGLE'
 
 export function addOutput (output) {
   return { type: ADD_OUTPUT, payload: output }
@@ -23,4 +24,8 @@ export function setInput (input) {
 
 export function setInputPosition (position) {
   return { type: SET_INPUT_POSITION, payload: position }
+}
+
+export function toggleTheme () {
+  return { type: TOGGLE_THEME }
 }

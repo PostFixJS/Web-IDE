@@ -53,3 +53,12 @@ export function dicts (state = [], action) {
       return state
   }
 }
+
+export function theme (state = 'light', action) {
+  switch (action.type) {
+    case actions.TOGGLE_THEME:
+      return state === 'light' ? 'dark' : 'light'
+    default:
+      return state
+  }
+}

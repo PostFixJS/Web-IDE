@@ -29,6 +29,8 @@ export default class Toolbar extends React.Component {
       onStep,
       onOpen,
       onSave,
+      theme,
+      onToggleTheme,
       ...other
     } = this.props
 
@@ -110,8 +112,14 @@ export default class Toolbar extends React.Component {
           title='Stop (Ctrl+F5)'
           icon={require('./icons/stop.svg')}
         />
+        <Divider />
+        <Button
+          onClick={onToggleTheme}
+          title={theme === 'light' ? 'Use Dark Theme' : 'Use Light Theme'}
+          icon={require('./icons/idea.svg')}
+        />
         <span style={{ float: 'right', lineHeight: '32px', fontSize: '9pt', marginRight: 5 }}>
-          Icons made by <a href=''>Smashicons</a> from <a href='https://www.flaticon.com'>www.flaticon.com</a>
+          Icons made by <a href='https://smashicons.com/'>Smashicons</a> from <a href='https://www.flaticon.com'>www.flaticon.com</a>
         </span>
       </div>
     )
@@ -126,5 +134,6 @@ Toolbar.propTypes = {
   onStop: PropTypes.func.isRequired,
   onStep: PropTypes.func.isRequired,
   onOpen: PropTypes.func.isRequired,
-  onSave: PropTypes.func.isRequired
+  onSave: PropTypes.func.isRequired,
+  onToggleTheme: PropTypes.func.isRequired
 }

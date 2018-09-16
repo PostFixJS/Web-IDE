@@ -268,7 +268,7 @@ class App extends Component {
 
   render() {
     const { code, running, paused } = this.state
-    const { classes } = this.props
+    const { classes, onToggleTheme, theme } = this.props
 
     return (
       <div
@@ -284,6 +284,8 @@ class App extends Component {
           onStep={this.stepProgram}
           onSave={this.handleSave}
           onOpen={this.handleOpen}
+          theme={theme}
+          onToggleTheme={onToggleTheme}
         />
         <SplitPane
           split='vertical'
@@ -367,12 +369,13 @@ export default connect((state) => ({
   output: state.output,
   stack: state.stack,
   dicts: state.dicts,
-  theme: 'dark'
+  theme: state.theme
 }), (dispatch) => ({
   dispatch,
-  onInputChange: (input) => dispatch(actions.setInput(input))
-}))(({ theme, ...other }) => (
-  <ThemeProvider theme={themes[theme]}>
-    <StyledApp {...other} />
+  onInputChange: (input) => dispatch(actions.setInput(input)),
+  onToggleTheme: () => dispatch(actions.toggleTheme())
+}))((props) => (
+  <ThemeProvider theme={themes[props.theme]}>
+    <StyledApp {...props} />
   </ThemeProvider>
 ))

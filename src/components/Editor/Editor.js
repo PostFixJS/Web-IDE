@@ -37,9 +37,8 @@ class Editor extends React.Component {
       })
     }
     if (prevProps.theme !== this.props.theme) {
-      this.editor.updateOptions({
-        theme: this.props.theme.monaco.baseTheme
-      })
+      // Note: All editors can only use one theme at a time, so this affects all editors
+      this.monaco.editor.setTheme(this.props.theme.monaco.baseTheme)
     }
   }
 
