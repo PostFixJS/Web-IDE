@@ -21,7 +21,8 @@ export default {
     'false',
     'nil',
     'err',
-    'debugger'
+    'debugger',
+    'datadef'
   ],
   brackets: [
     ['(', ')', 'delimiter.parenthesis'],

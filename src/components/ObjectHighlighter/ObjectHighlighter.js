@@ -47,7 +47,8 @@ const keywords = [
   'false',
   'nil',
   'err',
-  'debugger'
+  'debugger',
+  'datadef'
 ]
 
 function getType (value) {
