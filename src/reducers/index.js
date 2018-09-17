@@ -26,11 +26,6 @@ export function input (state = {
         ...state,
         position: action.payload
       }
-    case actions.CLEAR_OUTPUT:
-      return {
-        ...state,
-        position: 0
-      }
     default:
       return state
   }

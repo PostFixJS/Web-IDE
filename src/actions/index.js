@@ -10,6 +10,10 @@ export function addOutput (output) {
   return { type: ADD_OUTPUT, payload: output }
 }
 
+export function clearOutput () {
+  return { type: CLEAR_OUTPUT }
+}
+
 export function setStack (stack) {
   return { type: SET_STACK, payload: stack }
 }

@@ -115,6 +115,7 @@ class App extends Component {
       this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
       this._editor.closeErrorWidget()
       this.props.dispatch(actions.setInputPosition(0))
+      this.props.dispatch(actions.clearOutput())
 
       try {
         this.setState({ running: true, paused: false })
