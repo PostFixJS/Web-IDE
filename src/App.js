@@ -68,12 +68,12 @@ class App extends Component {
       this.setState({ interpreterPosition: position })
       if (this.state.paused) {
         this.showInterpreterPosition(position)
-        this.showStack()
+        this.showStackAndDict()
       }
     })
     this.runner.on('pause', (position) => {
       this.showInterpreterPosition(position)
-      this.showStack()
+      this.showStackAndDict()
       this.setState({ running: true, paused: true })
     })
     this.runner.on('continue', () => this.setState({ running: true, paused: false }))
@@ -120,9 +120,9 @@ class App extends Component {
         this.setState({ running: true, paused: false })
         await this.runner.run(this.state.code, pauseImmediately)
         this.setState({ running: false })
-        this.showStack()
+        this.showStackAndDict()
       } catch (e) {
-        this.showStack()
+        this.showStackAndDict()
         if (e instanceof InterruptedException) {
           this.setState({ running: false })
         } else {
@@ -214,8 +214,8 @@ class App extends Component {
     }
   }
 
-  showStack () {
-    this.props.dispatch(actions.setStack(this.runner.interpreter._stack.getElements().map(App.mapObjectForViewer)))
+  showStackAndDict () {
+    this.props.dispatch(actions.setStack(this.runner.interpreter._stack.getElements().map(App.mapObjectForViewer).reverse()))
 
     this.props.dispatch(actions.setDicts(this.runner.interpreter._dictStack.getDicts().map((dict) => {
       return Object.entries(dict).map(([name, value]) => ({
@@ -226,7 +226,7 @@ class App extends Component {
   }
 
   handleReplExecutionFinished = () => {
-    this.showStack()
+    this.showStackAndDict()
   }
 
   handleGridHResize = (height) => {
