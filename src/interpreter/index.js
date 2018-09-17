@@ -172,6 +172,9 @@ export function registerBuiltIns (interpreter) {
     name: 'read-flt',
     execute: (interpreter, token) => {
       const input = readLine().trim()
+      if (input.length == 0) {
+        throw new types.Err('No more input available', token)
+      }
       const flt = parseFloat(input)
       if (isNaN(flt)) {
         throw new types.Err(`Cannot convert value "${input}" to :Flt`, token)
@@ -184,6 +187,9 @@ export function registerBuiltIns (interpreter) {
     name: 'read-int',
     execute: (interpreter, token) => {
       const input = readLine().trim()
+      if (input.length == 0) {
+        throw new types.Err('No more input available', token)
+      }
       const int = parseInt(input, 10)
       if (isNaN(int)) {
         throw new types.Err(`Cannot convert value "${input}" to :Int`, token)
