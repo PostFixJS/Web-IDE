@@ -1,5 +1,6 @@
 import * as types from 'postfixjs/types'
 import { format } from 'postfixjs/operators/impl/format'
+import { popOperands, popOperand } from 'postfixjs/typeCheck'
 import * as actions from '../actions'
 import store from '../store'
 import { registerFunctions } from './doc'
@@ -119,38 +120,38 @@ export function registerBuiltIns (interpreter) {
   interpreter.registerBuiltIn({
     name: 'print',
     execute: (interpreter) => {
-      print(interpreter._stack.pop().value)
+      const value = popOperand(interpreter, { type: ['Num', 'Bool', 'Str'] }, token)
+      print(value.value)
     }
   })
  
   interpreter.registerBuiltIn({
     name: 'println',
     execute: (interpreter) => {
-      print(interpreter._stack.pop().value + '\n')
+      const value = popOperand(interpreter, { type: ['Num', 'Bool', 'Str'] }, token)
+      print(value.value + '\n')
     }
   })
 
   interpreter.registerBuiltIn({
     name: 'printf',
     execute: (interpreter, token) => {
-      const params = interpreter._stack.pop()
-      if (!(params instanceof types.Arr)) {
-        throw new types.Err(`printf expects an :Arr with parameters as second argument but got ${params.getTypeName()} instead`, token)
-      }
-      const formatStr = interpreter._stack.popString().value
-      print(format(formatStr, params))
+      const [ formatStr, params ] = popOperands(interpreter, [
+        { name: 'formatStr', type: 'Str' },
+        { name: 'params', type: 'Arr' }
+      ], token)
+      print(format(formatStr.value, params))
     }
   })
 
   interpreter.registerBuiltIn({
     name: 'printfln',
     execute: (interpreter, token) => {
-      const params = interpreter._stack.pop()
-      if (!(params instanceof types.Arr)) {
-        throw new types.Err(`printfln expects an :Arr with parameters as second argument but got ${params.getTypeName()} instead`, token)
-      }
-      const formatStr = interpreter._stack.popString().value
-      print(format(formatStr, params) + '\n')
+      const [ formatStr, params ] = popOperands(interpreter, [
+        { name: 'formatStr', type: 'Str' },
+        { name: 'params', type: 'Arr' }
+      ], token)
+      print(format(formatStr.value, params) + '\n')
     }
   })
 
@@ -200,6 +201,8 @@ export function registerBuiltIns (interpreter) {
 
   interpreter.registerBuiltIn({
     name: 'debugger',
-    execute: () => {}
+    execute: () => {
+      // handled by the runner
+    }
   })
 }
