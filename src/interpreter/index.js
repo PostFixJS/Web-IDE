@@ -1,10 +1,10 @@
 import * as types from 'postfixjs/types'
 import { format } from 'postfixjs/operators/impl/format'
-import { keyGet } from 'postfixjs/operators/impl/array'
 import { popOperands, popOperand } from 'postfixjs/typeCheck'
 import * as actions from '../actions'
 import store from '../store'
 import { registerFunctions } from './doc'
+import * as canvas from './canvas'
 
 function print (str) {
   store.dispatch(actions.addOutput(str))
@@ -125,7 +125,7 @@ export function registerBuiltIns (interpreter) {
       print(value.value)
     }
   })
- 
+
   interpreter.registerBuiltIn({
     name: 'println',
     execute: (interpreter, token) => {
@@ -174,7 +174,7 @@ export function registerBuiltIns (interpreter) {
     name: 'read-flt',
     execute: (interpreter, token) => {
       const input = readLine().trim()
-      if (input.length == 0) {
+      if (input.length === 0) {
         throw new types.Err('No more input available', token)
       }
       const flt = parseFloat(input)
@@ -189,7 +189,7 @@ export function registerBuiltIns (interpreter) {
     name: 'read-int',
     execute: (interpreter, token) => {
       const input = readLine().trim()
-      if (input.length == 0) {
+      if (input.length === 0) {
         throw new types.Err('No more input available', token)
       }
       const int = parseInt(input, 10)
@@ -207,44 +207,5 @@ export function registerBuiltIns (interpreter) {
     }
   })
 
-  interpreter.registerBuiltIn({
-    name: 'show',
-    execute: (interpreter, token) => {
-      const [title, width, height, initialState, callbacks] = popOperands(interpreter, [
-        { name: 'title', type: 'Str' },
-        { name: 'width', type: 'Int' },
-        { name: 'height', type: 'Int' },
-        { name: 'initialState' },
-        { name: 'callbacks', type: 'Arr' }
-      ], token)
-
-      const top = (window.outerHeight - height.value) / 2 + window.screenY
-      const left = (window.outerWidth - width.value) / 2 + window.screenX
-
-      const win = window.open('about:blank', '_blank', `top=${top},left=${left},width=${width.value},height=${height.value}`)
-      win.document.title = title.value
-
-      let state = initialState
-
-      // TODO queue interpreter calls to prevent race conditions due to async execution
-      const onDraw = keyGet(callbacks, new types.Sym('on-draw'), null)
-      if (onDraw) {
-        const redraw = () => requestAnimationFrame(() => {
-          interpreter._stack.push(state)
-          Array.from(onDraw.execute(interpreter)) // TODO prevent infinite loops
-          state = interpreter._stack.pop()
-          redraw() // TODO allow stopping the program
-        })
-        setImmediate(redraw)
-      }
-
-      const onKeyPress = keyGet(callbacks, new types.Sym('on-key-press'), null)
-      if (onKeyPress) {
-        win.onkeypress = (e) => {
-          interpreter._stack.push(new types.Str(e.key))
-          Array.from(onKeyPress.execute(interpreter)) // TODO prevent infinite loops
-        }
-      }
-    }
-  })
+  canvas.registerBuiltIns(interpreter)
 }
