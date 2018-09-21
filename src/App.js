@@ -51,9 +51,6 @@ const styles = (theme) => ({
 
 class App extends Component {
   state = {
-    code: `"hello"
-[1 2 3 [ 4 5 6 ]] dup x!
-`,
     running: false,
     paused: false
   }
@@ -80,7 +77,6 @@ class App extends Component {
   }
 
   componentDidMount () {
-    this.updateCode(this.state.code)
     window.addEventListener('resize', this.handleResize)
   }
 
@@ -106,9 +102,10 @@ class App extends Component {
     this._repl = ref
   }
 
-  updateCode = (code) => {
-    this.setState({ code })
-  }
+  updateCode = debounce(200, (code) => {
+    console.log(code)
+    this.props.dispatch(actions.setCode(code))
+  })
 
   async run (pauseImmediately = false) {
     if (!this.runner.running) {
@@ -119,7 +116,7 @@ class App extends Component {
 
       try {
         this.setState({ running: true, paused: false })
-        await this.runner.run(this.state.code, pauseImmediately)
+        await this.runner.run(this.props.code, pauseImmediately)
         this.setState({ running: false })
         this.showStackAndDict()
       } catch (e) {
@@ -247,7 +244,7 @@ class App extends Component {
 
   handleSave = () => {
     const filename = `postfix-${new Date().toISOString()}.pf`
-    saveAs(new Blob([this.state.code], { type: 'text/plain;charset=utf-8' }), filename)
+    saveAs(new Blob([this.props.code], { type: 'text/plain;charset=utf-8' }), filename)
   }
 
   handleOpen = (code) => {
@@ -268,8 +265,8 @@ class App extends Component {
   }
 
   render() {
-    const { code, running, paused } = this.state
-    const { classes, onToggleTheme, theme } = this.props
+    const { running, paused } = this.state
+    const { classes, code, onToggleTheme, theme } = this.props
 
     return (
       <div
@@ -366,11 +363,12 @@ class App extends Component {
 const StyledApp = injectSheet(styles)(App)
 
 export default connect((state) => ({
+  code: state.code,
   input: state.input,
   output: state.output,
   stack: state.stack,
   dicts: state.dicts,
-  theme: state.theme
+  theme: state.settings.theme
 }), (dispatch) => ({
   dispatch,
   onInputChange: (input) => dispatch(actions.setInput(input)),

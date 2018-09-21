@@ -1,5 +1,14 @@
 import * as actions from '../actions'
 
+export function code (state = localStorage.getItem('code') || '', action) {
+  switch (action.type) {
+    case actions.SET_CODE:
+      return action.payload
+    default:
+      return state
+  }
+}
+
 export function output (state = '', action) {
   switch (action.type) {
     case actions.ADD_OUTPUT:
@@ -49,10 +58,26 @@ export function dicts (state = [], action) {
   }
 }
 
-export function theme (state = 'light', action) {
+const defaultSettings = {
+  theme: 'light'
+}
+function getSettings () {
+  try {
+    return JSON.parse(localStorage.getItem('settings'))
+  } catch (e) {
+    return {}
+  }
+}
+export function settings (state = {
+  ...defaultSettings,
+  ...getSettings()
+}, action) {
   switch (action.type) {
     case actions.TOGGLE_THEME:
-      return state === 'light' ? 'dark' : 'light'
+      return {
+        ...state,
+        theme: state.theme === 'light' ? 'dark' : 'light'
+      }
     default:
       return state
   }
