@@ -26,6 +26,8 @@ export default class PostFixRunner {
   }
 
   run (code, pauseImmediately = false, reset = true) {
+    this._pauseRequested = false
+
     for (const breakpoint of this.breakpoints) {
       if (breakpoint.type === 'hit') {
         breakpoint.hits = 0
@@ -101,13 +103,12 @@ export default class PostFixRunner {
     }
   }
 
-  pause () {
+  async pause () {
     if (this._breakpointRunner != null) {
       this._breakpointRunner.stop()
     }
 
-    clearImmediate(this._timeoutId)
-    this._emit('pause', this._lastPosition)
+    this._pauseRequested = true
   }
 
   stop () {
@@ -148,6 +149,7 @@ export default class PostFixRunner {
   }
 
   async shouldBreakAt ({ token, line, col }) {
+    if (this._pauseRequested) return true
     if (token === 'debugger') return true
 
     const breakpoint = this.breakpoints.find(({ position }) => position && position.line === line && position.col === col)
