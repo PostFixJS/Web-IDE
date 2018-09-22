@@ -39,12 +39,12 @@ export default class PostFixRunner {
     }
     this._stepper = this.interpreter.startRun(lexer.getTokens())
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       this._resolveRun = resolve
       this._rejectRun = reject
 
       if (pauseImmediately) {
-        this.step()
+        await this.step()
         if (this.running) {
           this._emit('pause', this._lastPosition)
         }
@@ -60,7 +60,7 @@ export default class PostFixRunner {
   }
 
   _step = async () => {
-    this.step()
+    await this.step()
     try {
       if (this.running) {
         if (this._lastPosition != null && await this.shouldBreakAt(this._lastPosition)) {
@@ -76,14 +76,14 @@ export default class PostFixRunner {
     }
   }
 
-  step () {
+  async step () {
     if (this._breakpointRunner != null && this._breakpointRunner.running) {
       this._breakpointRunner.stop()
       return
     }
 
     try {
-      const { done, value } = this._stepper.next()
+      const { done, value } = await this._stepper.step()
       if (done) {
         this._resolveRun()
         this._resolveRun = null
@@ -120,6 +120,7 @@ export default class PostFixRunner {
       this._rejectRun(new InterruptedException())
       this._resolveRun = null
       this._rejectRun = null
+      this._stepper.cancel()
       this._stepper = null
     }
   }
