@@ -70,11 +70,11 @@ export default class Toolbar extends React.Component {
         <KeyListener
           keyCode={116} // F5
           onKeyDown={onRun}
-          disabled={running && !paused}
+          disabled={running && (!paused || !canStep)}
         />
         <Button
           onClick={onRun}
-          disabled={running && !paused}
+          disabled={running && (!paused || !canStep)}
           title={`${running ? 'Continue' : 'Run'} (F5)`}
           label={running ? 'Continue' : 'Run'}
           icon={require('./icons/run.svg')}
@@ -93,11 +93,11 @@ export default class Toolbar extends React.Component {
         <KeyListener
           keyCode={117} // F6
           onKeyDown={onStep}
-          disabled={(!paused && running) || !canStep}
+          disabled={(!paused || !canStep) && running}
         />
         <Button
           onClick={onStep}
-          disabled={(!paused && running) || !canStep}
+          disabled={(!paused || !canStep) && running}
           title='Step (F6)'
           icon={require('./icons/step.svg')}
         />
