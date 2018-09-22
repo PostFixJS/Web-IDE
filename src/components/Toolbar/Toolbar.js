@@ -23,6 +23,7 @@ export default class Toolbar extends React.Component {
     const {
       running,
       paused,
+      canStep,
       onRun,
       onPause,
       onStop,
@@ -92,11 +93,11 @@ export default class Toolbar extends React.Component {
         <KeyListener
           keyCode={117} // F6
           onKeyDown={onStep}
-          disabled={!paused && running}
+          disabled={(!paused && running) || !canStep}
         />
         <Button
           onClick={onStep}
-          disabled={!paused && running}
+          disabled={(!paused && running) || !canStep}
           title='Step (F6)'
           icon={require('./icons/step.svg')}
         />
@@ -129,6 +130,7 @@ export default class Toolbar extends React.Component {
 Toolbar.propTypes = {
   running: PropTypes.bool.isRequired,
   paused: PropTypes.bool.isRequired,
+  canStep: PropTypes.bool.isRequired,
   onRun: PropTypes.func.isRequired,
   onPause: PropTypes.func.isRequired,
   onStop: PropTypes.func.isRequired,

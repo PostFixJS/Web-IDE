@@ -52,7 +52,8 @@ const styles = (theme) => ({
 class App extends Component {
   state = {
     running: false,
-    paused: false
+    paused: false,
+    canStep: true
   }
   runner = new Runner()
   replRunner = this.runner.fork()
@@ -154,7 +155,10 @@ class App extends Component {
     if (!this.runner.running) {
       this.run(true)
     } else {
-      this.runner.step()
+      this.setState({ canStep: false }, async () => {
+        await this.runner.step()
+        this.setState({ canStep: true })
+      })
     }
   }
 
@@ -265,7 +269,7 @@ class App extends Component {
   }
 
   render() {
-    const { running, paused } = this.state
+    const { running, paused, canStep } = this.state
     const { classes, code, onToggleTheme, theme } = this.props
 
     return (
@@ -276,6 +280,7 @@ class App extends Component {
           className={classes.toolbar}
           running={running}
           paused={paused}
+          canStep={canStep}
           onRun={this.runProgram}
           onPause={this.pauseProgram}
           onStop={this.stopProgram}
