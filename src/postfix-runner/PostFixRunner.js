@@ -41,7 +41,9 @@ export default class PostFixRunner {
     }
     this._stepper = this.interpreter.startRun(lexer.getTokens())
     this._stepper.promise.catch((e) => {
-      this._rejectRun(e)
+      if (this._rejectRun) {
+        this._rejectRun(e)
+      }
     })
 
     return new Promise(async (resolve, reject) => {
