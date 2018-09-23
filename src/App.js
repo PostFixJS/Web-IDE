@@ -104,7 +104,6 @@ class App extends Component {
   }
 
   updateCode = debounce(200, (code) => {
-    console.log(code)
     this.props.dispatch(actions.setCode(code))
   })
 

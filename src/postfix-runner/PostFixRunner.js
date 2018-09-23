@@ -91,6 +91,9 @@ export default class PostFixRunner {
       const { done, value } = await this._stepper.step()
       if (done) {
         this._stepper = null
+        this._resolveRun(value)
+        this._resolveRun = null
+        this._rejectRun = null
       } else {
         this._lastPosition = value
         this._emit('position', value)
