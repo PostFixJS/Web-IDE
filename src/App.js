@@ -64,7 +64,7 @@ class App extends Component {
     registerBuiltIns(this.runner.interpreter)
     this.runner.on('position', (position) => {
       this.setState({ interpreterPosition: position })
-      if (this.state.paused) {
+      if (this.state.paused && this.runner.running) {
         this.showInterpreterPosition(position)
         this.showStackAndDict()
       }
@@ -144,7 +144,7 @@ class App extends Component {
 
   stopProgram = () => {
     this.runner.stop()
-    this.setState({ running: false })
+    this.setState({ running: false, canStep: true, error: false })
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
     this._editor.closeErrorWidget()
   }
@@ -167,6 +167,7 @@ class App extends Component {
   }
 
   handleInterpreterError (err) {
+    this.setState({ error: true })
     const pos = err.origin
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [
       {
@@ -269,7 +270,7 @@ class App extends Component {
   }
 
   render() {
-    const { running, paused, canStep } = this.state
+    const { running, paused, canStep, error } = this.state
     const { classes, code, onToggleTheme, theme } = this.props
 
     return (
@@ -280,7 +281,8 @@ class App extends Component {
           className={classes.toolbar}
           running={running}
           paused={paused}
-          canStep={canStep}
+          canPause={!error}
+          canStep={canStep && !error}
           onRun={this.runProgram}
           onPause={this.pauseProgram}
           onStop={this.stopProgram}

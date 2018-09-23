@@ -40,6 +40,9 @@ export default class PostFixRunner {
       this.interpreter.reset()
     }
     this._stepper = this.interpreter.startRun(lexer.getTokens())
+    this._stepper.promise.catch((e) => {
+      this._rejectRun(e)
+    })
 
     return new Promise(async (resolve, reject) => {
       this._resolveRun = resolve
@@ -87,18 +90,12 @@ export default class PostFixRunner {
     try {
       const { done, value } = await this._stepper.step()
       if (done) {
-        this._resolveRun()
-        this._resolveRun = null
-        this._rejectRun = null
         this._stepper = null
       } else {
         this._lastPosition = value
         this._emit('position', value)
       }
     } catch (e) {
-      this._rejectRun(e)
-      this._resolveRun = null
-      this._rejectRun = null
       this._stepper = null
     }
   }
@@ -121,8 +118,10 @@ export default class PostFixRunner {
       this._rejectRun(new InterruptedException())
       this._resolveRun = null
       this._rejectRun = null
-      this._stepper.cancel()
-      this._stepper = null
+      if (this._stepper) {
+        this._stepper.cancel()
+        this._stepper = null
+      }
     }
   }
 
