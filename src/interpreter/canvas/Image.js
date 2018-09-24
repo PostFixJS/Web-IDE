@@ -26,6 +26,8 @@ export default class Image {
           return Scale.from(obj)
         case 'rotate':
           return Rotate.from(obj)
+        case 'place-image':
+          return PlaceImage.from(obj)
         default:
           throw new types.Err(`Unsupported image type ${obj.items[0].toString()}`, obj.origin)
       }
@@ -233,8 +235,7 @@ class Rotate extends Image {
 
   draw (ctx) {
     ctx.save()
-    ctx.translate((this.width - this.image.width) / 2, (this.height - this.image.height) / 2)
-    ctx.translate(this.image.width / 2, this.image.height / 2)
+    ctx.translate(this.width / 2, this.height / 2)
     ctx.rotate(this.angle)
     ctx.translate(-this.image.width / 2, -this.image.height / 2)
     this.image.draw(ctx)
@@ -246,5 +247,65 @@ class Rotate extends Image {
       return new Rotate(obj.items[1].value, Image.from(obj.items[2]))
     }
     throw new types.Err('Invalid scale')
+  }
+}
+
+class PlaceImage extends Image {
+  constructor (front, back, x, y, hAlign = 'left', vAlign = 'top') {
+    super(0, 0) // width and height are set below
+    this.front = front
+    this.back = back
+
+    switch (hAlign) {
+      case 'left':
+        this.x = x
+        break
+      case 'center':
+        this.x = x - front.width / 2
+        break
+      case 'right':
+        this.x = x - front.width
+        break
+      default:
+        throw new Error(`Unsupported horizontal alignment ${hAlign}`)
+    }
+    switch (vAlign) {
+      case 'top':
+        this.y = y
+        break
+      case 'center':
+        this.y = y - front.height / 2
+        break
+      case 'bottom':
+        this.y = y - front.height
+        break
+      default:
+        throw new Error(`Unsupported vertical alignment ${vAlign}`)
+    }
+    this.width = Math.max(front.width + this.x, back.width)
+    this.height = Math.max(front.height + this.y, back.height)
+  }
+
+  draw (ctx) {
+    this.back.draw(ctx)
+    ctx.save()
+    ctx.translate(this.x, this.y)
+    this.front.draw(ctx)
+    ctx.restore()
+  }
+
+  static from (obj) {
+    if (obj.items.length === 5 && obj.items[3] instanceof types.Num && obj.items[4] instanceof types.Num) {
+      return new PlaceImage(Image.from(obj.items[1]), Image.from(obj.items[2]), obj.items[3].value, obj.items[4].value)
+    } else if (obj.items.length === 7 && obj.items[3] instanceof types.Num && obj.items[4] instanceof types.Num && obj.items[5] instanceof types.Str && obj.items[6] instanceof types.Str) {
+      if (!['left', 'center', 'right'].includes(obj.items[5].value)) {
+        throw new types.Err(`Unsupported horizontal alignment "${obj.items[5].value}"`, obj.items[5].origin || obj.origin)
+      }
+      if (!['left', 'center', 'right'].includes(obj.items[6].value)) {
+        throw new types.Err(`Unsupported vertical alignment "${obj.items[6].value}"`, obj.items[6].origin || obj.origin)
+      }
+      return new PlaceImage(Image.from(obj.items[1]), Image.from(obj.items[2]), obj.items[3].value, obj.items[4].value, obj.items[5].value, obj.items[6].value)
+    }
+    throw new types.Err('Invalid place-image')
   }
 }
