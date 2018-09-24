@@ -11,7 +11,7 @@ export default class Pen {
     if (obj instanceof types.Str) {
       // "red"
       return new Pen(Color.from(obj))
-    } else if (obj instanceof types.Arr) {
+    } else if (obj instanceof types.Arr && obj.items.length > 0 && obj.items[0] instanceof types.Sym && obj.items[0].name === 'pen') {
       if (obj.items.length === 2) {
         // [:pen <color>]
         return new Pen(Color.from(obj.items[1]))

@@ -2,8 +2,7 @@ import { keyGet } from 'postfixjs/operators/impl/array'
 import { popOperands } from 'postfixjs/typeCheck'
 import createCancellationToken from 'postfixjs/util/cancellationToken'
 import * as types from 'postfixjs/types'
-import Color from './canvas/Color'
-import Pen from './canvas/Pen'
+import Image from './canvas/Image'
 
 export function registerBuiltIns (interpreter) {
   interpreter.registerBuiltIn({
@@ -72,39 +71,13 @@ export function registerBuiltIns (interpreter) {
               interpreter._stack.push(state)
               await runInQueue(onDraw)
               if (cancelToken.cancelled) return
-              image = interpreter._stack.pop()
-              // TODO convert the image here and catch errors here
+              image = Image.from(interpreter._stack.pop())
             }
             // global requestAnimationFrame
             requestAnimationFrame(() => {
               const ctx = canvas.getContext('2d')
               ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-              try {
-                switch (image.items[0].name) {
-                  case 'square': {
-                    const size = image.items[1]
-                    ctx.beginPath()
-                    ctx.rect(0, 0, size.value, size.value)
-                    if (image.items.length >= 3) {
-                      ctx.fillStyle = Color.from(image.items[2]).color
-                      ctx.fill()
-                    }
-                    if (image.items.length >= 4) {
-                      const pen = Pen.from(image.items[3])
-                      ctx.strokeStyle = pen.color.color
-                      ctx.lineWidth = pen.stroke
-                      ctx.stroke()
-                    }
-                    break
-                  }
-                  default:
-                    break
-                }
-              } catch (e) {
-                cancel()
-                rejectAll(e)
-              }
+              image.draw(ctx)
               if (!cancelToken.cancelled) redraw()
             })
           } catch (e) {

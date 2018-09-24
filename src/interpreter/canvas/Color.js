@@ -9,7 +9,7 @@ export default class Color {
     if (obj instanceof types.Str) {
       // "red"
       return new Color(obj.value)
-    } else if (obj instanceof types.Arr) {
+    } else if (obj instanceof types.Arr && obj.items.length > 0 && obj.items[0] instanceof types.Sym && obj.items[0].name === 'color') {
       if (obj.items.length === 2 && obj.items[1] instanceof types.Str) {
         // [:color "red"]
         return new Color(obj.items[1].value)
