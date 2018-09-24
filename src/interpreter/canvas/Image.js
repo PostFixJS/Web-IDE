@@ -20,6 +20,8 @@ export default class Image {
           return Circle.from(obj)
         case 'ellipse':
           return Ellipse.from(obj)
+        case 'text':
+          return Text.from(obj)
         case 'scale':
           return Scale.from(obj)
         case 'rotate':
@@ -68,7 +70,7 @@ class Rectangle extends Image {
   }
 
   static from (obj) {
-    if (obj.items.length >= 2 && obj.items[1] instanceof types.Num) {
+    if (obj.items.length >= 3 && obj.items[1] instanceof types.Num) {
       const width = obj.items[1].value
       const height = obj.items[2].value
       let fill = null
@@ -137,7 +139,7 @@ class Ellipse extends Image {
   }
 
   static from (obj) {
-    if (obj.items.length >= 2 && obj.items[1] instanceof types.Num && obj.items[2] instanceof types.Num) {
+    if (obj.items.length >= 3 && obj.items[1] instanceof types.Num && obj.items[2] instanceof types.Num) {
       const width = obj.items[1].value
       const height = obj.items[2].value
       let fill = null
@@ -147,6 +149,53 @@ class Ellipse extends Image {
       return new Ellipse(width, height, fill, stroke)
     }
     throw new types.Err('Invalid ellipse', obj.origin)
+  }
+}
+
+class Text extends Image {
+  constructor (text, font, fill, stroke) {
+    super(Text.getTextWidth(text, font), font.size)
+    this.text = text
+    this.font = font
+    this.fill = fill
+    this.stroke = stroke
+  }
+
+  draw (ctx) {
+    ctx.font = `${this.font.size}px ${this.font.name}`
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'top'
+    if (this.stroke) {
+      ctx.strokeStyle = this.stroke.color.color
+      ctx.lineWidth = this.stroke.stroke
+      ctx.strokeText(this.text, 0, 0)
+    }
+    if (this.fill) {
+      ctx.fillStyle = this.fill.color
+      ctx.fillText(this.text, 0, 0)
+    }
+  }
+
+  static getTextWidth (text, font) {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    ctx.font = `${font.size}px ${font.name}`
+    const width = ctx.measureText(text).width
+    canvas.remove()
+    return width
+  }
+
+  static from (obj) {
+    if (obj.items.length >= 3 && obj.items[1] instanceof types.Str) {
+      const text = obj.items[1].value
+      const font = Font.from(obj.items[2])
+      let fill = null
+      let stroke = null
+      if (obj.items.length >= 4) fill = Color.from(obj.items[3])
+      if (obj.items.length >= 5) stroke = Pen.from(obj.items[4])
+      return new Text(text, font, fill, stroke)
+    }
+    throw new types.Err('Invalid text', obj.origin)
   }
 }
 
@@ -175,8 +224,8 @@ class Scale extends Image {
 class Rotate extends Image {
   constructor (angle, image) {
     super(
-      Math.abs(image.height * Math.cos(angle) + image.width * Math.cos(Math.PI - angle)),
-      Math.abs(image.height * Math.sin(angle) + image.width * Math.sin(Math.PI - angle))
+      Math.abs(image.height * Math.sin(angle)) + Math.abs(image.width * Math.cos(angle)),
+      Math.abs(image.height * Math.cos(angle)) + Math.abs(image.width * Math.sin(angle))
     )
     this.image = image
     this.angle = angle
@@ -184,6 +233,7 @@ class Rotate extends Image {
 
   draw (ctx) {
     ctx.save()
+    ctx.translate((this.width - this.image.width) / 2, (this.height - this.image.height) / 2)
     ctx.translate(this.image.width / 2, this.image.height / 2)
     ctx.rotate(this.angle)
     ctx.translate(-this.image.width / 2, -this.image.height / 2)
