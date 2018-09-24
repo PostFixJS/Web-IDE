@@ -24,6 +24,8 @@ export default class Color {
         // [:color r g b a]
         return new Color(`rgba(${Math.floor(obj.items[1].value * 255)}, ${Math.floor(obj.items[2].value * 255)}, ${Math.floor(obj.items[3].value * 255)}, ${obj.items[4].value})`)
       }
+    } else if (obj instanceof types.Nil) {
+      return null // nil is a valid color (no color)
     }
     throw new types.Err('Unsupported color format', obj.origin)
   }

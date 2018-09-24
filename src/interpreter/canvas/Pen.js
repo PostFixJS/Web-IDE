@@ -19,6 +19,8 @@ export default class Pen {
         // [:pen <color> <stroke width>]
         return new Pen(Color.from(obj.items[1]), obj.items[2].value)
       }
+    } else if (obj instanceof types.Nil) {
+      return null // nil is a valid pen (no pen)
     }
     throw new types.Err('Unsupported pen format', obj.origin)
   }
