@@ -1,7 +1,8 @@
 import { keyGet } from 'postfixjs/operators/impl/array'
-import { popOperands } from 'postfixjs/typeCheck'
+import { popOperands, popOperand } from 'postfixjs/typeCheck'
 import createCancellationToken from 'postfixjs/util/cancellationToken'
 import * as types from 'postfixjs/types'
+import { registerFunctions } from './doc'
 import Image from './canvas/Image'
 
 export function registerBuiltIns (interpreter) {
@@ -119,5 +120,72 @@ export function registerBuiltIns (interpreter) {
         })
       }
     }
+  })
+
+  interpreter.registerBuiltIn({
+    name: 'image-width',
+    execute (interpreter, token) {
+      const image = Image.from(popOperand(interpreter, { type: 'Arr' }, token))
+      interpreter._stack.push(new types.Flt(image.width))
+    }
+  })
+
+  interpreter.registerBuiltIn({
+    name: 'image-height',
+    execute (interpreter, token) {
+      const image = Image.from(popOperand(interpreter, { type: 'Arr' }, token))
+      interpreter._stack.push(new types.Flt(image.height))
+    }
+  })
+
+  registerFunctions({
+    name: 'show',
+    description: 'Open a window with a canvas to draw on.',
+    params: [{
+      name: 'title',
+      description: 'Window title',
+      type: ':Str'
+    }, {
+      name: 'width',
+      description: 'Window width',
+      type: ':Int'
+    }, {
+      name: 'height',
+      description: 'Window height',
+      type: ':Int'
+    }, {
+      name: 'initialState',
+      description: 'Initial state',
+      type: ':Obj'
+    }, {
+      name: 'callbacks',
+      description: 'Event callbacks',
+      type: ':Arr'
+    }],
+    returns: []
+  }, {
+    name: 'image-width',
+    description: 'Get the width of an image.',
+    params: [{
+      name: 'image',
+      description: 'Image definition',
+      type: ':Arr'
+    }],
+    returns: [{
+      type: ':Flt',
+      description: 'Image width'
+    }]
+  }, {
+    name: 'image-height',
+    description: 'Get the height of an image.',
+    params: [{
+      name: 'image',
+      description: 'Image definition',
+      type: ':Arr'
+    }],
+    returns: [{
+      type: ':Flt',
+      description: 'Image height'
+    }]
   })
 }
