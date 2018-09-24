@@ -95,9 +95,11 @@ export function registerBuiltIns (interpreter) {
         win.onkeypress = (e) => {
           enqueue(async () => {
             // TODO prevent infinite loops, allow debugging (i.e. use a runner)
+            interpreter._stack.push(state)
             interpreter._stack.push(new types.Str(e.key))
             try {
               await runInQueue(onKeyPress)
+              state = interpreter._stack.pop()
             } catch (e) {
               cancel()
               if (e.message !== 'cancelled') {
