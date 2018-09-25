@@ -34,6 +34,8 @@ export default class Image {
           return Above.from(obj)
         case 'overlay':
           return Overlay.from(obj)
+        case 'underlay':
+          return Underlay.from(obj)
         default:
           throw new types.Err(`Unsupported image type ${obj.items[0].toString()}`, obj.origin)
       }
@@ -509,5 +511,26 @@ class Overlay extends Image {
       }
     }
     throw new types.Err('Invalid overlay', obj.origin)
+  }
+}
+
+class Underlay extends Overlay {
+  static from (obj) {
+    if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
+      return new Overlay(obj.items[1].items.map((image) => Image.from(image)).reverse())
+    } else if (obj.items.length >= 4 && obj.items[1] instanceof types.Arr && obj.items[2] instanceof types.Str && obj.items[3] instanceof types.Str) {
+      if (!['left', 'center', 'right'].includes(obj.items[2].value)) {
+        throw new types.Err(`Unsupported horizontal alignment "${obj.items[2].value}"`, obj.items[2].origin || obj.origin)
+      }
+      if (!['top', 'center', 'bottom'].includes(obj.items[3].value)) {
+        throw new types.Err(`Unsupported vertical alignment "${obj.items[3].value}"`, obj.items[3].origin || obj.origin)
+      }
+      if (obj.items.length === 4) {
+        return new Overlay(obj.items[1].items.map((image) => Image.from(image)).reverse(), obj.items[2].value, obj.items[3].value)
+      } else if (obj.items.length === 6 && obj.items[4] instanceof types.Num && obj.items[5] instanceof types.Num) {
+        return new Overlay(obj.items[1].items.map((image) => Image.from(image)).reverse(), obj.items[2].value, obj.items[3].value, obj.items[4].value, obj.items[5].value)
+      }
+    }
+    throw new types.Err('Invalid underlay', obj.origin)
   }
 }
