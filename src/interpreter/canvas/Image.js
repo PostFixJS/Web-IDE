@@ -30,6 +30,8 @@ export default class Image {
           return PlaceImage.from(obj)
         case 'beside':
           return Beside.from(obj)
+        case 'above':
+          return Above.from(obj)
         default:
           throw new types.Err(`Unsupported image type ${obj.items[0].toString()}`, obj.origin)
       }
@@ -74,7 +76,7 @@ class Rectangle extends Image {
   }
 
   static from (obj) {
-    if (obj.items.length >= 3 && obj.items[1] instanceof types.Num) {
+    if (obj.items.length >= 3 && obj.items[1] instanceof types.Num && obj.items[2] instanceof types.Num) {
       const width = obj.items[1].value
       const height = obj.items[2].value
       let fill = null
@@ -358,5 +360,55 @@ class Beside extends Image {
       return new Beside(obj.items[1].items.map((image) => Image.from(image)), obj.items[2].value)
     }
     throw new types.Err('Invalid beside', obj.origin)
+  }
+}
+
+
+class Above extends Image {
+  constructor (images, hAlign = 'left') {
+    super(
+      Math.max.apply(undefined, images.map(({ width }) => width)),
+      images.reduce((sum, { height }) => height + sum, 0),
+    )
+    this.images = images
+    this.hAlign = hAlign
+    if (!['left', 'center', 'right'].includes(hAlign)) {
+      throw new Error(`Unsupported horizontal alignment ${hAlign}`)
+    }
+  }
+
+  draw (ctx) {
+    ctx.save()
+    if (this.hAlign === 'left') {
+      for (const image of this.images) {
+        image.draw(ctx)
+        ctx.translate(0, image.height)
+      }
+    } else if (this.hAlign === 'center') {
+      for (const image of this.images) {
+        ctx.translate((this.width - image.width) / 2, 0)
+        image.draw(ctx)
+        ctx.translate(-(this.width - image.width) / 2, image.height)
+      }
+    } else if (this.hAlign === 'right') {
+      for (const image of this.images) {
+        ctx.translate(this.width - image.width, 0)
+        image.draw(ctx)
+        ctx.translate(-(this.width - image.width), image.height)
+      }
+    }
+    ctx.restore()
+  }
+
+  static from (obj) {
+    if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
+      return new Above(obj.items[1].items.map((image) => Image.from(image)))
+    } else if (obj.items.length === 3 && obj.items[1] instanceof types.Arr && obj.items[2] instanceof types.Str) {
+      if (!['left', 'center', 'right'].includes(obj.items[2].value)) {
+        throw new types.Err(`Unsupported horizontal alignment "${obj.items[2].value}"`, obj.items[2].origin || obj.origin)
+      }
+      return new Above(obj.items[1].items.map((image) => Image.from(image)), obj.items[2].value)
+    }
+    throw new types.Err('Invalid above', obj.origin)
   }
 }
