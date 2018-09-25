@@ -28,6 +28,8 @@ export default class Image {
           return Rotate.from(obj)
         case 'place-image':
           return PlaceImage.from(obj)
+        case 'beside':
+          return Beside.from(obj)
         default:
           throw new types.Err(`Unsupported image type ${obj.items[0].toString()}`, obj.origin)
       }
@@ -219,7 +221,7 @@ class Scale extends Image {
     if (obj.items.length === 3 && obj.items[1] instanceof types.Num) {
       return new Scale(obj.items[1].value, Image.from(obj.items[2]))
     }
-    throw new types.Err('Invalid scale')
+    throw new types.Err('Invalid scale', obj.origin)
   }
 }
 
@@ -246,7 +248,7 @@ class Rotate extends Image {
     if (obj.items.length === 3 && obj.items[1] instanceof types.Num) {
       return new Rotate(obj.items[1].value, Image.from(obj.items[2]))
     }
-    throw new types.Err('Invalid scale')
+    throw new types.Err('Invalid rotate', obj.origin)
   }
 }
 
@@ -301,11 +303,60 @@ class PlaceImage extends Image {
       if (!['left', 'center', 'right'].includes(obj.items[5].value)) {
         throw new types.Err(`Unsupported horizontal alignment "${obj.items[5].value}"`, obj.items[5].origin || obj.origin)
       }
-      if (!['left', 'center', 'right'].includes(obj.items[6].value)) {
+      if (!['top', 'center', 'bottom'].includes(obj.items[6].value)) {
         throw new types.Err(`Unsupported vertical alignment "${obj.items[6].value}"`, obj.items[6].origin || obj.origin)
       }
       return new PlaceImage(Image.from(obj.items[1]), Image.from(obj.items[2]), obj.items[3].value, obj.items[4].value, obj.items[5].value, obj.items[6].value)
     }
-    throw new types.Err('Invalid place-image')
+    throw new types.Err('Invalid place-image', obj.origin)
+  }
+}
+
+class Beside extends Image {
+  constructor (images, vAlign = 'top') {
+    super(
+      images.reduce((sum, { width }) => width + sum, 0),
+      Math.max.apply(undefined, images.map(({ height }) => height))
+    )
+    this.images = images
+    this.vAlign = vAlign
+    if (!['top', 'center', 'bottom'].includes(vAlign)) {
+      throw new Error(`Unsupported vertical alignment ${vAlign}`)
+    }
+  }
+
+  draw (ctx) {
+    ctx.save()
+    if (this.vAlign === 'top') {
+      for (const image of this.images) {
+        image.draw(ctx)
+        ctx.translate(image.width, 0)
+      }
+    } else if (this.vAlign === 'center') {
+      for (const image of this.images) {
+        ctx.translate(0, (this.height - image.height) / 2)
+        image.draw(ctx)
+        ctx.translate(image.width, -(this.height - image.height) / 2)
+      }
+    } else if (this.vAlign === 'bottom') {
+      for (const image of this.images) {
+        ctx.translate(0, this.height - image.height)
+        image.draw(ctx)
+        ctx.translate(image.width, -(this.height - image.height))
+      }
+    }
+    ctx.restore()
+  }
+
+  static from (obj) {
+    if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
+      return new Beside(obj.items[1].items.map((image) => Image.from(image)))
+    } else if (obj.items.length === 3 && obj.items[1] instanceof types.Arr && obj.items[2] instanceof types.Str) {
+      if (!['top', 'center', 'bottom'].includes(obj.items[2].value)) {
+        throw new types.Err(`Unsupported vertical alignment "${obj.items[2].value}"`, obj.items[2].origin || obj.origin)
+      }
+      return new Beside(obj.items[1].items.map((image) => Image.from(image)), obj.items[2].value)
+    }
+    throw new types.Err('Invalid beside', obj.origin)
   }
 }
