@@ -32,6 +32,8 @@ export default class Image {
           return Beside.from(obj)
         case 'above':
           return Above.from(obj)
+        case 'overlay':
+          return Overlay.from(obj)
         default:
           throw new types.Err(`Unsupported image type ${obj.items[0].toString()}`, obj.origin)
       }
@@ -363,7 +365,6 @@ class Beside extends Image {
   }
 }
 
-
 class Above extends Image {
   constructor (images, hAlign = 'left') {
     super(
@@ -410,5 +411,103 @@ class Above extends Image {
       return new Above(obj.items[1].items.map((image) => Image.from(image)), obj.items[2].value)
     }
     throw new types.Err('Invalid above', obj.origin)
+  }
+}
+
+class Overlay extends Image {
+  constructor (images, hAlign = 'center', vAlign = 'center', dx = 0, dy = 0) {
+    super(0, 0) // width and height are set below
+    this.images = images
+    this.hAlign = hAlign
+    this.vAlign = vAlign
+    this.dx = dx
+    this.dy = dy
+    this.maxImageWidth = Math.max.apply(undefined, images.map(({ width }) => width))
+    this.maxImageHeight = Math.max.apply(undefined, images.map(({ height }) => height))
+
+    if (this.dx === 0) {
+      this.width = this.maxImageWidth
+    } else {
+      switch (this.hAlign) {
+        case 'left':
+          this.width = Math.max.apply(undefined, images.map(({ width }, i) => i * dx + width))
+          break
+        case 'center':
+          this.width = Math.max.apply(undefined, images.map(({ width }, i) => (this.maxImageWidth - width) / 2 + i * dx + width))
+          break
+        case 'right':
+          this.width = Math.max.apply(undefined, images.map((image, i) => this.maxImageWidth + i * dx))
+          break
+        default:
+          throw new Error(`Unsupported horizontal alignment ${this.hAlign}`)
+      }
+    }
+    if (this.dy === 0) {
+      this.height = this.maxImageHeight
+    } else {
+      switch (this.vAlign) {
+        case 'top':
+          this.height = Math.max.apply(undefined, images.map(({ height }, i) => i * dy + height))
+          break
+        case 'center':
+          this.height = Math.max.apply(undefined, images.map(({ height }, i) => (this.maxImageHeight - height) / 2 + i * dy + height))
+          break
+        case 'bottom':
+          this.height = Math.max.apply(undefined, images.map((image, i) => this.maxImageHeight + i * dy))
+          break
+        default:
+          throw new Error(`Unsupported horizontal alignment ${this.vAlign}`)
+      }
+    }
+  }
+
+  draw (ctx) {
+    ctx.save()
+    for (const image of this.images) {
+      ctx.save()
+      switch (this.hAlign) {
+        case 'center':
+          ctx.translate((this.maxImageWidth - image.width) / 2, 0)
+          break
+        case 'right':
+          ctx.translate(this.maxImageWidth - image.width, 0)
+          break
+        default:
+          break
+      }
+      switch (this.vAlign) {
+        case 'center':
+          ctx.translate(0, (this.maxImageHeight - image.height) / 2)
+          break
+        case 'bottom':
+          ctx.translate(0, this.maxImageHeight - image.height)
+          break
+        default:
+          break
+      }
+      image.draw(ctx)
+      ctx.restore()
+      ctx.translate(this.dx, this.dy)
+    }
+    ctx.restore()
+  }
+
+  static from (obj) {
+    if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
+      return new Overlay(obj.items[1].items.map((image) => Image.from(image)))
+    } else if (obj.items.length >= 4 && obj.items[1] instanceof types.Arr && obj.items[2] instanceof types.Str && obj.items[3] instanceof types.Str) {
+      if (!['left', 'center', 'right'].includes(obj.items[2].value)) {
+        throw new types.Err(`Unsupported horizontal alignment "${obj.items[2].value}"`, obj.items[2].origin || obj.origin)
+      }
+      if (!['top', 'center', 'bottom'].includes(obj.items[3].value)) {
+        throw new types.Err(`Unsupported vertical alignment "${obj.items[3].value}"`, obj.items[3].origin || obj.origin)
+      }
+      if (obj.items.length === 4) {
+        return new Overlay(obj.items[1].items.map((image) => Image.from(image)), obj.items[2].value, obj.items[3].value)
+      } else if (obj.items.length === 6 && obj.items[4] instanceof types.Num && obj.items[5] instanceof types.Num) {
+        return new Overlay(obj.items[1].items.map((image) => Image.from(image)), obj.items[2].value, obj.items[3].value, obj.items[4].value, obj.items[5].value)
+      }
+    }
+    throw new types.Err('Invalid overlay', obj.origin)
   }
 }
