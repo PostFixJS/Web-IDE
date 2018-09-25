@@ -252,7 +252,7 @@ class App extends Component {
   }
 
   handleOpen = (code) => {
-    this.setState({ code })
+    this.props.dispatch(actions.setCode(code))
   }
 
   handleDragOver = (e) => {
