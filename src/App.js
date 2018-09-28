@@ -186,6 +186,7 @@ class App extends Component {
       }
     ])
     this._editor.showErrorWidget(positionToMonaco(err.origin), err)
+    this._editor.editor.revealLine(pos.line + 3) // 2 lines further down so that the widget is fully visible
   }
 
   showInterpreterPosition (pos) {
@@ -206,6 +207,7 @@ class App extends Component {
         }
       }
     ])
+    this._editor.editor.revealLine(pos.line + 1)
   }
 
   static mapObjectForViewer (obj) {
