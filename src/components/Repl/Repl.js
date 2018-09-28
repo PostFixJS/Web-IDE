@@ -92,7 +92,7 @@ class Repl extends React.Component {
           }
           this.props.onExecutionFinished()
         })
-    }, 'editorTextFocus')
+    }, 'editorTextFocus && !suggestWidgetVisible')
 
     editor.addCommand(monaco.KeyCode.UpArrow, () => {
       if (this.state.running) return
@@ -119,7 +119,7 @@ class Repl extends React.Component {
           })
         }
       }
-    }, 'editorTextFocus')
+    }, 'editorTextFocus && !suggestWidgetVisible')
 
     editor.addCommand(monaco.KeyCode.DownArrow, () => {
       if (this.state.running) return
@@ -144,7 +144,7 @@ class Repl extends React.Component {
           })
         }
       }
-    }, 'editorTextFocus')
+    }, 'editorTextFocus && !suggestWidgetVisible')
 
     editor.onDidAttemptReadOnlyEdit((e) => {
       if (this.props.disabled) {
