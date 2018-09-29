@@ -33,24 +33,34 @@ export function registerBuiltIns (interpreter) {
 
       // queue interpreter invocations to prevent race conditions due to async execution
       const enqueue = (() => {
+        let cancelQueue = null
+        cancelToken.onCancel(() => {
+          if (cancelQueue != null) {
+            cancelQueue()
+          }
+        })
+        const runInQueue = async (obj) => {
+          const { promise, cancel } = interpreter.__runner.runInner(obj)
+          cancelQueue = cancel
+          await promise
+          cancelQueue = null
+        }
+
         let queue = Promise.resolve()
         return (fn) => {
-          queue = queue.then(fn)
+          queue = queue.then(async () => {
+            try {
+              await fn(runInQueue)
+            } catch (e) {
+              cancel()
+              if (e.message !== 'cancelled') {
+                rejectAll(e)
+              }
+            }
+          })
           return queue
         }
       })()
-      let cancelQueue = null
-      cancelToken.onCancel(() => {
-        if (cancelQueue != null) {
-          cancelQueue()
-        }
-      })
-      const runInQueue = async (obj) => {
-        const { promise, cancel } = interpreter.__runner.runInner(obj)
-        cancelQueue = cancel
-        await promise
-        cancelQueue = null
-      }
       
       let state = initialState
 
@@ -58,34 +68,27 @@ export function registerBuiltIns (interpreter) {
       const onTick = keyGet(callbacks, new types.Sym('on-tick'), null)
       const redraw = () => {
         if (cancelToken.cancelled) return
-        enqueue(async () => {
-          try {
-            if (onTick) {
-              interpreter._stack.push(state)
-              await runInQueue(onTick)
-              state = interpreter._stack.pop()
-            }
-
-            let image = null
-            if (onDraw) {
-              interpreter._stack.push(state)
-              await runInQueue(onDraw)
-              if (cancelToken.cancelled) return
-              image = Image.from(interpreter._stack.pop())
-            }
-            // global requestAnimationFrame
-            requestAnimationFrame(() => {
-              const ctx = canvas.getContext('2d')
-              ctx.clearRect(0, 0, canvas.width, canvas.height)
-              image.draw(ctx)
-              if (!cancelToken.cancelled) redraw()
-            })
-          } catch (e) {
-            cancel()
-            if (e.message !== 'cancelled') {
-              rejectAll(e)
-            }
+        enqueue(async (runObj) => {
+          if (onTick) {
+            interpreter._stack.push(state)
+            await runObj(onTick)
+            state = interpreter._stack.pop()
           }
+
+          let image = null
+          if (onDraw) {
+            interpreter._stack.push(state)
+            await runObj(onDraw)
+            if (cancelToken.cancelled) return
+            image = Image.from(interpreter._stack.pop())
+          }
+          // global requestAnimationFrame
+          requestAnimationFrame(() => {
+            const ctx = canvas.getContext('2d')
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            image.draw(ctx)
+            if (!cancelToken.cancelled) redraw()
+          })
         })
       }
       setImmediate(redraw)
@@ -93,18 +96,11 @@ export function registerBuiltIns (interpreter) {
       const onKeyPress = keyGet(callbacks, new types.Sym('on-key-press'), null)
       if (onKeyPress) {
         win.onkeypress = (e) => {
-          enqueue(async () => {
+          enqueue(async (runObj) => {
             interpreter._stack.push(state)
             interpreter._stack.push(new types.Str(e.key))
-            try {
-              await runInQueue(onKeyPress)
-              state = interpreter._stack.pop()
-            } catch (e) {
-              cancel()
-              if (e.message !== 'cancelled') {
-                rejectAll(e)
-              }
-            }
+            await runObj(onKeyPress)
+            state = interpreter._stack.pop()
           })
         }
       }
