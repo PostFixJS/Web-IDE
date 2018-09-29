@@ -63,8 +63,8 @@ class App extends Component {
     super(props)
     registerBuiltIns(this.runner.interpreter)
     this.runner.on('position', (position) => {
-      this.setState({ interpreterPosition: position })
       if (this.state.paused && this.runner.running) {
+        this.setState({ interpreterPosition: position })
         this.showInterpreterPosition(position)
         this.showStackAndDict()
       }
