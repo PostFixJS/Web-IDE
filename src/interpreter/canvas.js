@@ -46,10 +46,11 @@ export function registerBuiltIns (interpreter) {
         }
       })
       const runInQueue = async (obj) => {
-        const { promise, cancel } = interpreter.runObj(obj)
-        cancelQueue = cancel
-        await promise
-        cancelQueue = null
+        await interpreter.__runner.runInner(obj)
+        // const { promise, cancel } = interpreter.runObj(obj)
+        // cancelQueue = cancel
+        // await promise
+        // cancelQueue = null
       }
       
       let state = initialState

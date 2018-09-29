@@ -4,9 +4,18 @@ import Lexer from 'postfixjs/Lexer'
 export default class PostFixRunner {
   constructor () {
     this.interpreter = new Interpreter()
+    this.interpreter.__runner = this
     this._listeners = {}
     this._lastPosition = null
     this.breakpoints = []
+
+    // the runner state encapsulates the state of the current execution
+    this._runnerState = {
+      stepper: null,
+      rejectRun: null,
+      resolveRun: null
+    }
+    this._runnerStateStack = []
   }
 
   /**
@@ -22,7 +31,7 @@ export default class PostFixRunner {
   }
 
   get running () {
-    return this._resolveRun != null
+    return this._runnerState.resolveRun != null
   }
 
   run (code, pauseImmediately = false, reset = true) {
@@ -39,16 +48,16 @@ export default class PostFixRunner {
     if (reset) {
       this.interpreter.reset()
     }
-    this._stepper = this.interpreter.startRun(lexer.getTokens())
-    this._stepper.promise.catch((e) => {
-      if (this._rejectRun) {
-        this._rejectRun(e)
+    this._runnerState.stepper = this.interpreter.startRun(lexer.getTokens())
+    this._runnerState.stepper.promise.catch((e) => {
+      if (this._runnerState.rejectRun) {
+        this._runnerState.rejectRun(e)
       }
     })
 
     return new Promise(async (resolve, reject) => {
-      this._resolveRun = resolve
-      this._rejectRun = reject
+      this._runnerState.resolveRun = resolve
+      this._runnerState.rejectRun = reject
 
       if (pauseImmediately) {
         await this.step()
@@ -58,6 +67,29 @@ export default class PostFixRunner {
       } else {
         this._timeoutId = setImmediate(this._step)
       }
+    })
+  }
+
+  runInner (obj) {
+    clearImmediate(this._timeoutId)
+    this._runnerStateStack.push(this._runnerState)
+    this._runnerState = {
+      stepper: null,
+      rejectRun: null,
+      resolveRun: null
+    }
+    this._runnerState.stepper = this.interpreter.startRunObj(obj)
+    this._runnerState.stepper.promise.catch((e) => {
+      if (this._runnerState.rejectRun) {
+        this._runnerState.rejectRun(e)
+      }
+    })
+
+    return new Promise(async (resolve, reject) => {
+      this._runnerState.resolveRun = resolve
+      this._runnerState.rejectRun = reject
+
+      this._timeoutId = setImmediate(this._step)
     })
   }
 
@@ -75,10 +107,13 @@ export default class PostFixRunner {
         } else {
           this._timeoutId = setImmediate(this._step)
         }
+      } else if (this._runnerStateStack.length > 0) {
+        this._runnerState = this._runnerStateStack.pop()
+        this._timeoutId = setImmediate(this._step)
       }
     } catch (e) {
       if (!(e instanceof InterruptedException)) {
-        this._rejectRun(e)
+        this._runnerState.rejectRun(e)
       }
     }
   }
@@ -90,18 +125,19 @@ export default class PostFixRunner {
     }
 
     try {
-      const { done, value } = await this._stepper.step()
+      const { done, value } = await this._runnerState.stepper.step()
       if (done) {
-        this._stepper = null
-        this._resolveRun(value)
-        this._resolveRun = null
-        this._rejectRun = null
+        this._runnerState.stepper = null
+        this._runnerState.resolveRun(value)
+        this._runnerState.resolveRun = null
+        this._runnerState.rejectRun = null
       } else {
         this._lastPosition = value
         this._emit('position', value)
       }
     } catch (e) {
-      this._stepper = null
+      this._runnerState._stepper = null
+      // TODO what should happen to the other runnerStates here?
     }
   }
 
@@ -120,12 +156,14 @@ export default class PostFixRunner {
       }
 
       clearImmediate(this._timeoutId)
-      this._rejectRun(new InterruptedException())
-      this._resolveRun = null
-      this._rejectRun = null
-      if (this._stepper) {
-        this._stepper.cancel()
-        this._stepper = null
+
+      // TODO also stop all nested runner states
+      this._runnerState.rejectRun(new InterruptedException())
+      this._runnerState.resolveRun = null
+      this._runnerState.rejectRun = null
+      if (this._runnerState.stepper) {
+        this._runnerState.stepper.cancel()
+        this._runnerState.stepper = null
       }
     }
   }
@@ -175,7 +213,7 @@ export default class PostFixRunner {
               throw e
             } else {
               e.breakpoint = breakpoint
-              this._rejectRun(e)
+              this._runnerState.rejectRun(e) // TODO also reject all nested runner states
             }
           }
           break
