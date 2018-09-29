@@ -156,7 +156,12 @@ class App extends Component {
     } else {
       this.setState({ canStep: false }, async () => {
         await this.runner.step()
-        this.setState({ canStep: true })
+        if (this.runner.running) {
+          this.setState({ canStep: true })
+        } else {
+          this.setState({ running: false, canStep: true, error: false })
+          this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
+        }
       })
     }
   }
