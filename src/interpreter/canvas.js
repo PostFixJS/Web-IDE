@@ -46,11 +46,10 @@ export function registerBuiltIns (interpreter) {
         }
       })
       const runInQueue = async (obj) => {
-        await interpreter.__runner.runInner(obj)
-        // const { promise, cancel } = interpreter.runObj(obj)
-        // cancelQueue = cancel
-        // await promise
-        // cancelQueue = null
+        const { promise, cancel } = interpreter.__runner.runInner(obj)
+        cancelQueue = cancel
+        await promise
+        cancelQueue = null
       }
       
       let state = initialState
@@ -60,7 +59,6 @@ export function registerBuiltIns (interpreter) {
       const redraw = () => {
         if (cancelToken.cancelled) return
         enqueue(async () => {
-          // TODO prevent infinite loops, allow debugging (i.e. use a runner)
           try {
             if (onTick) {
               interpreter._stack.push(state)
@@ -96,7 +94,6 @@ export function registerBuiltIns (interpreter) {
       if (onKeyPress) {
         win.onkeypress = (e) => {
           enqueue(async () => {
-            // TODO prevent infinite loops, allow debugging (i.e. use a runner)
             interpreter._stack.push(state)
             interpreter._stack.push(new types.Str(e.key))
             try {
