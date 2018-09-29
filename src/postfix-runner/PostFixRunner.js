@@ -131,11 +131,15 @@ export default class PostFixRunner {
       return
     }
 
+    if (this._runnerState == null) return
     const { done, value } = await this._runnerState.stepper.step()
+
     if (done) {
-      this._runnerState.stepper = null
-      if (this._runnerState.resolveRun) {
-        this._runnerState.resolveRun(value)
+      if (this._runnerState != null) {
+        this._runnerState.stepper = null
+        if (this._runnerState.resolveRun) {
+          this._runnerState.resolveRun(value)
+        }
       }
     } else {
       this._lastPosition = value
