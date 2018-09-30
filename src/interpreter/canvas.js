@@ -22,7 +22,8 @@ export function registerBuiltIns (interpreter) {
       
       const { cancel, token: cancelToken } = createCancellationToken()
       let rejectAll
-      const win = window.open('about:blank', '_blank', `top=${top},left=${left},width=${width.value},height=${height.value}`)
+      let windowClosed = false
+      const win = window.open('', '_blank', `top=${top},left=${left},width=${width.value},height=${height.value}`)
       win.document.title = title.value
       const canvas = win.document.createElement('canvas')
       canvas.style.margin = '0 auto'
@@ -31,7 +32,7 @@ export function registerBuiltIns (interpreter) {
       canvas.height = height.value
       win.document.body.style.margin = 0
       win.document.body.appendChild(canvas)
-      win.addEventListener('unload', cancel)
+      win.addEventListener('unload', () => { windowClosed = true })
       win.addEventListener('resize', () => {
         canvas.width  = Math.min(win.innerWidth, win.innerHeight)
         canvas.height  = Math.min(win.innerWidth, win.innerHeight)
@@ -46,6 +47,7 @@ export function registerBuiltIns (interpreter) {
           }
         })
         const runInQueue = async (obj) => {
+          if (cancelToken.cancelled || windowClosed) return
           const { promise, cancel } = interpreter.__runner.runInner(obj)
           cancelQueue = cancel
           await promise
@@ -55,10 +57,10 @@ export function registerBuiltIns (interpreter) {
         let queue = Promise.resolve()
         return (fn) => {
           queue = queue.then(async () => {
+            if (cancelToken.cancelled) return
             try {
               await fn(runInQueue)
             } catch (e) {
-              cancel()
               if (e.message !== 'Cancelled') {
                 rejectAll(e)
               }
@@ -91,7 +93,6 @@ export function registerBuiltIns (interpreter) {
           if (onDraw) {
             interpreter._stack.push(state)
             await runObj(onDraw)
-            if (cancelToken.cancelled) return
             image = Image.from(interpreter._stack.pop())
           }
           // global requestAnimationFrame
