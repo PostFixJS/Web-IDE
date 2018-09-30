@@ -39,7 +39,7 @@ class DictViewer extends React.Component {
           {dicts.map((dict, i) => (
             <React.Fragment key={i}>
               <tr>
-                <td colSpan={3}>Dictionary #{i}</td>
+                <td colSpan={3}>Dictionary #{dicts.length - i}</td>
               </tr>
               {dict.map((item, i) => item.children && item.children.length > 0 ? (
                 <ExpandableItem
