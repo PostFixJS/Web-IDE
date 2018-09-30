@@ -25,11 +25,17 @@ export function registerBuiltIns (interpreter) {
       const win = window.open('about:blank', '_blank', `top=${top},left=${left},width=${width.value},height=${height.value}`)
       win.document.title = title.value
       const canvas = win.document.createElement('canvas')
+      canvas.style.margin = '0 auto'
+      canvas.style.display = 'block'
       canvas.width = width.value
       canvas.height = height.value
       win.document.body.style.margin = 0
       win.document.body.appendChild(canvas)
       win.addEventListener('unload', cancel)
+      win.addEventListener('resize', () => {
+        canvas.width  = Math.min(win.innerWidth, win.innerHeight)
+        canvas.height  = Math.min(win.innerWidth, win.innerHeight)
+      })
 
       // queue interpreter invocations to prevent race conditions due to async execution
       const enqueue = (() => {
@@ -53,7 +59,7 @@ export function registerBuiltIns (interpreter) {
               await fn(runInQueue)
             } catch (e) {
               cancel()
-              if (e.message !== 'cancelled') {
+              if (e.message !== 'Cancelled') {
                 rejectAll(e)
               }
             }
@@ -92,7 +98,10 @@ export function registerBuiltIns (interpreter) {
           requestAnimationFrame(() => {
             const ctx = canvas.getContext('2d')
             ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.save()
+            ctx.scale(canvas.width / width, canvas.height / height)
             image.draw(ctx)
+            ctx.restore()
             if (!cancelToken.cancelled) redraw()
           })
         })
