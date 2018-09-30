@@ -63,6 +63,12 @@ class Editor extends React.Component {
       editor.onDidAttemptReadOnlyEdit((e) => {
         showMessage(this.editor, 'You need to stop the program to edit the code.')
       }),
+      editor.onKeyDown((e) => {
+        // onDidAttemptReadOnlyEdit is not triggered when pressing del/backspace
+        if (this.props.readOnly) {
+          showMessage(this.editor, 'You need to stop the program to edit the code.')
+        }
+      }),
       editor.onMouseUp(this.handleEditorMouseUp),
       editor.addAction({
         id: 'toggle-breakpoint',
