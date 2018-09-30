@@ -106,7 +106,7 @@ export default class PostFixRunner {
   }
 
   _step = async () => {
-    await this.step()
+    await this._stepImpl()
     try {
       if (this.running) {
         if (this._lastPosition != null && await this.shouldBreakAt(this._lastPosition)) {
@@ -125,13 +125,13 @@ export default class PostFixRunner {
     }
   }
 
-  async step () {
+  async _stepImpl () {
     if (this._breakpointRunner != null && this._breakpointRunner.running) {
       this._breakpointRunner.stop()
       return
     }
 
-    if (this._runnerState == null) return
+    if (!this.running) return
     const { done, value } = await this._runnerState.stepper.step()
 
     if (done) {
@@ -144,6 +144,15 @@ export default class PostFixRunner {
     } else {
       this._lastPosition = value
       this._emit('position', value)
+    }
+  }
+
+  async step () {
+    this._pauseRequested = true
+    await this._stepImpl()
+    if (!this.running && this._runnerStateStack.length > 0) {
+      // stepped out of a nested execution (e.g. callback)
+      this._runnerState = this._runnerStateStack.pop()
     }
   }
 
