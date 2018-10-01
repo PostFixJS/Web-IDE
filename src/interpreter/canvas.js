@@ -34,8 +34,27 @@ export function registerBuiltIns (interpreter) {
       win.document.body.appendChild(canvas)
       win.addEventListener('unload', () => { windowClosed = true })
       win.addEventListener('resize', () => {
-        canvas.width  = Math.min(win.innerWidth, win.innerHeight)
-        canvas.height  = Math.min(win.innerWidth, win.innerHeight)
+        if (width.value > height.value) {
+          // landscape canvas
+          let newWidth = win.innerWidth
+          let newHeight = height.value * newWidth / width.value
+          if (newHeight > win.innerHeight) {
+            newHeight = win.innerHeight
+            newWidth = width.value * newHeight / height.value
+          }
+          canvas.width = newWidth
+          canvas.height = newHeight
+        } else {
+          // portrait or square
+          let newHeight = win.innerHeight
+          let newWidth = width.value * newHeight / height.value
+          if (newWidth > win.innerWidth) {
+            newWidth = win.innerWidth
+            newHeight = height.value * newWidth / width.value
+          }
+          canvas.width = newWidth
+          canvas.height = newHeight
+        }
       })
 
       // queue interpreter invocations to prevent race conditions due to async execution
