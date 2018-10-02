@@ -42,8 +42,10 @@ class Editor extends React.Component {
       // Note: All editors can only use one theme at a time, so this affects all editors
       this.monaco.editor.setTheme(this.props.theme.monaco.baseTheme)
     }
+    if (prevProps.code !== this.props.code) {
+      this.testDecorations = this.editor.deltaDecorations(this.testDecorations, [])
+    }
     if (prevProps.tests !== this.props.tests) {
-      console.log('remove', this.testDecorations)
       this.testDecorations = this.editor.deltaDecorations(this.testDecorations, this.props.tests.map((test) => {
         const { position: pos } = test
         return {
@@ -51,7 +53,7 @@ class Editor extends React.Component {
           options: {
             isWholeLine: false,
             className: `test ${test.passed ? 'passed' : 'failed'}`,
-            beforeContentClassName: `testIcon ${test.passed ? 'passed' : 'failed'}`,
+            afterContentClassName: `testIcon ${test.passed ? 'passed' : 'failed'}`,
             stickiness: this.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
             hoverMessage: { value: getTestResultMessage(test) }
           }

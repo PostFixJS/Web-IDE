@@ -61,13 +61,9 @@ body {
   margin-top: -1px;
 }
 
-.test.passed {
-	background: rgba(0, 128, 0, 0.2);
-}
-
 .testIcon.passed::before {
   color: green;
-  content: "+"; /* TODO show a tick */
+  content: "✓";
   font-size: 1em;
   display: inline-block;
   margin: 0 2px;
@@ -81,7 +77,7 @@ body {
 
 .testIcon.failed::before {
   color: red;
-  content: "-"; /* TODO show a cross */
+  content: "✗";
   font-size: 1em;
   display: inline-block;
   margin: 0 2px;

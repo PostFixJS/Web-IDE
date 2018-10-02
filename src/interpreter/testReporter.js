@@ -1,6 +1,10 @@
 import store from '../store'
 import * as actions from '../actions'
 
+function printLine (text) {
+  store.dispatch(actions.addOutput(`${text}\n`))
+}
+
 function normalizeParams (type, params) {
   switch (type) {
     case 'test=':
@@ -48,7 +52,24 @@ export function report (passed, type, params, token) {
 }
 
 export function showStats () {
-  // TODO
+  const tests = store.getState().tests
+  const passed = tests.filter((t) => t.passed).length
+  const failed = tests.length - passed
+  if (tests.length > 0) {
+    if (failed === 0) {
+      if (passed === 1) {
+        printLine('✓ The test passed')
+      } else {
+        printLine(`✓ All ${tests.length} tests passed`)
+      }
+    } else {
+      if (tests.length === 1) {
+        printLine('✗ The test failed')
+      } else {
+        printLine(`✗ ${failed} of ${tests.length} tests failed`)
+      }
+    }
+  }
 }
 
 export function reset () {
