@@ -6,6 +6,8 @@ export const SET_DICTS = 'dicts/SET_DICTS'
 export const SET_INPUT = 'input/SET_INPUT'
 export const SET_INPUT_POSITION = 'input/SET_POSITION'
 export const TOGGLE_THEME = 'theme/TOGGLE'
+export const ADD_TEST_RESULT = 'tests/ADD_TEST_RESULT'
+export const RESET_TESTS = 'TESTS/RESET_TESTS'
 
 export function setCode (code) {
   return { type: SET_CODE, payload: code }
@@ -37,4 +39,20 @@ export function setInputPosition (position) {
 
 export function toggleTheme () {
   return { type: TOGGLE_THEME }
+}
+
+export function reportTest (passed, type, position, params) {
+  return {
+    type: ADD_TEST_RESULT,
+    payload: {
+      passed,
+      type,
+      position,
+      params
+    }
+  }
+}
+
+export function resetTests () {
+  return { type: RESET_TESTS }
 }

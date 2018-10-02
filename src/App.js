@@ -9,6 +9,7 @@ import './App.css';
 import Editor from './components/Editor/Editor'
 import * as actions from './actions'
 import { registerBuiltIns } from './interpreter'
+import * as testReporter from './interpreter/testReporter'
 import Toolbar from './components/Toolbar/Toolbar'
 import InputOutput from './components/InputOutput/InputOutput'
 import StackViewer from './components/StackViewer/StackViewer'
@@ -62,6 +63,7 @@ class App extends Component {
   constructor (props) {
     super(props)
     registerBuiltIns(this.runner.interpreter)
+    this.runner.interpreter.setTestReporter(testReporter)
     this.runner.on('position', (position) => {
       if (this.state.paused && this.runner.running) {
         this.setState({ interpreterPosition: position })

@@ -82,3 +82,17 @@ export function settings (state = {
       return state
   }
 }
+
+export function tests (state = [], action) {
+  switch (action.type) {
+    case actions.ADD_TEST_RESULT:
+      return [
+        ...state,
+        action.payload
+      ]
+    case actions.RESET_TESTS:
+      return []
+    default:
+      return state
+  }
+}
