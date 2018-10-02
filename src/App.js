@@ -115,6 +115,7 @@ class App extends Component {
       this._editor.closeErrorWidget()
       this.props.dispatch(actions.setInputPosition(0))
       this.props.dispatch(actions.clearOutput())
+      this.props.dispatch(actions.resetTests())
 
       try {
         this.setState({ running: true, paused: false })
@@ -282,7 +283,7 @@ class App extends Component {
 
   render() {
     const { running, paused, canStep, error } = this.state
-    const { classes, code, onToggleTheme, theme } = this.props
+    const { classes, code, onToggleTheme, theme, tests } = this.props
 
     return (
       <div
@@ -323,6 +324,7 @@ class App extends Component {
               <Editor
                 innerRef={this.setEditor}
                 code={code}
+                tests={tests}
                 onChange={this.updateCode}
                 readOnly={running}
                 className={classes.editor}
@@ -386,7 +388,8 @@ export default connect((state) => ({
   output: state.output,
   stack: state.stack,
   dicts: state.dicts,
-  theme: state.settings.theme
+  theme: state.settings.theme,
+  tests: state.tests
 }), (dispatch) => ({
   dispatch,
   onInputChange: (input) => dispatch(actions.setInput(input)),

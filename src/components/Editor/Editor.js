@@ -10,12 +10,14 @@ import * as snippetProviders from './monaco-integration/snippets'
 import { getTokenAtOrNext, getTokenAt} from './postfixUtil'
 import ConditionalBreakpointWidget from './ConditionalBreakpointWidget'
 import { positionToMonaco, positionFromMonaco, showMessage } from './monaco-integration/util'
-import ErrorWidget from './ErrorWidget';
+import ErrorWidget from './ErrorWidget'
+import { getTestResultMessage } from './tests'
 
 class Editor extends React.Component {
   disposables = []
   breakpoints = []
   breakpointWidget = null
+  testDecorations = []
 
   componentDidMount () {
     window.addEventListener('resize', this.updateEditorSize)
@@ -39,6 +41,23 @@ class Editor extends React.Component {
     if (prevProps.theme !== this.props.theme) {
       // Note: All editors can only use one theme at a time, so this affects all editors
       this.monaco.editor.setTheme(this.props.theme.monaco.baseTheme)
+    }
+    if (prevProps.tests !== this.props.tests) {
+      console.log('remove', this.testDecorations)
+      this.testDecorations = this.editor.deltaDecorations(this.testDecorations, this.props.tests.map((test) => {
+        const { position: pos } = test
+        return {
+          range: new this.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + test.type.length + 1),
+          options: {
+            isWholeLine: false,
+            className: `test ${test.passed ? 'passed' : 'failed'}`,
+            beforeContentClassName: `testIcon ${test.passed ? 'passed' : 'failed'}`,
+            stickiness: this.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+            hoverMessage: { value: getTestResultMessage(test) }
+          }
+        }
+      }))
+      console.log(this.testDecorations)
     }
   }
 
@@ -267,6 +286,7 @@ class Editor extends React.Component {
       onBreakpointsChange,
       onChange,
       readOnly,
+      tests,
       theme,
       ...other
     } = this.props

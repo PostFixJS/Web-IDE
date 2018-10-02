@@ -61,6 +61,34 @@ body {
   margin-top: -1px;
 }
 
+.test.passed {
+	background: rgba(0, 128, 0, 0.2);
+}
+
+.testIcon.passed::before {
+  color: green;
+  content: "+"; /* TODO show a tick */
+  font-size: 1em;
+  display: inline-block;
+  margin: 0 2px;
+  vertical-align: middle;
+  cursor: default;
+}
+
+.test.failed {
+	background: rgba(255, 0, 24, 0.2);
+}
+
+.testIcon.failed::before {
+  color: red;
+  content: "-"; /* TODO show a cross */
+  font-size: 1em;
+  display: inline-block;
+  margin: 0 2px;
+  vertical-align: middle;
+  cursor: default;
+}
+
 .Resizer {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
