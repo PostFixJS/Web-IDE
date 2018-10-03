@@ -96,3 +96,15 @@ export function tests (state = [], action) {
       return state
   }
 }
+
+export function replLines (state = [], action) {
+  switch (action.type) {
+    case actions.ADD_REPL_LINE:
+      return [
+        ...state,
+        action.payload
+      ]
+    default:
+      return state
+  }
+}

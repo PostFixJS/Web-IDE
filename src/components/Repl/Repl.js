@@ -23,6 +23,11 @@ const styles = (theme) => ({
     margin: 0,
     padding: 0,
     color: 'rgb(255, 0, 24)'
+  },
+  emptyStack: {
+    color: theme.card.color,
+    opacity: 0.5,
+    fontStyle: 'italic'
   }
 })
 
@@ -46,7 +51,6 @@ function findIndex (arr, predicate, startIndex = 0) {
 
 class Repl extends React.Component {
   state = {
-    lines: [],
     running: false,
     currentInput: '',
     oldInputIndex: -1
@@ -60,35 +64,19 @@ class Repl extends React.Component {
 
       const code = editor.getValue()
       editor.setValue('')
-      this.setState((state) => ({
-        lines: [
-          ...state.lines,
-          { type: 'input', value: code }
-        ],
-        running: true,
-        oldInputIndex: -1
-      }))
+      this.props.onAppendLine({ type: 'input', value: code })
+      this.setState({ running: true, oldInputIndex: -1 })
 
       this.props.runner.run(code, false, false)
         .then(() => {
-          this.setState((state) => ({
-            lines: [
-              ...state.lines,
-              { type: 'output', value: this.props.runner.interpreter._stack._stack.map((obj) => obj.toString()) }
-            ],
-            running: false
-          }))
+          this.setState({ running: false })
+          this.props.onAppendLine({ type: 'output', value: this.props.runner.interpreter._stack._stack.map((obj) => obj.toString()) })
           this.props.onExecutionFinished()
         })
         .catch((e) => {
           if (!(e instanceof InterruptedException)) {
-            this.setState((state) => ({
-              lines: [
-                ...state.lines,
-                { type: 'error', value: e.message }
-              ],
-              running: false
-            }))
+            this.props.onAppendLine({ type: 'error', value: e.message })
+            this.setState({ running: false })
           }
           this.props.onExecutionFinished()
         })
@@ -97,7 +85,8 @@ class Repl extends React.Component {
     editor.addCommand(monaco.KeyCode.UpArrow, () => {
       if (this.state.running) return
 
-      const { oldInputIndex, lines } = this.state
+      const { oldInputIndex } = this.state
+      const { lines } = this.props
 
       if (oldInputIndex === -1) {
         const lastInput = findIndexFromEnd(lines, ({type}) => type === 'input')
@@ -124,7 +113,8 @@ class Repl extends React.Component {
     editor.addCommand(monaco.KeyCode.DownArrow, () => {
       if (this.state.running) return
 
-      const { oldInputIndex, lines } = this.state
+      const { oldInputIndex } = this.state
+      const { lines } = this.props
 
       if (oldInputIndex >= 0) {
         const nextInput =  findIndex(lines, ({type}) => type === 'input', oldInputIndex + 1)
@@ -156,7 +146,7 @@ class Repl extends React.Component {
   }
 
   componentDidUpdate (prevProps, prevState) {
-    if (prevState.lines !== this.state.lines) {
+    if (prevProps.lines !== this.props.lines) {
       this._output.scrollTop = this._output.scrollHeight
     }
     if (prevState.running !== this.state.running || prevProps.disabled !== this.props.disabled) {
@@ -195,21 +185,18 @@ class Repl extends React.Component {
 
   handleCancel = () => {
     this.props.runner.stop()
-    this.setState((state) => ({
-      lines: [
-        ...state.lines,
-        { type: 'output', value: this.props.runner.interpreter._stack._stack.map((obj) => obj.toString()) }
-      ],
-      running: false
-    }))
+    this.props.onAppendLine({ type: 'output', value: this.props.runner.interpreter._stack._stack.map((obj) => obj.toString()) })
+    this.setState({ running: false })
   }
 
   render () {
     const {
       classes,
       disabled,
+      lines,
       onExecutionFinished,
       onRunCommand,
+      onAppendLine,
       runner,
       style,
       ...other
@@ -223,15 +210,23 @@ class Repl extends React.Component {
         onClick={this.handleClick}
       >
         <div className={classes.output} ref={this.setOutputRef}>
-          {this.state.lines.map((line, i) => line.type === 'input' ? (
+          {lines.map((line, i) => line.type === 'input' ? (
             <p key={i} className={classes.line}>
               &gt; {line.value}
-              {i === this.state.lines.length - 1 && (<span> – <a onClick={this.handleCancel}>Cancel</a></span>)}
+              {i === lines.length - 1 && (<span> – <a onClick={this.handleCancel}>Cancel</a></span>)}
             </p>
           ) : line.type === 'error' ? (
             <p key={i} className={classes.error}>Error: {line.value}</p>
+          ) : line.type === 'text' ? (
+            <p key={i} className={classes.line}>{line.value}</p>
           ) : (
-            <p key={i} className={classes.line}><ObjectHighlighter objects={line.value}/></p>
+            <p key={i} className={classes.line}>
+              {line.value.length === 0 ? (
+                <span className={classes.emptyStack}>(empty stack)</span>
+              ) : (
+                <ObjectHighlighter objects={line.value}/>
+              )}
+            </p>
           ))}
         </div>
         <OneLineEditor

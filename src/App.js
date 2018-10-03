@@ -291,7 +291,15 @@ class App extends Component {
 
   render() {
     const { running, paused, canStep, error } = this.state
-    const { classes, code, onToggleTheme, theme, tests } = this.props
+    const {
+      classes,
+      code,
+      onAppendReplLine,
+      onToggleTheme,
+      replLines,
+      theme,
+      tests
+    } = this.props
 
     return (
       <div
@@ -376,6 +384,8 @@ class App extends Component {
               <Repl
                 innerRef={this.setRepl}
                 style={{ width: '100%', height: '100%' }}
+                lines={replLines}
+                onAppendLine={onAppendReplLine}
                 runner={this.replRunner}
                 disabled={running && !paused}
                 onExecutionFinished={this.handleReplExecutionFinished}
@@ -396,12 +406,14 @@ export default connect((state) => ({
   output: state.output,
   stack: state.stack,
   dicts: state.dicts,
+  replLines: state.replLines,
   theme: state.settings.theme,
   tests: state.tests
 }), (dispatch) => ({
   dispatch,
   onInputChange: (input) => dispatch(actions.setInput(input)),
-  onToggleTheme: () => dispatch(actions.toggleTheme())
+  onToggleTheme: () => dispatch(actions.toggleTheme()),
+  onAppendReplLine: (line) => dispatch(actions.addReplLine(line))
 }))((props) => (
   <ThemeProvider theme={themes[props.theme]}>
     <StyledApp {...props} />

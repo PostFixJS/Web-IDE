@@ -5,7 +5,7 @@ let passed = 0
 let failed = 0
 
 function printLine (text) {
-  store.dispatch(actions.addOutput(`${text}\n`))
+  store.dispatch(actions.addReplLine({ type: 'text', value: text }))
 }
 
 export function reportPassed (type, params, token) {

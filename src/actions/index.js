@@ -7,7 +7,8 @@ export const SET_INPUT = 'input/SET_INPUT'
 export const SET_INPUT_POSITION = 'input/SET_POSITION'
 export const TOGGLE_THEME = 'theme/TOGGLE'
 export const ADD_TEST_RESULT = 'tests/ADD_TEST_RESULT'
-export const RESET_TESTS = 'TESTS/RESET_TESTS'
+export const RESET_TESTS = 'tests/RESET_TESTS'
+export const ADD_REPL_LINE = 'repl/ADD_REPL_LINE'
 
 export function setCode (code) {
   return { type: SET_CODE, payload: code }
@@ -55,4 +56,8 @@ export function reportTest (passed, type, position, params) {
 
 export function resetTests () {
   return { type: RESET_TESTS }
+}
+
+export function addReplLine (line) {
+  return { type: ADD_REPL_LINE, payload: line }
 }
