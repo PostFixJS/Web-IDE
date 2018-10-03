@@ -18,6 +18,7 @@ import Repl from './components/Repl/Repl'
 import Card from './components/Card'
 import Runner, { InterruptedException } from './postfix-runner/PostFixRunner'
 import { positionToMonaco } from './components/Editor/monaco-integration/util'
+import * as replTestReporter from './interpreter/replTestReporter'
 import * as themes from './themes'
 
 const styles = (theme) => ({
@@ -77,6 +78,13 @@ class App extends Component {
       this.setState({ running: true, paused: true })
     })
     this.runner.on('continue', () => this.setState({ running: true, paused: false }))
+
+    // let the REPL use its own test reporter (the default reporter adds decorations in the editor)
+    this.replRunner.interpreter = new Proxy(this.replRunner.interpreter, {
+      get (target, name) {
+        return name === 'testReporter' ? replTestReporter : target[name]
+      }
+    })
   }
 
   componentDidMount () {
