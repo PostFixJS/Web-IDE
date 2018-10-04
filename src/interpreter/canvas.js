@@ -11,46 +11,48 @@ export function registerBuiltIns (interpreter) {
     * execute (interpreter, token) {
       const [title, width, height, initialState, callbacks] = popOperands(interpreter, [
         { name: 'title', type: 'Str' },
-        { name: 'width', type: 'Int' },
-        { name: 'height', type: 'Int' },
+        { name: 'width', type: 'Num' },
+        { name: 'height', type: 'Num' },
         { name: 'initialState' },
         { name: 'callbacks', type: 'Arr' }
       ], token)
+      const windowWidth = Math.floor(width.value)
+      const windowHeight = Math.floor(height.value)
       
-      const top = (window.outerHeight - height.value) / 2 + window.screenY
-      const left = (window.outerWidth - width.value) / 2 + window.screenX
+      const top = (window.outerHeight - windowHeight) / 2 + window.screenY
+      const left = (window.outerWidth - windowWidth) / 2 + window.screenX
       
       const { cancel, token: cancelToken } = createCancellationToken()
       let rejectAll
       let windowClosed = false
-      const win = window.open('', '_blank', `top=${top},left=${left},width=${width.value},height=${height.value}`)
+      const win = window.open('', '_blank', `top=${top},left=${left},width=${windowWidth},height=${windowHeight}`)
       win.document.title = title.value
       const canvas = win.document.createElement('canvas')
       canvas.style.margin = '0 auto'
       canvas.style.display = 'block'
-      canvas.width = width.value
-      canvas.height = height.value
+      canvas.width = windowWidth
+      canvas.height = windowHeight
       win.document.body.style.margin = 0
       win.document.body.appendChild(canvas)
       win.addEventListener('unload', () => { windowClosed = true })
       win.addEventListener('resize', () => {
-        if (width.value > height.value) {
+        if (windowWidth > windowHeight) {
           // landscape canvas
           let newWidth = win.innerWidth
-          let newHeight = height.value * newWidth / width.value
+          let newHeight = windowHeight * newWidth / windowWidth
           if (newHeight > win.innerHeight) {
             newHeight = win.innerHeight
-            newWidth = width.value * newHeight / height.value
+            newWidth = windowWidth * newHeight / windowHeight
           }
           canvas.width = newWidth
           canvas.height = newHeight
         } else {
           // portrait or square
           let newHeight = win.innerHeight
-          let newWidth = width.value * newHeight / height.value
+          let newWidth = windowWidth * newHeight / windowHeight
           if (newWidth > win.innerWidth) {
             newWidth = win.innerWidth
-            newHeight = height.value * newWidth / width.value
+            newHeight = windowHeight * newWidth / windowWidth
           }
           canvas.width = newWidth
           canvas.height = newHeight
@@ -177,11 +179,11 @@ export function registerBuiltIns (interpreter) {
     }, {
       name: 'width',
       description: 'Window width',
-      type: ':Int'
+      type: ':Num'
     }, {
       name: 'height',
       description: 'Window height',
-      type: ':Int'
+      type: ':Num'
     }, {
       name: 'initialState',
       description: 'Initial state',
