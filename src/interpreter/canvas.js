@@ -154,6 +154,39 @@ export function registerBuiltIns (interpreter) {
   })
 
   interpreter.registerBuiltIn({
+    name: 'show-image',
+    * execute (interpreter, token) {
+      const image = Image.from(popOperand(interpreter, { type: 'Arr' }, token))
+      const windowWidth = Math.ceil(image.width)
+      const windowHeight = Math.ceil(image.height)
+      const { cancel, token: cancelToken } = createCancellationToken()
+      
+      const top = (window.outerHeight - windowHeight) / 2 + window.screenY
+      const left = (window.outerWidth - windowWidth) / 2 + window.screenX
+      const win = window.open('', '_blank', `top=${top},left=${left},width=${windowWidth},height=${windowHeight}`)
+      win.document.title = 'Image viewer'
+      const canvas = win.document.createElement('canvas')
+      canvas.style.margin = '0 auto'
+      canvas.style.display = 'block'
+      canvas.width = image.width
+      canvas.height = image.height
+      win.document.body.style.margin = 0
+      win.document.body.appendChild(canvas)
+      image.draw(canvas.getContext('2d'))
+
+      // TODO resize canvas and repaint when the window is resized
+
+      yield {
+        cancel,
+        promise: new Promise((resolve, reject) => {
+          win.addEventListener('unload', () => resolve())
+          cancelToken.onCancel(() => win.close())
+        })
+      }
+    }
+  })
+
+  interpreter.registerBuiltIn({
     name: 'image-width',
     execute (interpreter, token) {
       const image = Image.from(popOperand(interpreter, { type: 'Arr' }, token))
@@ -191,6 +224,15 @@ export function registerBuiltIns (interpreter) {
     }, {
       name: 'callbacks',
       description: 'Event callbacks',
+      type: ':Arr'
+    }],
+    returns: []
+  }, {
+    name: 'show-image',
+    description: 'Display an image in a new window.',
+    params: [{
+      name: 'image',
+      description: 'Image to show',
       type: ':Arr'
     }],
     returns: []
