@@ -230,8 +230,14 @@ class App extends Component {
   }
 
   static mapObjectForViewer (obj) {
+    let value
+    if (obj instanceof types.Flt && obj.value === Math.floor(obj.value)) {
+      value = `${obj.value}.0`
+    } else {
+      value = obj.toString()
+    }
     return {
-      value: obj.toString(),
+      value,
       children: obj instanceof types.Arr ? obj.items.map(App.mapObjectForViewer) : null,
       type: obj.getTypeName()
     }
