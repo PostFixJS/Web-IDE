@@ -132,14 +132,38 @@ export function registerBuiltIns (interpreter) {
 
       const onKeyPress = keyGet(callbacks, new types.Sym('on-key-press'), null)
       if (onKeyPress) {
-        win.onkeypress = (e) => {
+        win.addEventListener('keypress', (e) => {
           enqueue(async (runObj) => {
             interpreter._stack.push(state)
             interpreter._stack.push(new types.Str(e.key))
             await runObj(onKeyPress)
             state = interpreter._stack.pop()
           })
-        }
+        })
+      }
+
+      const onKeyDown = keyGet(callbacks, new types.Sym('on-key-down'), null)
+      if (onKeyDown) {
+        win.addEventListener('keydown', (e) => {
+          enqueue(async (runObj) => {
+            interpreter._stack.push(state)
+            interpreter._stack.push(new types.Str(e.key))
+            await runObj(onKeyDown)
+            state = interpreter._stack.pop()
+          })
+        })
+      }
+
+      const onKeyUp = keyGet(callbacks, new types.Sym('on-key-up'), null)
+      if (onKeyUp) {
+        win.addEventListener('keyup', (e) => {
+          enqueue(async (runObj) => {
+            interpreter._stack.push(state)
+            interpreter._stack.push(new types.Str(e.key))
+            await runObj(onKeyUp)
+            state = interpreter._stack.pop()
+          })
+        })
       }
 
       yield {
