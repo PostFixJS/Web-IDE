@@ -100,7 +100,7 @@ export function registerBuiltIns (interpreter) {
       }
       const stopWhen = keyGet(callbacks, new types.Sym('stop-when'), null)
       if (stopWhen && !(stopWhen instanceof types.Lam)) {
-        throw new types.Err(`Expected stop-when callback to be a lambda function (:Lam) but got ${onTick.getTypeName()} instead`, stopWhen.origin || callbacks.origin)
+        throw new types.Err(`Expected stop-when callback to be a lambda function (:Lam) but got ${stopWhen.getTypeName()} instead`, stopWhen.origin || callbacks.origin)
       }
       
       let prevTick = Date.now()
@@ -141,7 +141,7 @@ export function registerBuiltIns (interpreter) {
             const stop = interpreter._stack.pop()
             if (!(stop instanceof types.Bool)) {
               cancel()
-              throw new types.Err(`Expected on-stop to push a :Bool on the stack but got ${stop.getTypeName()} instead`, callbacks.origin)
+              throw new types.Err(`Expected on-stop to push a :Bool on the stack but got ${stop.getTypeName()} instead`, stop.origin || callbacks.origin)
             }
             if (stop.value) {
               cancel()
@@ -154,7 +154,7 @@ export function registerBuiltIns (interpreter) {
       const onKeyPress = keyGet(callbacks, new types.Sym('on-key-press'), null)
       if (onKeyPress) {
         if (!(onKeyPress instanceof types.Lam)) {
-          throw new types.Err(`Expected on-key-press callback to be a lambda function (:Lam) but got ${onTick.getTypeName()} instead`, onKeyPress.origin || callbacks.origin)
+          throw new types.Err(`Expected on-key-press callback to be a lambda function (:Lam) but got ${onKeyPress.getTypeName()} instead`, onKeyPress.origin || callbacks.origin)
         }
         win.addEventListener('keypress', (e) => {
           enqueue(async (runObj) => {
@@ -169,7 +169,7 @@ export function registerBuiltIns (interpreter) {
       const onKeyDown = keyGet(callbacks, new types.Sym('on-key-down'), null)
       if (onKeyDown instanceof types.Lam) {
         if (!(onKeyDown instanceof types.Lam)) {
-          throw new types.Err(`Expected on-key-down callback to be a lambda function (:Lam) but got ${onTick.getTypeName()} instead`, onKeyDown.origin || callbacks.origin)
+          throw new types.Err(`Expected on-key-down callback to be a lambda function (:Lam) but got ${onKeyDown.getTypeName()} instead`, onKeyDown.origin || callbacks.origin)
         }
         win.addEventListener('keydown', (e) => {
           enqueue(async (runObj) => {
@@ -184,7 +184,7 @@ export function registerBuiltIns (interpreter) {
       const onKeyUp = keyGet(callbacks, new types.Sym('on-key-up'), null)
       if (onKeyUp instanceof types.Lam) {
         if (!(onKeyUp instanceof types.Lam)) {
-          throw new types.Err(`Expected on-key-up callback to be a lambda function (:Lam) but got ${onTick.getTypeName()} instead`, onKeyUp.origin || callbacks.origin)
+          throw new types.Err(`Expected on-key-up callback to be a lambda function (:Lam) but got ${onKeyUp.getTypeName()} instead`, onKeyUp.origin || callbacks.origin)
         }
         win.addEventListener('keyup', (e) => {
           enqueue(async (runObj) => {
@@ -196,7 +196,61 @@ export function registerBuiltIns (interpreter) {
         })
       }
 
-      // TODO mouse move, mouse down, mouse up
+      const normalizeMouse = (e) => ({
+        x: (e.clientX - canvas.offsetLeft) / canvas.clientWidth * windowWidth,
+        y: (e.clientY - canvas.offsetTop) / canvas.clientHeight * windowHeight
+      })
+
+      const onMouseMove = keyGet(callbacks, new types.Sym('on-mouse-move'), null)
+      if (onMouseMove) {
+        if (!(onMouseMove instanceof types.Lam)) {
+          throw new types.Err(`Expected on-mouse-move callback to be a lambda function (:Lam) but got ${onMouseMove.getTypeName()} instead`, onMouseMove.origin || callbacks.origin)
+        }
+        canvas.addEventListener('mousemove', (e) => {
+          const {x, y} = normalizeMouse(e)
+          enqueue(async (runObj) => {
+            interpreter._stack.push(state)
+            interpreter._stack.push(new types.Flt(x))
+            interpreter._stack.push(new types.Flt(y))
+            await runObj(onMouseMove)
+            state = interpreter._stack.pop()
+          })
+        })
+      }
+
+      const onMouseDown = keyGet(callbacks, new types.Sym('on-mouse-down'), null)
+      if (onMouseDown) {
+        if (!(onMouseDown instanceof types.Lam)) {
+          throw new types.Err(`Expected on-mouse-down callback to be a lambda function (:Lam) but got ${onMouseDown.getTypeName()} instead`, onMouseDown.origin || callbacks.origin)
+        }
+        canvas.addEventListener('mousedown', (e) => {
+          const {x, y} = normalizeMouse(e)
+          enqueue(async (runObj) => {
+            interpreter._stack.push(state)
+            interpreter._stack.push(new types.Flt(x))
+            interpreter._stack.push(new types.Flt(y))
+            await runObj(onMouseDown)
+            state = interpreter._stack.pop()
+          })
+        })
+      }
+
+      const onMouseUp = keyGet(callbacks, new types.Sym('on-mouse-up'), null)
+      if (onMouseUp) {
+        if (!(onMouseUp instanceof types.Lam)) {
+          throw new types.Err(`Expected on-mouse-up callback to be a lambda function (:Lam) but got ${onMouseUp.getTypeName()} instead`, onMouseUp.origin || callbacks.origin)
+        }
+        canvas.addEventListener('mouseup', (e) => {
+          const {x, y} = normalizeMouse(e)
+          enqueue(async (runObj) => {
+            interpreter._stack.push(state)
+            interpreter._stack.push(new types.Flt(x))
+            interpreter._stack.push(new types.Flt(y))
+            await runObj(onMouseUp)
+            state = interpreter._stack.pop()
+          })
+        })
+      }
 
       yield {
         cancel,
