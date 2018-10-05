@@ -95,6 +95,14 @@ export function registerBuiltIns (interpreter) {
 
       const onDraw = keyGet(callbacks, new types.Sym('on-draw'), null)
       const onTick = keyGet(callbacks, new types.Sym('on-tick'), null)
+      if (onTick && !(onTick instanceof types.Lam)) {
+        throw new types.Err(`Expected on-tick callback to be a lambda function (:Lam) but got ${onTick.getTypeName()} instead`, onTick.origin || callbacks.origin)
+      }
+      const stopWhen = keyGet(callbacks, new types.Sym('stop-when'), null)
+      if (stopWhen && !(stopWhen instanceof types.Lam)) {
+        throw new types.Err(`Expected stop-when callback to be a lambda function (:Lam) but got ${onTick.getTypeName()} instead`, stopWhen.origin || callbacks.origin)
+      }
+      
       let prevTick = Date.now()
       const redraw = () => {
         if (cancelToken.cancelled) return
@@ -126,12 +134,28 @@ export function registerBuiltIns (interpreter) {
             ctx.restore()
             if (!cancelToken.cancelled) redraw()
           })
+
+          if (stopWhen) {
+            interpreter._stack.push(state)
+            await runObj(stopWhen)
+            const stop = interpreter._stack.pop()
+            if (!(stop instanceof types.Bool)) {
+              cancel()
+              throw new types.Err(`Expected on-stop to push a :Bool on the stack but got ${stop.getTypeName()} instead`, callbacks.origin)
+            }
+            if (stop.value) {
+              cancel()
+            }
+          }
         })
       }
       setImmediate(redraw)
 
       const onKeyPress = keyGet(callbacks, new types.Sym('on-key-press'), null)
       if (onKeyPress) {
+        if (!(onKeyPress instanceof types.Lam)) {
+          throw new types.Err(`Expected on-key-press callback to be a lambda function (:Lam) but got ${onTick.getTypeName()} instead`, onKeyPress.origin || callbacks.origin)
+        }
         win.addEventListener('keypress', (e) => {
           enqueue(async (runObj) => {
             interpreter._stack.push(state)
@@ -143,7 +167,10 @@ export function registerBuiltIns (interpreter) {
       }
 
       const onKeyDown = keyGet(callbacks, new types.Sym('on-key-down'), null)
-      if (onKeyDown) {
+      if (onKeyDown instanceof types.Lam) {
+        if (!(onKeyDown instanceof types.Lam)) {
+          throw new types.Err(`Expected on-key-down callback to be a lambda function (:Lam) but got ${onTick.getTypeName()} instead`, onKeyDown.origin || callbacks.origin)
+        }
         win.addEventListener('keydown', (e) => {
           enqueue(async (runObj) => {
             interpreter._stack.push(state)
@@ -155,7 +182,10 @@ export function registerBuiltIns (interpreter) {
       }
 
       const onKeyUp = keyGet(callbacks, new types.Sym('on-key-up'), null)
-      if (onKeyUp) {
+      if (onKeyUp instanceof types.Lam) {
+        if (!(onKeyUp instanceof types.Lam)) {
+          throw new types.Err(`Expected on-key-up callback to be a lambda function (:Lam) but got ${onTick.getTypeName()} instead`, onKeyUp.origin || callbacks.origin)
+        }
         win.addEventListener('keyup', (e) => {
           enqueue(async (runObj) => {
             interpreter._stack.push(state)
@@ -165,6 +195,8 @@ export function registerBuiltIns (interpreter) {
           })
         })
       }
+
+      // TODO mouse move, mouse down, mouse up
 
       yield {
         cancel,
