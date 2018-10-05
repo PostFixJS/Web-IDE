@@ -207,21 +207,42 @@ export function registerBuiltIns (interpreter) {
           throw new types.Err(`Expected on-mouse-move callback to be a lambda function (:Lam) but got ${onMouseMove.getTypeName()} instead`, onMouseMove.origin || callbacks.origin)
         }
         canvas.addEventListener('mousemove', (e) => {
-          const {x, y} = normalizeMouse(e)
-          enqueue(async (runObj) => {
-            interpreter._stack.push(state)
-            interpreter._stack.push(new types.Flt(x))
-            interpreter._stack.push(new types.Flt(y))
-            await runObj(onMouseMove)
-            state = interpreter._stack.pop()
-          })
+          if (e.buttons === 0) { // 0 = no mouse button pressed
+            const {x, y} = normalizeMouse(e)
+            enqueue(async (runObj) => {
+              interpreter._stack.push(state)
+              interpreter._stack.push(new types.Flt(x))
+              interpreter._stack.push(new types.Flt(y))
+              await runObj(onMouseMove)
+              state = interpreter._stack.pop()
+            })
+          }
         })
       }
 
-      const onMouseDown = keyGet(callbacks, new types.Sym('on-mouse-down'), null)
+      const onMouseDrag = keyGet(callbacks, new types.Sym('on-mouse-drag'), null)
+      if (onMouseDrag) {
+        if (!(onMouseDrag instanceof types.Lam)) {
+          throw new types.Err(`Expected on-mouse-drag callback to be a lambda function (:Lam) but got ${onMouseDrag.getTypeName()} instead`, onMouseDrag.origin || callbacks.origin)
+        }
+        canvas.addEventListener('mousemove', (e) => {
+          if (e.buttons === 1) { // 1 = left mouse button pressed
+            const {x, y} = normalizeMouse(e)
+            enqueue(async (runObj) => {
+              interpreter._stack.push(state)
+              interpreter._stack.push(new types.Flt(x))
+              interpreter._stack.push(new types.Flt(y))
+              await runObj(onMouseDrag)
+              state = interpreter._stack.pop()
+            })
+          }
+        })
+      }
+
+      const onMouseDown = keyGet(callbacks, new types.Sym('on-mouse-press'), null)
       if (onMouseDown) {
         if (!(onMouseDown instanceof types.Lam)) {
-          throw new types.Err(`Expected on-mouse-down callback to be a lambda function (:Lam) but got ${onMouseDown.getTypeName()} instead`, onMouseDown.origin || callbacks.origin)
+          throw new types.Err(`Expected on-mouse-press callback to be a lambda function (:Lam) but got ${onMouseDown.getTypeName()} instead`, onMouseDown.origin || callbacks.origin)
         }
         canvas.addEventListener('mousedown', (e) => {
           const {x, y} = normalizeMouse(e)
@@ -235,10 +256,10 @@ export function registerBuiltIns (interpreter) {
         })
       }
 
-      const onMouseUp = keyGet(callbacks, new types.Sym('on-mouse-up'), null)
+      const onMouseUp = keyGet(callbacks, new types.Sym('on-mouse-release'), null)
       if (onMouseUp) {
         if (!(onMouseUp instanceof types.Lam)) {
-          throw new types.Err(`Expected on-mouse-up callback to be a lambda function (:Lam) but got ${onMouseUp.getTypeName()} instead`, onMouseUp.origin || callbacks.origin)
+          throw new types.Err(`Expected on-mouse-release callback to be a lambda function (:Lam) but got ${onMouseUp.getTypeName()} instead`, onMouseUp.origin || callbacks.origin)
         }
         canvas.addEventListener('mouseup', (e) => {
           const {x, y} = normalizeMouse(e)
