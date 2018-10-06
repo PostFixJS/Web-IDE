@@ -59,7 +59,6 @@ class Editor extends React.Component {
           }
         }
       }))
-      console.log(this.testDecorations)
     }
   }
 
