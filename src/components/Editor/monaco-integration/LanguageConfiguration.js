@@ -8,6 +8,7 @@ export default {
     lineComment: '#',
     blockComment: ['#<', '>#']
   },
+  wordPattern: /([^\(\)\[\]\{\}\,\s]+)/g,
   __electricCharacterSupport: {
     docComment: {
       open: '#<',
