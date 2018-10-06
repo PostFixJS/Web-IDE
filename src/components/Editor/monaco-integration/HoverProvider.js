@@ -1,5 +1,6 @@
 import { getTokenAt } from '../postfixUtil'
 import DocParser from 'postfixjs/DocParser'
+import { normalizeSymbol } from 'postfixjs/tokenUtils'
 import * as monaco from 'monaco-editor'
 import * as builtIns from '../../../interpreter/doc'
 import { getDatadefFunctions } from './datadef'
@@ -54,6 +55,22 @@ export default {
             contents: usageMessages
           }
         }
+      } else if (token.tokenType === 'SYMBOL') {
+        const normalizedSymbol = `:${normalizeSymbol(token.token)}`
+        let docs = [
+          ...builtIns.symbols.filter((doc) => doc.name === normalizedSymbol && doc.description != null),
+          ...DocParser.getSymbols(code).filter((doc) => doc.name === normalizedSymbol && doc.description != null)
+        ]
+
+        if (docs.length > 0) {
+          const usageMessages = getSymbolHoverMessage(docs)
+          const pos = token
+
+          return {
+            range: new monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+            contents: usageMessages
+          }
+        }
       }
     }
   }
@@ -95,6 +112,22 @@ function getFunctionHoverMessages (functionDocs) {
  */
 function getVariableHoverMessage (variableDocs) {
   return [].concat(...variableDocs.map((doc) => {
+    return {
+      value: [
+        `\`\`\`postfix\n${doc.name}\n\`\`\``,
+        doc.description
+      ].join('  \n')
+    }
+  }))
+}
+
+/**
+ * Generate markdown text for documentation of a variable.
+ * @param {object[]} symbolDocs DocParser output objects for a symbol
+ * @returns Array of markdown objects that document the variable
+ */
+function getSymbolHoverMessage (symbolDocs) {
+  return [].concat(...symbolDocs.map((doc) => {
     return {
       value: [
         `\`\`\`postfix\n${doc.name}\n\`\`\``,

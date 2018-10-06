@@ -9,6 +9,7 @@ export default {
     const functions = DocParser.getFunctions(code)
     const variables = DocParser.getVariables(code)
     const datadefs = DocParser.getDatadefs(code)
+    const symbols = DocParser.getSymbols(code)
 
     return [
       ...functions.map((fun) => ({
@@ -41,7 +42,17 @@ export default {
           detail: getFunctionSignature(fun),
           documentation: getFunctionHoverMessage(fun)
         }))
-      ], [])
+      ], []),
+      ...symbols.map((sym) => ({
+        label: sym.name,
+        kind: monaco.languages.CompletionItemKind.Value,
+        documentation: sym.description
+      })),
+      ...builtIns.symbols.map((sym) => ({
+        label: sym.name,
+        kind: monaco.languages.CompletionItemKind.Value,
+        documentation: sym.description
+      }))
     ]
   }
 }
