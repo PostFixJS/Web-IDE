@@ -2,7 +2,7 @@ import { keyGet } from 'postfixjs/operators/impl/array'
 import { popOperands, popOperand } from 'postfixjs/typeCheck'
 import createCancellationToken from 'postfixjs/util/cancellationToken'
 import * as types from 'postfixjs/types'
-import { registerFunctions } from './doc'
+import { registerFunctions, registerSymbols } from './doc'
 import Image from './canvas/Image'
 
 export function registerBuiltIns (interpreter) {
@@ -391,5 +391,82 @@ export function registerBuiltIns (interpreter) {
       type: ':Flt',
       description: 'Image height'
     }]
+  })
+
+  registerSymbols({
+    name: ':on-draw',
+    description: 'Key for the drawing callback of show.'
+  }, {
+    name: ':on-tick',
+    description: 'Key for the tick callback of show.'
+  }, {
+    name: ':stop-when',
+    description: 'Key for the stop-when callback of show.'
+  }, {
+    name: ':on-key-press',
+    description: 'Key for the key press callback of show.'
+  }, {
+    name: ':on-key-up',
+    description: 'Key for the key up callback of show.'
+  }, {
+    name: ':on-key-down',
+    description: 'Key for the key down callback of show.'
+  }, {
+    name: ':on-mouse-move',
+    description: 'Key for the mouse move callback of show.'
+  }, {
+    name: ':on-mouse-drag',
+    description: 'Key for the mouse drag callback of show.'
+  }, {
+    name: ':on-mouse-press',
+    description: 'Key for the mouse press callback of show.'
+  }, {
+    name: ':on-mouse-release',
+    description: 'Key for the mouse release callback of show.'
+  }, {
+    name: ':color',
+    description: 'Symbol to define colors for images.'
+  }, {
+    name: ':font',
+    description: 'Symbol to define fonts for images.'
+  }, {
+    name: ':pen',
+    description: 'Symbol to define pens for images.'
+  }, {
+    name: ':square',
+    description: 'Symbol to define a square image.'
+  }, {
+    name: ':rectangle',
+    description: 'Symbol to define a rectangle image.'
+  }, {
+    name: ':circle',
+    description: 'Symbol to define a circle image.'
+  }, {
+    name: ':ellipse',
+    description: 'Symbol to define an ellipse image.'
+  }, {
+    name: ':text',
+    description: 'Symbol to define a text image.'
+  }, {
+    name: ':scale',
+    description: 'Symbol to define a scaled image.'
+  }, {
+    name: ':rotate',
+    description: 'Symbol to define a rotated image.'
+  }, {
+    name: ':place-image',
+    description: 'Symbol to define an image consisting of an image that is placed on another image.'
+  }, {
+    name: ':beside',
+    description: 'Symbol to define an image consisting of an image that is placed beside another image.'
+  }, {
+    name: ':above',
+    describe: 'Symbol to define an image consisting of an image that is placed above another image.'
+  }, {
+    name: ':overlay',
+    description: 'Symbol to define an image consisting of multiple overlaying images.'
+  }, {
+    name: ':underlay',
+    description: 'Symbol to define an image consisting of multiple underlaying images.'
   })
 }
