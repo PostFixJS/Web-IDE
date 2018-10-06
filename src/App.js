@@ -114,6 +114,11 @@ class App extends Component {
   }
 
   updateCode = debounce(200, (code) => {
+    // close old error widgets and remove error highlighting
+    this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
+    this._editor.closeErrorWidget()
+
+    // actually update the code
     this.props.dispatch(actions.setCode(code))
   })
 
@@ -182,7 +187,9 @@ class App extends Component {
   }
 
   handleInterpreterError (err) {
-    this.setState({ error: true })
+    this.runner.stop()
+    this.setState({ error: true, running: false, canStep: true })
+
     const pos = err.origin
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [
       {
