@@ -16,7 +16,7 @@ export function getDatadefFunctions (datadef) {
     }]
   } else {
     return [{
-      name: `${datadefName}.new`,
+      name: datadefName,
       description: `Create an instance of ${datadef.name}.`,
       params: datadef.fields,
       returns: [{
@@ -37,7 +37,7 @@ export function getDatadefFunctions (datadef) {
       }]
     },
     ...datadef.fields.map((field) => ({
-        name: `${datadefName}.${field.name}`,
+        name: `${datadefName}-${field.name}`,
         description: `Get the ${field.name} field of the given ${datadef.name} instance.`,
         params: [{
           name: datadefName,
