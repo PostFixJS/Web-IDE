@@ -12,6 +12,6 @@ export function registerVariables (...variableDeclarations) {
   functions.push(...variableDeclarations)
 }
 
-export function registerSymbols (...symbols) {
-  symbols.push(...symbols)
+export function registerSymbols (...symbolDeclarations) {
+  symbols.push(...symbolDeclarations)
 }

@@ -43,18 +43,39 @@ export default {
           documentation: getFunctionHoverMessage(fun)
         }))
       ], []),
-      ...symbols.map((sym) => ({
-        label: sym.name,
-        kind: monaco.languages.CompletionItemKind.Value,
-        documentation: sym.description
-      })),
-      ...builtIns.symbols.map((sym) => ({
-        label: sym.name,
-        kind: monaco.languages.CompletionItemKind.Value,
-        documentation: sym.description
-      }))
+      ...deduplicateSymbols(builtIns.symbols, symbols)
     ]
   }
+}
+
+function deduplicateSymbols (builtIns, userSymbols) {
+  const symbols = new Map()
+  for (const sym of builtIns) {
+    symbols.set(sym.name, {
+      label: sym.name,
+      kind: monaco.languages.CompletionItemKind.Value,
+      documentation: sym.description
+    })
+  }
+  for (const sym of userSymbols) {
+    if (symbols.has(sym.name)) {
+      if (sym.description) { // existing description and new, user-provided description, so show both
+        const other = symbols.get(sym.name)
+        symbols.set(sym.name, {
+          label: sym.name,
+          kind: sym.name[1].toUpperCase() === sym.name[1] ? monaco.languages.CompletionItemKind.Class : monaco.languages.CompletionItemKind.Value,
+          documentation: { value: `* ${other.documentation.value || other.documentation}\n* ${sym.description}` }
+        })
+      }
+    } else {
+      symbols.set(sym.name, {
+        label: sym.name,
+        kind: sym.name[1].toUpperCase() === sym.name[1] ? monaco.languages.CompletionItemKind.Class : monaco.languages.CompletionItemKind.Value,
+        documentation: sym.description
+      })
+    }
+  }
+  return symbols.values()
 }
 
 /**
