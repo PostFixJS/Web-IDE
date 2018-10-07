@@ -285,13 +285,58 @@ export function registerBuiltIns (interpreter) {
   })
 
   interpreter.registerBuiltIn({
+    name: 'read-image-url',
+    * execute (interpreter, token) {
+      const url = popOperand(interpreter, { type: 'Str', name: 'url' }, token)
+      const { cancel, token: cancelToken } = createCancellationToken()
+      const img = new window.Image()
+      img.crossOrigin = 'anonymous'
+
+      yield {
+        cancel,
+        promise: new Promise((resolve) => {
+          img.onload = () => {
+            const canvas = document.createElement('canvas')
+            canvas.width = img.width
+            canvas.height = img.height
+            canvas.getContext('2d').drawImage(img, 0, 0)
+            interpreter._stack.push(new types.Str(canvas.toDataURL('image/png')))
+            canvas.remove()
+            resolve()
+          }
+          img.onerror = (e) => {
+            interpreter._stack.push(types.Nil.nil)
+            resolve()
+          }
+          cancelToken.onCancel(() => {
+            img.onload = null
+            img.onerror = null
+          })
+          img.src = url.value
+        })
+      }
+    }
+  })
+
+  interpreter.registerBuiltIn({
     name: 'show-image',
     * execute (interpreter, token) {
-      const image = Image.from(popOperand(interpreter, { type: 'Arr' }, token))
+      const { cancel, token: cancelToken } = createCancellationToken()
+
+      let image
+      yield {
+        promise: Image.from(popOperand(interpreter, { type: 'Arr' }, token))
+          .then((img) => { image = img }),
+        cancel
+      }
+      if (cancelToken.cancelled) {
+        // cancelled while loading the image
+        return
+      }
+
       const windowWidth = Math.ceil(image.width)
       const windowHeight = Math.ceil(image.height)
-      const { cancel, token: cancelToken } = createCancellationToken()
-      
+
       const top = (window.outerHeight - windowHeight) / 2 + window.screenY
       const left = (window.outerWidth - windowWidth) / 2 + window.screenX
       const win = window.open('', '_blank', `top=${top},left=${left},width=${windowWidth},height=${windowHeight}`)
@@ -367,6 +412,18 @@ export function registerBuiltIns (interpreter) {
       type: ':Arr'
     }],
     returns: []
+  }, {
+    name: 'read-image-url',
+    description: 'Download an image and serialize it into a data url that can be used with `:bitmap`.',
+    params: [{
+      name: 'url',
+      description: 'Url of an image',
+      type: ':Str'
+    }],
+    returns: [{
+      type: ':Str',
+      description: 'Image as data url, or nil if the download failed'
+    }]
   }, {
     name: 'image-width',
     description: 'Get the width of an image.',
@@ -468,5 +525,8 @@ export function registerBuiltIns (interpreter) {
   }, {
     name: ':underlay',
     description: 'Symbol to define an image consisting of multiple underlaying images.'
+  }, {
+    name: ':bitmap',
+    description: 'Symbol to define an image from a url or data url.'
   })
 }
