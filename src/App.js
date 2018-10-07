@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import SplitPane from 'react-split-pane'
+import SplitLayout from 'react-splitter-layout'
 import { connect } from 'react-redux'
 import injectSheet, { ThemeProvider } from 'react-jss'
 import { debounce } from 'throttle-debounce'
@@ -32,6 +32,9 @@ const styles = (theme) => ({
   toolbar: {
     padding: '5px 5px 0'
   },
+  rootSplitLayout: {
+    position: 'static'
+  },
   editor: {
     width: '100%',
     height: '100%'
@@ -39,10 +42,13 @@ const styles = (theme) => ({
   editorCard: {
     width: 'calc(100% - 10px)',
     height: 'calc(100% - 10px)',
+    position: 'absolute'
   },
   stackDict: {
-    width: '100%',
-    overflowY: 'auto'
+    width: 'calc(100% - 10px)',
+    height: 'calc(100% - 10px)',
+    overflowY: 'auto',
+    position: 'absolute'
   },
   repl: {
     width: 'calc(100% - 10px)',
@@ -265,14 +271,14 @@ class App extends Component {
     this.showStackAndDict()
   }
 
-  handleGridHResize = (height) => {
-    this._editor.layout({ height: height - 20 })
+  handleGridHResize = () => {
+    this._editor.layout()
     this._inputOutput.layout()
   }
 
-  handleGridVResize = (width) => {
-    this._editor.layout({ width: width - 20 })
-    this._inputOutput.layout({ width: width - 30 })
+  handleGridVResize = () => {
+    this._editor.layout()
+    this._inputOutput.layout()
     this._repl.layout()
   }
 
@@ -333,20 +339,19 @@ class App extends Component {
           theme={theme}
           onToggleTheme={onToggleTheme}
         />
-        <SplitPane
-          split='vertical'
-          minSize={300}
-          defaultSize={Math.floor(0.7 * window.innerWidth)}
-          onChange={this.handleGridVResize}
-          onDragFinished={this.handleGridVResize}
-          style={{ height: 'auto', position: 'static', overflow: 'visible' }}
+        <SplitLayout
+          customClassName={classes.rootSplitLayout}
+          percentage
+          secondaryInitialSize={30}
+          onSecondaryPaneSizeChange={this.handleGridVResize}
+          onDragEnd={this.handleGridVResize}
         >
-          <SplitPane
-            split='horizontal'
-            minSize={300}
-            defaultSize={Math.floor(0.8 * window.innerHeight)}
-            onChange={this.handleGridHResize}
-            onDragFinished={this.handleGridHResize}
+          <SplitLayout
+            vertical
+            percentage
+            secondaryInitialSize={20}
+            onSecondaryPaneSizeChange={this.handleGridHResize}
+            onDragEnd={this.handleGridHResize}
             style={{ height: 'auto', position: 'static', overflow: 'visible' }}
           >
             <Card className={classes.editorCard} onClick={this.showProgramStack}>
@@ -371,13 +376,13 @@ class App extends Component {
               readOnly={running}
               style={{ width: '100%', height: '100%', position: 'absolute' }}
             />
-          </SplitPane>
-          <SplitPane
-            split='horizontal'
-            minSize={300}
-            defaultSize={Math.floor(0.8 * window.innerHeight)}
+          </SplitLayout>
+          <SplitLayout
+            vertical
+            percentage
+            secondaryInitialSize={20}
+            onSecondaryPaneSizeChange={this.handleReplResize}
             style={{ height: 'auto', position: 'static', overflow: 'visible' }}
-            onChange={this.handleReplResize}
           >
             <Card
               className={classes.stackDict}
@@ -404,8 +409,8 @@ class App extends Component {
                 onExecutionFinished={this.handleReplExecutionFinished}
               />
             </Card>
-          </SplitPane>
-        </SplitPane>
+          </SplitLayout>
+        </SplitLayout>
       </div>
     );
   }
