@@ -122,7 +122,7 @@ export function registerBuiltIns (interpreter) {
           if (onDraw) {
             interpreter._stack.push(state)
             await runObj(onDraw)
-            image = Image.from(interpreter._stack.pop())
+            image = await Image.from(interpreter._stack.pop())
           }
           // global requestAnimationFrame
           requestAnimationFrame(() => {
