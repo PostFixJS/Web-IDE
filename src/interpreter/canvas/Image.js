@@ -9,7 +9,7 @@ export default class Image {
     this.height = height
   }
 
-  static from (obj) {
+  static async from (obj) {
     if (obj instanceof types.Arr && obj.items[0] instanceof types.Sym) {
       switch (obj.items[0].name) {
         case 'square':
@@ -36,6 +36,8 @@ export default class Image {
           return Overlay.from(obj)
         case 'underlay':
           return Underlay.from(obj)
+        case 'bitmap':
+          return Bitmap.from(obj)
         default:
           throw new types.Err(`Unsupported image type ${obj.items[0].toString()}`, obj.origin)
       }
@@ -223,9 +225,9 @@ class Scale extends Image {
     ctx.restore()
   }
 
-  static from (obj) {
+  static async from (obj) {
     if (obj.items.length === 3 && obj.items[1] instanceof types.Num) {
-      return new Scale(obj.items[1].value, Image.from(obj.items[2]))
+      return new Scale(obj.items[1].value, await Image.from(obj.items[2]))
     }
     throw new types.Err('Invalid scale', obj.origin)
   }
@@ -250,9 +252,9 @@ class Rotate extends Image {
     ctx.restore()
   }
 
-  static from (obj) {
+  static async from (obj) {
     if (obj.items.length === 3 && obj.items[1] instanceof types.Num) {
-      return new Rotate(obj.items[1].value, Image.from(obj.items[2]))
+      return new Rotate(obj.items[1].value, await Image.from(obj.items[2]))
     }
     throw new types.Err('Invalid rotate', obj.origin)
   }
@@ -302,9 +304,10 @@ class PlaceImage extends Image {
     ctx.restore()
   }
 
-  static from (obj) {
+  static async from (obj) {
     if (obj.items.length === 5 && obj.items[3] instanceof types.Num && obj.items[4] instanceof types.Num) {
-      return new PlaceImage(Image.from(obj.items[1]), Image.from(obj.items[2]), obj.items[3].value, obj.items[4].value)
+      const [imageA, imageB] = await Promise.all([Image.from(obj.items[1]), Image.from(obj.items[2])])
+      return new PlaceImage(imageA, imageB, obj.items[3].value, obj.items[4].value)
     } else if (obj.items.length === 7 && obj.items[3] instanceof types.Num && obj.items[4] instanceof types.Num && obj.items[5] instanceof types.Str && obj.items[6] instanceof types.Str) {
       if (!['left', 'center', 'right'].includes(obj.items[5].value)) {
         throw new types.Err(`Unsupported horizontal alignment "${obj.items[5].value}"`, obj.items[5].origin || obj.origin)
@@ -312,7 +315,8 @@ class PlaceImage extends Image {
       if (!['top', 'center', 'bottom'].includes(obj.items[6].value)) {
         throw new types.Err(`Unsupported vertical alignment "${obj.items[6].value}"`, obj.items[6].origin || obj.origin)
       }
-      return new PlaceImage(Image.from(obj.items[1]), Image.from(obj.items[2]), obj.items[3].value, obj.items[4].value, obj.items[5].value, obj.items[6].value)
+      const [imageA, imageB] = await Promise.all([Image.from(obj.items[1]), Image.from(obj.items[2])])
+      return new PlaceImage(imageA, imageB, obj.items[3].value, obj.items[4].value, obj.items[5].value, obj.items[6].value)
     }
     throw new types.Err('Invalid place-image', obj.origin)
   }
@@ -354,14 +358,14 @@ class Beside extends Image {
     ctx.restore()
   }
 
-  static from (obj) {
+  static async from (obj) {
     if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
-      return new Beside(obj.items[1].items.map((image) => Image.from(image)))
+      return new Beside(await Promise.all(obj.items[1].items.map((image) => Image.from(image))))
     } else if (obj.items.length === 3 && obj.items[1] instanceof types.Arr && obj.items[2] instanceof types.Str) {
       if (!['top', 'center', 'bottom'].includes(obj.items[2].value)) {
         throw new types.Err(`Unsupported vertical alignment "${obj.items[2].value}"`, obj.items[2].origin || obj.origin)
       }
-      return new Beside(obj.items[1].items.map((image) => Image.from(image)), obj.items[2].value)
+      return new Beside(await Promise.all(obj.items[1].items.map((image) => Image.from(image))), obj.items[2].value)
     }
     throw new types.Err('Invalid beside', obj.origin)
   }
@@ -403,14 +407,14 @@ class Above extends Image {
     ctx.restore()
   }
 
-  static from (obj) {
+  static async from (obj) {
     if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
-      return new Above(obj.items[1].items.map((image) => Image.from(image)))
+      return new Above(await Promise.all(obj.items[1].items.map((image) => Image.from(image))))
     } else if (obj.items.length === 3 && obj.items[1] instanceof types.Arr && obj.items[2] instanceof types.Str) {
       if (!['left', 'center', 'right'].includes(obj.items[2].value)) {
         throw new types.Err(`Unsupported horizontal alignment "${obj.items[2].value}"`, obj.items[2].origin || obj.origin)
       }
-      return new Above(obj.items[1].items.map((image) => Image.from(image)), obj.items[2].value)
+      return new Above(await Promise.all(obj.items[1].items.map((image) => Image.from(image))), obj.items[2].value)
     }
     throw new types.Err('Invalid above', obj.origin)
   }
@@ -494,9 +498,9 @@ class Underlay extends Image {
     ctx.restore()
   }
 
-  static from (obj) {
+  static async from (obj) {
     if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
-      return new Underlay(obj.items[1].items.map((image) => Image.from(image)))
+      return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image))))
     } else if (obj.items.length >= 4 && obj.items[1] instanceof types.Arr && obj.items[2] instanceof types.Str && obj.items[3] instanceof types.Str) {
       if (!['left', 'center', 'right'].includes(obj.items[2].value)) {
         throw new types.Err(`Unsupported horizontal alignment "${obj.items[2].value}"`, obj.items[2].origin || obj.origin)
@@ -505,9 +509,9 @@ class Underlay extends Image {
         throw new types.Err(`Unsupported vertical alignment "${obj.items[3].value}"`, obj.items[3].origin || obj.origin)
       }
       if (obj.items.length === 4) {
-        return new Underlay(obj.items[1].items.map((image) => Image.from(image)), obj.items[2].value, obj.items[3].value)
+        return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image))), obj.items[2].value, obj.items[3].value)
       } else if (obj.items.length === 6 && obj.items[4] instanceof types.Num && obj.items[5] instanceof types.Num) {
-        return new Underlay(obj.items[1].items.map((image) => Image.from(image)), obj.items[2].value, obj.items[3].value, obj.items[4].value, obj.items[5].value)
+        return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image))), obj.items[2].value, obj.items[3].value, obj.items[4].value, obj.items[5].value)
       }
     }
     throw new types.Err('Invalid underlay', obj.origin)
@@ -515,9 +519,9 @@ class Underlay extends Image {
 }
 
 class Overlay extends Image {
-  static from (obj) {
+  static async from (obj) {
     if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
-      return new Underlay(obj.items[1].items.map((image) => Image.from(image)).reverse())
+      return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image))).reverse())
     } else if (obj.items.length >= 4 && obj.items[1] instanceof types.Arr && obj.items[2] instanceof types.Str && obj.items[3] instanceof types.Str) {
       if (!['left', 'center', 'right'].includes(obj.items[2].value)) {
         throw new types.Err(`Unsupported horizontal alignment "${obj.items[2].value}"`, obj.items[2].origin || obj.origin)
@@ -526,11 +530,35 @@ class Overlay extends Image {
         throw new types.Err(`Unsupported vertical alignment "${obj.items[3].value}"`, obj.items[3].origin || obj.origin)
       }
       if (obj.items.length === 4) {
-        return new Underlay(obj.items[1].items.map((image) => Image.from(image)).reverse(), obj.items[2].value, obj.items[3].value)
+        return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image))).reverse(), obj.items[2].value, obj.items[3].value)
       } else if (obj.items.length === 6 && obj.items[4] instanceof types.Num && obj.items[5] instanceof types.Num) {
-        return new Underlay(obj.items[1].items.map((image) => Image.from(image)).reverse(), obj.items[2].value, obj.items[3].value, obj.items[4].value, obj.items[5].value)
+        return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image))).reverse(), obj.items[2].value, obj.items[3].value, obj.items[4].value, obj.items[5].value)
       }
     }
     throw new types.Err('Invalid overlay', obj.origin)
+  }
+}
+
+class Bitmap extends Image {
+  constructor (img) {
+    super(img.width, img.height)
+    this.img = img
+  }
+
+  draw (ctx) {
+    ctx.drawImage(this.img, 0, 0)
+  }
+
+  static async from (obj) {
+    if (obj.items.length === 2 && obj.items[1] instanceof types.Str) {
+      return new Promise((resolve, reject) => {
+          const img = new window.Image()  
+          img.onload = () => resolve(new Bitmap(img))
+          img.onerror = () => reject(new types.Err('Could not load image', obj.origin))
+          img.src = obj.items[1].value
+      })
+    } else {
+      throw new types.Err('Invalid bitmap', obj.origin)
+    }
   }
 }
