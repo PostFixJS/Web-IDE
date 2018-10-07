@@ -27,10 +27,11 @@ const styles = (theme) => ({
     flexDirection: 'column',
     width: '100%',
     height: '100%',
+    padding: 5,
     background: theme.background
   },
   toolbar: {
-    padding: '5px 5px 0'
+    padding: '0 5px'
   },
   rootSplitLayout: {
     position: 'static'
@@ -352,7 +353,6 @@ class App extends Component {
             secondaryInitialSize={20}
             onSecondaryPaneSizeChange={this.handleGridHResize}
             onDragEnd={this.handleGridHResize}
-            style={{ height: 'auto', position: 'static', overflow: 'visible' }}
           >
             <Card className={classes.editorCard} onClick={this.showProgramStack}>
               <Editor
@@ -382,7 +382,6 @@ class App extends Component {
             percentage
             secondaryInitialSize={20}
             onSecondaryPaneSizeChange={this.handleReplResize}
-            style={{ height: 'auto', position: 'static', overflow: 'visible' }}
           >
             <Card
               className={classes.stackDict}
