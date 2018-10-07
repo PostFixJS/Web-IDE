@@ -7,16 +7,23 @@ function ObjectHighlighter({ objects, theme }) {
       {objects.map((obj, i) => i > 0 ? (
         <React.Fragment key={i}>
           <span>, </span>
-          <span style={{ color: getColor(obj, theme) }}>{obj}</span>
+          <span style={{ color: getColor(obj, theme) }} title={obj}>{shorten(obj)}</span>
         </React.Fragment>
       ) : (
-        <span key={i} style={{ color: getColor(obj, theme) }}>{obj}</span>
+        <span key={i} style={{ color: getColor(obj, theme) }} title={obj}>{shorten(obj)}</span>
       ))}
     </React.Fragment>
   )
 }
 
 export default withTheme(ObjectHighlighter)
+
+function shorten (value) {
+  if (value.length > 100) {
+    return `${value.substr(0, 100)}…`
+  }
+  return value
+}
 
 function getColor (value, theme) {
   return theme.highlighting[getType(value)] || '#000'
