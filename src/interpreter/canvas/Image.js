@@ -521,7 +521,7 @@ class Underlay extends Image {
 class Overlay extends Image {
   static async from (obj) {
     if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
-      return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image))).reverse())
+      return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image)).reverse()))
     } else if (obj.items.length >= 4 && obj.items[1] instanceof types.Arr && obj.items[2] instanceof types.Str && obj.items[3] instanceof types.Str) {
       if (!['left', 'center', 'right'].includes(obj.items[2].value)) {
         throw new types.Err(`Unsupported horizontal alignment "${obj.items[2].value}"`, obj.items[2].origin || obj.origin)
@@ -530,9 +530,9 @@ class Overlay extends Image {
         throw new types.Err(`Unsupported vertical alignment "${obj.items[3].value}"`, obj.items[3].origin || obj.origin)
       }
       if (obj.items.length === 4) {
-        return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image))).reverse(), obj.items[2].value, obj.items[3].value)
+        return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image)).reverse()), obj.items[2].value, obj.items[3].value)
       } else if (obj.items.length === 6 && obj.items[4] instanceof types.Num && obj.items[5] instanceof types.Num) {
-        return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image))).reverse(), obj.items[2].value, obj.items[3].value, obj.items[4].value, obj.items[5].value)
+        return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image)).reverse()), obj.items[2].value, obj.items[3].value, obj.items[4].value, obj.items[5].value)
       }
     }
     throw new types.Err('Invalid overlay', obj.origin)
