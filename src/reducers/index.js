@@ -59,7 +59,8 @@ export function dicts (state = [], action) {
 }
 
 const defaultSettings = {
-  theme: 'light'
+  theme: 'light',
+  fontSize: 14
 }
 function getSettings () {
   try {

@@ -3,7 +3,10 @@ import ReactDOM from 'react-dom'
 import injectSheet from 'react-jss'
 import * as monaco from 'monaco-editor'
 import { ZoneWidget } from 'monaco-editor/esm/vs/editor/contrib/zoneWidget/zoneWidget'
-import OneLineEditor from '../OneLineEditor';
+import { Provider, connect } from 'react-redux'
+import store from '../../store'
+import * as actions from '../../actions'
+import OneLineEditor from '../OneLineEditor'
 import { showMessage } from './monaco-integration/util'
 
 const styles = {
@@ -56,6 +59,7 @@ class RawWidget extends React.Component {
   }
 
   editorDidMount = (editor) => {
+    console.log(this.props.fontSize)
     this._editor = editor
     setImmediate(() => {
       editor.layout()
@@ -94,7 +98,7 @@ class RawWidget extends React.Component {
   }
 
   render () {
-    const { classes } = this.props
+    const { classes, ...other } = this.props
     return (
       <div style={{ display: 'flex' }}>
         <select onChange={this.handleChangeType} value={this.state.type} className={classes.select}>
@@ -107,13 +111,18 @@ class RawWidget extends React.Component {
           options={{ fixedOverflowWidgets: true }}
           value={this.state.expressions[this.state.type] || ''}
           onChange={this.handleChangeExpression}
+          {...other}
         />
       </div>
     )
   }
 }
 
-const Widget = injectSheet(styles)(RawWidget)
+const Widget = connect((state) => ({
+  fontSize: state.settings.fontSize
+}), (dispatch) => ({
+  onChangeFontSize: (fontSize) => dispatch(actions.setFontSize(fontSize))
+}))(injectSheet(styles)(RawWidget))
 
 export default class ConditionalBreakpointWidget extends ZoneWidget {
   constructor (editor, onAccept, breakpoint, mountedCallback) {
@@ -133,11 +142,13 @@ export default class ConditionalBreakpointWidget extends ZoneWidget {
 
   _fillContainer (container) {
     ReactDOM.render((
-      <Widget
-        innerRef={this._setRef}
-        onAccept={this.onAccept}
-        breakpoint={this.breakpoint}
-      />
+      <Provider store={store}>
+        <Widget
+          innerRef={this._setRef}
+          onAccept={this.onAccept}
+          breakpoint={this.breakpoint}
+        />
+      </Provider>
     ), container, this.mountedCallback)
   }
 
