@@ -222,7 +222,7 @@ export default class PostFixRunner {
           const runner = this._breakpointRunner
           runner.interpreter = this.interpreter.copy()
           try {
-            await runner.run(breakpoint.expression)
+            await runner.run(breakpoint.expression, false, false)
             if (runner.interpreter._stack.count > 0 && runner.interpreter._stack.pop().value === true) {
               return true
             }
