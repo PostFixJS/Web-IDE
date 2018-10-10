@@ -341,6 +341,9 @@ class App extends Component {
           onOpen={this.handleOpen}
           theme={theme}
           onToggleTheme={onToggleTheme}
+          onIncreaseFontSize={() => onFontSizeChange(fontSize + 2)}
+          onDecreaseFontSize={() => onFontSizeChange(fontSize - 2)}
+          onResetFontSize={() => onFontSizeChange(14)}
         />
         <SplitLayout
           customClassName={classes.rootSplitLayout}

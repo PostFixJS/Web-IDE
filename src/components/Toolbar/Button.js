@@ -45,11 +45,11 @@ const styles = (theme) => ({
 function Button ({ classes, children, icon, label, ...other }) {
   return (
     <button className={classes.root} {...other}>
-      <img
+      {icon && <img
         src={icon}
         className={classes.icon}
         alt={label || other.title}
-      />
+      />}
       {label && <span className={classes.label}>{label}</span>}
       {children}
     </button>

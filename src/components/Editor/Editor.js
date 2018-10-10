@@ -38,6 +38,11 @@ class Editor extends React.Component {
         readOnly: this.props.readOnly
       })
     }
+    if (prevProps.fontSize !== this.props.fontSize) {
+      this.editor.updateOptions({
+        fontSize: this.props.fontSize
+      })
+    }
     if (prevProps.theme !== this.props.theme) {
       // Note: All editors can only use one theme at a time, so this affects all editors
       this.monaco.editor.setTheme(this.props.theme.monaco.baseTheme)

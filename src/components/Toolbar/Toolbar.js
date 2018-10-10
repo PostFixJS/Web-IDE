@@ -33,6 +33,9 @@ export default class Toolbar extends React.Component {
       onSave,
       theme,
       onToggleTheme,
+      onIncreaseFontSize,
+      onDecreaseFontSize,
+      onResetFontSize,
       ...other
     } = this.props
 
@@ -120,6 +123,22 @@ export default class Toolbar extends React.Component {
           title={theme === 'light' ? 'Use Dark Theme' : 'Use Light Theme'}
           icon={require('./icons/idea.svg')}
         />
+        <Divider />
+        <Button
+          onClick={onDecreaseFontSize}
+          title='Decrease font size'
+          label='Zoom out'
+        />
+        <Button
+          onClick={onIncreaseFontSize}
+          title='Increase font size'
+          label='Zoom in'
+        />
+        <Button
+          onClick={onResetFontSize}
+          title='Reset font size'
+          label='Reset zoom'
+        />
         <span style={{ float: 'right', lineHeight: '32px', fontSize: '9pt', marginRight: 5 }}>
           Icons made by <a href='https://smashicons.com/'>Smashicons</a> from <a href='https://www.flaticon.com'>www.flaticon.com</a>
         </span>
@@ -139,5 +158,8 @@ Toolbar.propTypes = {
   onStep: PropTypes.func.isRequired,
   onOpen: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
-  onToggleTheme: PropTypes.func.isRequired
+  onToggleTheme: PropTypes.func.isRequired,
+  onIncreaseFontSize: PropTypes.func.isRequired,
+  onDecreaseFontSize: PropTypes.func.isRequired,
+  onResetFontSize: PropTypes.func.isRequired
 }

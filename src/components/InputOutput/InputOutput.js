@@ -38,6 +38,14 @@ class InputOutput extends React.Component {
         readOnly: this.props.readOnly
       })
     }
+    if (prevProps.fontSize !== this.props.fontSize) {
+      this.inputEditor.updateOptions({
+        fontSize: this.props.fontSize
+      })
+      this.outputEditor.updateOptions({
+        fontSize: this.props.fontSize
+      })
+    }
     if (prevProps.inputPosition !== this.props.inputPosition) {
       const pos = this.inputEditor.getModel().getPositionAt(this.props.inputPosition)
       this.inputDecorations = this.inputEditor.deltaDecorations(this.inputDecorations, [

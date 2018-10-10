@@ -45,6 +45,14 @@ class RawWidget extends React.Component {
     }
   }
 
+  componentDidUpdate (prevProps) {
+    if (prevProps.fontSize !== this.props.fontSize) {
+      this._editor.updateOptions({
+        fontSize: this.props.fontSize
+      })
+    }
+  }
+
   showError (err) {
     const pos = err.origin
     this.lineHighlightDecorations = this._editor.deltaDecorations(this.lineHighlightDecorations, [

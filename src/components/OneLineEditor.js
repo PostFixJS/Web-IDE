@@ -26,6 +26,14 @@ export default class OneLineEditor extends React.Component {
     })
   }
 
+  componentDidUpdate (prevProps) {
+    if (prevProps.fontSize !== this.props.fontSize) {
+      this.editor.updateOptions({
+        fontSize: this.props.fontSize
+      })
+    }
+  }
+
   render () {
     const { options, editorDidMount, onFontSizeChange, fontSize, ...other } = this.props
     const { height } = this.state
