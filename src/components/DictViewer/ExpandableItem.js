@@ -5,12 +5,6 @@ import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
 import ShowHideToggle from '../ShowHideToggle'
 
 const styles = (theme) => ({
-  table: {
-    fontSize: 14
-  },
-  tbody: {
-    fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"'
-  },
   topRow: {
     userSelect: 'none'
   },

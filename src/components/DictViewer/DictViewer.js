@@ -5,9 +5,6 @@ import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
 import ExpandableItem from './ExpandableItem'
 
 const styles = (theme) => ({
-  table: {
-    fontSize: 14
-  },
   tbody: {
     fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"'
   },
@@ -24,10 +21,10 @@ const styles = (theme) => ({
 
 class DictViewer extends React.Component {
   render () {
-    const { classes, dicts, invalid } = this.props
+    const { classes, dicts, invalid, fontSize } = this.props
 
     return (
-      <table className={classes.table}>
+      <table>
         <thead>
           <tr>
             <td>Name</td>
@@ -35,7 +32,7 @@ class DictViewer extends React.Component {
             <td>Type</td>
           </tr>
         </thead>
-        <tbody className={classes.tbody} style={{ opacity: invalid ? 0.5 : 1 }}>
+        <tbody className={classes.tbody} style={{ opacity: invalid ? 0.5 : 1, fontSize }}>
           {dicts.map((dict, i) => (
             <React.Fragment key={i}>
               <tr>
@@ -70,7 +67,12 @@ DictViewer.propTypes = {
     type: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired
   }))).isRequired,
-  invalid: PropTypes.bool
+  invalid: PropTypes.bool,
+  fontSize: PropTypes.number
+}
+
+DictViewer.defaultProps = {
+  fontSize: 14
 }
 
 export default injectStyles(styles)(DictViewer)

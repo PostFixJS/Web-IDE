@@ -116,7 +116,15 @@ class Editor extends React.Component {
           }
         }
       }),
-      editor.getModel().onDidChangeDecorations(this.handleDecorationsChanged)
+      editor.getModel().onDidChangeDecorations(this.handleDecorationsChanged),
+      editor.onDidChangeConfiguration(() => {
+        if (this.props.onChangeFontSize) {
+          const fontSize = editor.getConfiguration().fontInfo.fontSize
+          if (fontSize !== this.props.fontSize) {
+            this.props.onChangeFontSize(fontSize)
+          }
+        }
+      })
     )
   }
 
@@ -286,9 +294,11 @@ class Editor extends React.Component {
       innerRef,
       onBreakpointsChange,
       onChange,
+      onChangeFontSize,
       readOnly,
       tests,
       theme,
+      fontSize,
       ...other
     } = this.props
 
@@ -303,7 +313,7 @@ class Editor extends React.Component {
           language='postfix'
           value={code}
           onChange={onChange}
-          options={{ theme: this.props.theme.monaco.baseTheme }}
+          options={{ theme: this.props.theme.monaco.baseTheme, fontSize }}
         />
       </div>
     )
@@ -319,6 +329,7 @@ Editor.propTypes = {
   onChange: PropTypes.func,
   readOnly: PropTypes.bool,
   onBreakpointsChange: PropTypes.func.isRequired,
+  onChangeFontSize: PropTypes.func.isRequired,
   innerRef: PropTypes.func,
 }
 

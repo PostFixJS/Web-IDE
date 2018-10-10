@@ -5,7 +5,8 @@ export const SET_STACK = 'stack/SET_STACK'
 export const SET_DICTS = 'dicts/SET_DICTS'
 export const SET_INPUT = 'input/SET_INPUT'
 export const SET_INPUT_POSITION = 'input/SET_POSITION'
-export const TOGGLE_THEME = 'theme/TOGGLE'
+export const TOGGLE_THEME = 'settings/TOGGLE_THEME'
+export const SET_FONTSIZE = 'settings/SET_FONTSIZE'
 export const ADD_TEST_RESULT = 'tests/ADD_TEST_RESULT'
 export const RESET_TESTS = 'tests/RESET_TESTS'
 export const ADD_REPL_LINE = 'repl/ADD_REPL_LINE'
@@ -40,6 +41,10 @@ export function setInputPosition (position) {
 
 export function toggleTheme () {
   return { type: TOGGLE_THEME }
+}
+
+export function setFontSize (fontSize) {
+  return { type: SET_FONTSIZE, payload: fontSize }
 }
 
 export function reportTest (passed, type, position, params) {

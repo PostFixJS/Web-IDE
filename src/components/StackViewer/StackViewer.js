@@ -5,9 +5,6 @@ import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
 import ExpandableItem from './ExpandableItem'
 
 const styles = (theme) => ({
-  table: {
-    fontSize: 14
-  },
   tbody: {
     fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"'
   },
@@ -24,17 +21,17 @@ const styles = (theme) => ({
 
 class StackViewer extends React.Component {
   render () {
-    const { classes, stack, invalid } = this.props
+    const { classes, stack, invalid, fontSize } = this.props
 
     return (
-      <table className={classes.table}>
+      <table>
         <thead>
           <tr>
             <td style={{ width: '100%' }}>Value</td>
             <td>Type</td>
           </tr>
         </thead>
-        <tbody className={classes.tbody} style={{ opacity: invalid ? 0.5 : 1 }}>
+        <tbody className={classes.tbody} style={{ opacity: invalid ? 0.5 : 1, fontSize }}>
           {stack.map((item, i) => item.children && item.children.length > 0 ? (
             <ExpandableItem
               key={i}
@@ -60,7 +57,12 @@ StackViewer.propTypes = {
     type: PropTypes.string.isRequired,
     value: PropTypes.string.isRequired
   })).isRequired,
-  invalid: PropTypes.bool
+  invalid: PropTypes.bool,
+  fontSize: PropTypes.number
+}
+
+StackViewer.defaultProps = {
+  fontSize: 14
 }
 
 export default injectStyles(styles)(StackViewer)

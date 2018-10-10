@@ -318,7 +318,9 @@ class App extends Component {
       onToggleTheme,
       replLines,
       theme,
-      tests
+      tests,
+      fontSize,
+      onFontSizeChange
     } = this.props
 
     return (
@@ -365,6 +367,8 @@ class App extends Component {
                 onDragOver={this.handleDragOver}
                 onDrop={this.handleDrop}
                 onBreakpointsChange={this.handleChangeBreakpoints}
+                fontSize={fontSize}
+                onChangeFontSize={onFontSizeChange}
               />
             </Card>
             <InputOutput
@@ -375,6 +379,8 @@ class App extends Component {
               onInputChange={this.props.onInputChange}
               readOnly={running}
               style={{ width: '100%', height: '100%', position: 'absolute' }}
+              fontSize={fontSize}
+              onChangeFontSize={onFontSizeChange}
             />
           </SplitLayout>
           <SplitLayout
@@ -391,10 +397,12 @@ class App extends Component {
               <StackViewer
                 stack={this.props.stack}
                 invalid={!running || !paused}
+                fontSize={fontSize}
               />
               <DictViewer
                 dicts={this.props.dicts}
                 invalid={!running || !paused}
+                fontSize={fontSize}
               />
             </Card>
             <Card className={classes.repl} title='REPL'>
@@ -406,6 +414,8 @@ class App extends Component {
                 runner={this.replRunner}
                 disabled={running && !paused}
                 onExecutionFinished={this.handleReplExecutionFinished}
+                fontSize={fontSize}
+                onChangeFontSize={onFontSizeChange}
               />
             </Card>
           </SplitLayout>
@@ -425,12 +435,14 @@ export default connect((state) => ({
   dicts: state.dicts,
   replLines: state.replLines,
   theme: state.settings.theme,
-  tests: state.tests
+  tests: state.tests,
+  fontSize: state.settings.fontSize
 }), (dispatch) => ({
   dispatch,
   onInputChange: (input) => dispatch(actions.setInput(input)),
   onToggleTheme: () => dispatch(actions.toggleTheme()),
-  onAppendReplLine: (line) => dispatch(actions.addReplLine(line))
+  onAppendReplLine: (line) => dispatch(actions.addReplLine(line)),
+  onFontSizeChange: (fontSize) => dispatch(actions.setFontSize(fontSize))
 }))((props) => (
   <ThemeProvider theme={themes[props.theme]}>
     <StyledApp {...props} />

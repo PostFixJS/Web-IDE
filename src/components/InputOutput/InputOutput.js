@@ -66,10 +66,28 @@ class InputOutput extends React.Component {
 
   inputEditorDidMount = (editor) => {
     this.inputEditor = editor
+   
+    editor.onDidChangeConfiguration(() => {
+      if (this.props.onChangeFontSize) {
+        const fontSize = editor.getConfiguration().fontInfo.fontSize
+        if (fontSize !== this.props.fontSize) {
+          this.props.onChangeFontSize(fontSize)
+        }
+      }
+    })
   }
 
   outputEditorDidMount = (editor) => {
     this.outputEditor = editor
+   
+    editor.onDidChangeConfiguration(() => {
+      if (this.props.onChangeFontSize) {
+        const fontSize = editor.getConfiguration().fontInfo.fontSize
+        if (fontSize !== this.props.fontSize) {
+          this.props.onChangeFontSize(fontSize)
+        }
+      }
+    })
   }
 
   setRootRef = (ref) => this._rootRef = ref
@@ -96,8 +114,10 @@ class InputOutput extends React.Component {
       input,
       inputPosition,
       output,
+      onChangeFontSize,
       onInputChange,
       readOnly,
+      fontSize,
       ...other
     } = this.props
 
@@ -120,7 +140,8 @@ class InputOutput extends React.Component {
                   enabled: false
                 },
                 wordWrap: 'on',
-                renderLineHighlight: 'none'
+                renderLineHighlight: 'none',
+                fontSize
               }}
               language='text'
               />
@@ -138,7 +159,8 @@ class InputOutput extends React.Component {
                 },
                 wordWrap: 'on',
                 renderWhitespace: 'all',
-                renderControlCharacters: true
+                renderControlCharacters: true,
+                fontSize
               }}
               language='text'
             />

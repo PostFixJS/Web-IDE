@@ -6,10 +6,17 @@ import OneLineEditor from '../OneLineEditor';
 import { showMessage } from '../Editor/monaco-integration/util'
 
 const styles = (theme) => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    '& .monaco-editor .overflow-guard, & .monaco-editor .editor-scrollable': {
+      // fix truncated overflow in one-line editor
+      overflow: 'visible !important'
+    }
+  },
   output: {
     flex: 1,
     overflowX: 'auto',
-    fontSize: 14,
     fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
     padding: 8,
     borderBottom: `1px solid ${theme.divider.color}`,
@@ -172,7 +179,7 @@ class Repl extends React.Component {
   layout (dimensions = {}) {
     this.editor.layout({
       width: dimensions.width || this._rootRef.clientWidth,
-      height: 19
+      height: this.props.fontSize
     })
   }
 
@@ -198,18 +205,20 @@ class Repl extends React.Component {
       onRunCommand,
       onAppendLine,
       runner,
-      style,
+      fontSize,
+      onChangeFontSize,
+      theme,
       ...other
     } = this.props
 
     return (
       <div
         ref={this.setRootRef}
-        {...other}
-        style={{ ...style, display: 'flex', flexDirection: 'column' }}
+        className={classes.root}
         onClick={this.handleClick}
+        {...other}
       >
-        <div className={classes.output} ref={this.setOutputRef}>
+        <div className={classes.output} style={{ fontSize }} ref={this.setOutputRef}>
           {lines.map((line, i) => line.type === 'input' ? (
             <p key={i} className={classes.line}>
               &gt; {line.value}
@@ -224,7 +233,7 @@ class Repl extends React.Component {
               {line.value.length === 0 ? (
                 <span className={classes.emptyStack}>(empty stack)</span>
               ) : (
-                <ObjectHighlighter objects={line.value}/>
+                <ObjectHighlighter objects={line.value} />
               )}
             </p>
           ))}
@@ -232,7 +241,9 @@ class Repl extends React.Component {
         <OneLineEditor
           language='postfix'
           editorDidMount={this.editorDidMount}
-          options={{ fixedOverflowWidgets: true }}
+          options={{ fixedOverflowWidgets: true, fontSize }}
+          fontSize={fontSize}
+          onChangeFontSize={onChangeFontSize}
         />
       </div>
     )

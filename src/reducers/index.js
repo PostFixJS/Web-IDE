@@ -78,6 +78,11 @@ export function settings (state = {
         ...state,
         theme: state.theme === 'light' ? 'dark' : 'light'
       }
+    case actions.SET_FONTSIZE:
+      return {
+        ...state,
+        fontSize: action.payload
+      }
     default:
       return state
   }
