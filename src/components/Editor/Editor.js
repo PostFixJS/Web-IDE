@@ -150,7 +150,7 @@ class Editor extends React.Component {
   closeBreakpointWidget = () => {
     if (this.breakpointWidget) {
       this.breakpointWidget.widget.dispose()
-      if (!this.editor.isFocused()) {
+      if (!this.editor.hasTextFocus()) {
         this.editor.setPosition(this.breakpointWidget.position)
         this.editor.focus()
       }
