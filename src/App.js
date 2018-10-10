@@ -368,7 +368,7 @@ class App extends Component {
                 onDrop={this.handleDrop}
                 onBreakpointsChange={this.handleChangeBreakpoints}
                 fontSize={fontSize}
-                onChangeFontSize={onFontSizeChange}
+                onFontSizeChange={onFontSizeChange}
               />
             </Card>
             <InputOutput
@@ -380,7 +380,7 @@ class App extends Component {
               readOnly={running}
               style={{ width: '100%', height: '100%', position: 'absolute' }}
               fontSize={fontSize}
-              onChangeFontSize={onFontSizeChange}
+              onFontSizeChange={onFontSizeChange}
             />
           </SplitLayout>
           <SplitLayout
@@ -415,7 +415,7 @@ class App extends Component {
                 disabled={running && !paused}
                 onExecutionFinished={this.handleReplExecutionFinished}
                 fontSize={fontSize}
-                onChangeFontSize={onFontSizeChange}
+                onFontSizeChange={onFontSizeChange}
               />
             </Card>
           </SplitLayout>

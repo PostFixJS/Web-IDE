@@ -118,10 +118,10 @@ class Editor extends React.Component {
       }),
       editor.getModel().onDidChangeDecorations(this.handleDecorationsChanged),
       editor.onDidChangeConfiguration(() => {
-        if (this.props.onChangeFontSize) {
+        if (this.props.onFontSizeChange) {
           const fontSize = editor.getConfiguration().fontInfo.fontSize
           if (fontSize !== this.props.fontSize) {
-            this.props.onChangeFontSize(fontSize)
+            this.props.onFontSizeChange(fontSize)
           }
         }
       })
@@ -294,7 +294,7 @@ class Editor extends React.Component {
       innerRef,
       onBreakpointsChange,
       onChange,
-      onChangeFontSize,
+      onFontSizeChange,
       readOnly,
       tests,
       theme,
@@ -329,7 +329,7 @@ Editor.propTypes = {
   onChange: PropTypes.func,
   readOnly: PropTypes.bool,
   onBreakpointsChange: PropTypes.func.isRequired,
-  onChangeFontSize: PropTypes.func.isRequired,
+  onFontSizeChange: PropTypes.func.isRequired,
   innerRef: PropTypes.func,
 }
 

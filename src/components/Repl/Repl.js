@@ -206,7 +206,7 @@ class Repl extends React.Component {
       onAppendLine,
       runner,
       fontSize,
-      onChangeFontSize,
+      onFontSizeChange,
       theme,
       ...other
     } = this.props
@@ -243,7 +243,7 @@ class Repl extends React.Component {
           editorDidMount={this.editorDidMount}
           options={{ fixedOverflowWidgets: true, fontSize }}
           fontSize={fontSize}
-          onChangeFontSize={onChangeFontSize}
+          onFontSizeChange={onFontSizeChange}
         />
       </div>
     )

@@ -68,10 +68,10 @@ class InputOutput extends React.Component {
     this.inputEditor = editor
    
     editor.onDidChangeConfiguration(() => {
-      if (this.props.onChangeFontSize) {
+      if (this.props.onFontSizeChange) {
         const fontSize = editor.getConfiguration().fontInfo.fontSize
         if (fontSize !== this.props.fontSize) {
-          this.props.onChangeFontSize(fontSize)
+          this.props.onFontSizeChange(fontSize)
         }
       }
     })
@@ -81,10 +81,10 @@ class InputOutput extends React.Component {
     this.outputEditor = editor
    
     editor.onDidChangeConfiguration(() => {
-      if (this.props.onChangeFontSize) {
+      if (this.props.onFontSizeChange) {
         const fontSize = editor.getConfiguration().fontInfo.fontSize
         if (fontSize !== this.props.fontSize) {
-          this.props.onChangeFontSize(fontSize)
+          this.props.onFontSizeChange(fontSize)
         }
       }
     })
@@ -114,7 +114,7 @@ class InputOutput extends React.Component {
       input,
       inputPosition,
       output,
-      onChangeFontSize,
+      onFontSizeChange,
       onInputChange,
       readOnly,
       fontSize,

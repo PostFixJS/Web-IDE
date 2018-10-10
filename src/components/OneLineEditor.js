@@ -16,10 +16,10 @@ export default class OneLineEditor extends React.Component {
     }
    
     editor.onDidChangeConfiguration(() => {
-      if (this.props.onChangeFontSize) {
+      if (this.props.onFontSizeChange) {
         const fontSize = editor.getConfiguration().fontInfo.fontSize
         if (fontSize !== this.props.fontSize) {
-          this.props.onChangeFontSize(fontSize)
+          this.props.onFontSizeChange(fontSize)
         }
       }
       this.setState({ height: this.editor.getConfiguration().lineHeight })
@@ -27,7 +27,7 @@ export default class OneLineEditor extends React.Component {
   }
 
   render () {
-    const { options, editorDidMount, onChangeFontSize, ...other } = this.props
+    const { options, editorDidMount, onFontSizeChange, fontSize, ...other } = this.props
     const { height } = this.state
 
     return (
@@ -50,6 +50,7 @@ export default class OneLineEditor extends React.Component {
           hideCursorInOverviewRuler: true,
           renderLineHighlight: 'none',
           lineDecorationsWidth: 0,
+          fontSize,
           ...options
         }}
         {...other}
@@ -60,6 +61,6 @@ export default class OneLineEditor extends React.Component {
 
 OneLineEditor.propTypes = {
   editorDidMount: PropTypes.func,
-  onChangeFontSize: PropTypes.func,
+  onFontSizeChange: PropTypes.func,
   options: PropTypes.object
 }

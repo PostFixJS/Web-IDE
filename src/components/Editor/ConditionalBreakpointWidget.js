@@ -59,7 +59,6 @@ class RawWidget extends React.Component {
   }
 
   editorDidMount = (editor) => {
-    console.log(this.props.fontSize)
     this._editor = editor
     setImmediate(() => {
       editor.layout()
@@ -121,7 +120,7 @@ class RawWidget extends React.Component {
 const Widget = connect((state) => ({
   fontSize: state.settings.fontSize
 }), (dispatch) => ({
-  onChangeFontSize: (fontSize) => dispatch(actions.setFontSize(fontSize))
+  onFontSizeChange: (fontSize) => dispatch(actions.setFontSize(fontSize))
 }))(injectSheet(styles)(RawWidget))
 
 export default class ConditionalBreakpointWidget extends ZoneWidget {
