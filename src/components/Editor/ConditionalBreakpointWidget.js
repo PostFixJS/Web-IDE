@@ -10,9 +10,17 @@ import OneLineEditor from '../OneLineEditor'
 import { showMessage } from './monaco-integration/util'
 
 const styles = {
+  root: {
+    display: 'flex',
+    height: '100%',
+    '& .react-monaco-editor-container': {
+      margin: 'auto'
+    }
+  },
   select: {
     border: 'none',
-    background: '#eee'
+    background: '#eee',
+    margin: 'auto'
   }
 }
 
@@ -99,7 +107,7 @@ class RawWidget extends React.Component {
   render () {
     const { classes, ...other } = this.props
     return (
-      <div style={{ display: 'flex' }}>
+      <div className={classes.root}>
         <select onChange={this.handleChangeType} value={this.state.type} className={classes.select}>
           <option value='expression'>Expression</option>
           <option value='hit'>Hit count</option>
