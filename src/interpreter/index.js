@@ -1,6 +1,7 @@
 import * as types from 'postfixjs/types'
 import { format } from 'postfixjs/operators/impl/format'
 import { popOperands, popOperand } from 'postfixjs/typeCheck'
+import createCancellationToken from 'postfixjs/util/cancellationToken'
 import * as actions from '../actions'
 import store from '../store'
 import { registerFunctions } from './doc'
@@ -10,7 +11,32 @@ function print (str) {
   store.dispatch(actions.addOutput(str))
 }
 
-function readLine () {
+function waitForInput (cancelToken) {
+  return new Promise((resolve) => {
+    store.dispatch(actions.waitForInput(true))
+    let oldInput = store.getState().input.value
+    const oldLineCount = oldInput.split('\n').length
+    const removeListener = store.subscribe(() => {
+      const input = store.getState().input.value
+      if (input !== oldInput) {
+        oldInput = input
+        if (input.split('\n').length > oldLineCount) {
+          // a new line was added
+          store.dispatch(actions.waitForInput(false))
+          removeListener()
+          resolve()
+        }
+      }
+    })
+    cancelToken.onCancel(() => {
+      store.dispatch(actions.waitForInput(false))
+      removeListener()
+      resolve()
+    })
+  })
+}
+
+async function readLine (cancelToken) {
   const { value, position } = store.getState().input
   const nextNewline = value.indexOf('\n', position)
   let str = ''
@@ -20,17 +46,23 @@ function readLine () {
   } else if (position < value.length) {
     str = value.substr(position)
     store.dispatch(actions.setInputPosition(value.length))
+  } else {
+    await waitForInput(cancelToken)
+    if (cancelToken.cancelled) return
+    return readLine(cancelToken)
   }
   return str
 }
 
-function readChar () {
+async function readChar (cancelToken) {
   const { value, position } = store.getState().input
   if (position < value.length) {
     store.dispatch(actions.setInputPosition(position + 1))
     return value.charCodeAt(position)
   } else {
-    return -1
+    await waitForInput(cancelToken)
+    if (cancelToken.cancelled) return
+    return readChar(cancelToken)
   }
 }
 
@@ -85,7 +117,7 @@ export function registerBuiltIns (interpreter) {
     params: [],
     returns: [{
       type: ':Int',
-      description: 'The character code of the character that was read, or -1 if no more characters are left to be read'
+      description: 'The character code of the character that was read'
     }]
   }, {
     name: 'read-line',
@@ -120,7 +152,7 @@ export function registerBuiltIns (interpreter) {
 
   interpreter.registerBuiltIn({
     name: 'print',
-    execute: (interpreter, token) => {
+    execute (interpreter, token) {
       const value = popOperand(interpreter, { type: ['Num', 'Bool', 'Str'] }, token)
       print(value.value)
     }
@@ -128,7 +160,7 @@ export function registerBuiltIns (interpreter) {
 
   interpreter.registerBuiltIn({
     name: 'println',
-    execute: (interpreter, token) => {
+    execute (interpreter, token) {
       const value = popOperand(interpreter, { type: ['Num', 'Bool', 'Str'] }, token)
       print(value.value + '\n')
     }
@@ -136,7 +168,7 @@ export function registerBuiltIns (interpreter) {
 
   interpreter.registerBuiltIn({
     name: 'printf',
-    execute: (interpreter, token) => {
+    execute (interpreter, token) {
       const [ formatStr, params ] = popOperands(interpreter, [
         { name: 'formatStr', type: 'Str' },
         { name: 'params', type: 'Arr' }
@@ -147,7 +179,7 @@ export function registerBuiltIns (interpreter) {
 
   interpreter.registerBuiltIn({
     name: 'printfln',
-    execute: (interpreter, token) => {
+    execute (interpreter, token) {
       const [ formatStr, params ] = popOperands(interpreter, [
         { name: 'formatStr', type: 'Str' },
         { name: 'params', type: 'Arr' }
@@ -158,22 +190,40 @@ export function registerBuiltIns (interpreter) {
 
   interpreter.registerBuiltIn({
     name: 'read-char',
-    execute: (interpreter) => {
-      interpreter._stack.push(new types.Int(readChar()))
+    * execute (interpreter) {
+      const { cancel, token: cancelToken } = createCancellationToken()
+      const char = yield {
+        promise: readChar(cancelToken),
+        cancel
+      }
+      if (cancelToken.cancelled) return
+      interpreter._stack.push(new types.Int(char))
     }
   })
 
   interpreter.registerBuiltIn({
     name: 'read-line',
-    execute: (interpreter) => {
-      interpreter._stack.push(new types.Str(readLine()))
+    * execute (interpreter) {
+      const { cancel, token: cancelToken } = createCancellationToken()
+      const content = yield {
+        promise: readLine(cancelToken),
+        cancel
+      }
+      if (cancelToken.cancelled) return
+      interpreter._stack.push(new types.Str(content))
     }
   })
 
   interpreter.registerBuiltIn({
     name: 'read-flt',
-    execute: (interpreter, token) => {
-      const input = readLine().trim()
+    * execute (interpreter, token) {
+      const { cancel, token: cancelToken } = createCancellationToken()
+      const input = (yield {
+        promise: readLine(cancelToken),
+        cancel
+      }).trim()
+      if (cancelToken.cancelled) return
+
       if (input.length === 0) {
         throw new types.Err('No more input available', token)
       }
@@ -187,8 +237,14 @@ export function registerBuiltIns (interpreter) {
 
   interpreter.registerBuiltIn({
     name: 'read-int',
-    execute: (interpreter, token) => {
-      const input = readLine().trim()
+    * execute (interpreter, token) {
+      const { cancel, token: cancelToken } = createCancellationToken()
+      const input = (yield {
+        promise: readLine(cancelToken),
+        cancel
+      }).trim()
+      if (cancelToken.cancelled) return
+
       if (input.length === 0) {
         throw new types.Err('No more input available', token)
       }

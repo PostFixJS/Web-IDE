@@ -5,6 +5,7 @@ export const SET_STACK = 'stack/SET_STACK'
 export const SET_DICTS = 'dicts/SET_DICTS'
 export const SET_INPUT = 'input/SET_INPUT'
 export const SET_INPUT_POSITION = 'input/SET_POSITION'
+export const SET_INPUT_WAITING = 'input/SET_WAITING'
 export const SET_THEME = 'settings/SET_THEME'
 export const SET_FONTSIZE = 'settings/SET_FONTSIZE'
 export const ADD_TEST_RESULT = 'tests/ADD_TEST_RESULT'
@@ -37,6 +38,10 @@ export function setInput (input) {
 
 export function setInputPosition (position) {
   return { type: SET_INPUT_POSITION, payload: position }
+}
+
+export function waitForInput (waiting) {
+  return { type: SET_INPUT_WAITING, payload: waiting }
 }
 
 export function setTheme (theme) {

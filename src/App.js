@@ -148,6 +148,7 @@ class App extends Component {
         this.showStackAndDict()
         if (e instanceof InterruptedException) {
           this.setState({ running: false })
+          this.props.dispatch(actions.waitForInput(false))
         } else {
           if (e.breakpoint != null) {
             this._editor.showBreakpointWidget(positionToMonaco(e.breakpoint.position), e.breakpoint, (widget) => {
@@ -169,6 +170,7 @@ class App extends Component {
   stopProgram = () => {
     this.runner.stop()
     this.setState({ running: false, canStep: true, error: false })
+    this.props.dispatch(actions.waitForInput(false))
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
     this._editor.closeErrorWidget()
   }
@@ -185,6 +187,7 @@ class App extends Component {
           this.setState({ canStep: true })
         } else {
           this.setState({ running: false, canStep: true, error: false })
+          this.props.dispatch(actions.waitForInput(false))
           this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
         }
       })
@@ -198,6 +201,7 @@ class App extends Component {
   handleInterpreterError (err) {
     this.runner.stop()
     this.setState({ error: true, running: false, canStep: true })
+    this.props.dispatch(actions.waitForInput(false))
 
     const pos = err.origin
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [
@@ -383,6 +387,7 @@ class App extends Component {
               input={this.props.input.value}
               inputPosition={this.props.input.position}
               onInputChange={this.props.onInputChange}
+              isWaiting={this.props.input.isWaiting}
               readOnly={running}
               style={{ width: '100%', height: '100%', position: 'absolute' }}
               fontSize={fontSize}

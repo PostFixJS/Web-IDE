@@ -1,10 +1,11 @@
 import React from 'react'
 import injectSheet from 'react-jss'
+import cx from 'classnames'
 import MonacoEditor from 'react-monaco-editor'
 import * as monaco from 'monaco-editor'
 import Card from '../Card'
 
-const styles = {
+const styles = (theme) => ({
   root: {
     display: 'flex',
     flexDirection: 'column'
@@ -16,8 +17,11 @@ const styles = {
   },
   editorContainer: {
     flex: 1
+  },
+  highlight: {
+    boxShadow: `0 0 5px 1px ${theme.card.highlightColor}`
   }
-}
+})
 
 class InputOutput extends React.Component {
   state = {
@@ -32,11 +36,6 @@ class InputOutput extends React.Component {
   componentDidUpdate (prevProps) {
     if (prevProps.output !== this.props.output) {
       this.outputEditor.revealLine(this.props.output.split('\n').length + 1)
-    }
-    if (prevProps.readOnly !== this.props.readOnly) {
-      this.inputEditor.updateOptions({
-        readOnly: this.props.readOnly
-      })
     }
     if (prevProps.fontSize !== this.props.fontSize) {
       this.inputEditor.updateOptions({
@@ -54,7 +53,7 @@ class InputOutput extends React.Component {
           options: {
             className: 'readInputHighlight',
             inlineClassName: 'readInputInline',
-            hoverMessage: { value: 'This input was already read by the program.' }
+            hoverMessage: { value: 'This input was already read by the program.' },
           }
         }
       ])
@@ -83,6 +82,10 @@ class InputOutput extends React.Component {
         }
       }
     })
+  }
+
+  handleInputChange = (code) => {
+    this.props.onInputChange(code)
   }
 
   outputEditorDidMount = (editor) => {
@@ -121,6 +124,7 @@ class InputOutput extends React.Component {
       classes,
       input,
       inputPosition,
+      isWaiting,
       output,
       onFontSizeChange,
       onInputChange,
@@ -154,11 +158,14 @@ class InputOutput extends React.Component {
               language='text'
               />
           </Card>
-          <Card className={classes.editorContainer} title='Input'>
+          <Card
+            className={cx(classes.editorContainer, { [classes.highlight]: isWaiting })}
+            title='Input'
+          >
             <MonacoEditor
               editorDidMount={this.inputEditorDidMount}
               value={input}
-              onChange={onInputChange}
+              onChange={this.handleInputChange}
               options={{
                 lineNumbers: false,
                 scrollBeyondLastLine: false,

@@ -22,7 +22,8 @@ export function output (state = '', action) {
 
 export function input (state = {
   value: '',
-  position: 0
+  position: 0,
+  isWaiting: false
 }, action) {
   switch (action.type) {
     case actions.SET_INPUT:
@@ -34,6 +35,11 @@ export function input (state = {
       return {
         ...state,
         position: action.payload
+      }
+    case actions.SET_INPUT_WAITING:
+      return {
+        ...state,
+        isWaiting: action.payload
       }
     default:
       return state
