@@ -64,7 +64,7 @@ class App extends Component {
     running: false,
     paused: false,
     canStep: true,
-    showSettings: true
+    showSettings: false
   }
   runner = new Runner()
   replRunner = this.runner.fork()
