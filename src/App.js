@@ -347,9 +347,6 @@ class App extends Component {
           onSave={this.handleSave}
           onOpen={this.handleOpen}
           onShowSettings={this.handleShowSettings}
-          onIncreaseFontSize={() => onFontSizeChange(fontSize + 2)}
-          onDecreaseFontSize={() => onFontSizeChange(fontSize - 2)}
-          onResetFontSize={() => onFontSizeChange(14)}
         />
         <SplitLayout
           customClassName={classes.rootSplitLayout}
