@@ -20,16 +20,38 @@ const styles = (theme) => ({
   window: {
     width: 400,
     height: 200,
+    padding: 20,
     margin: '10% auto',
     border: `10px solid ${theme.background}`,
     borderRadius: 3,
     background: theme.card.background,
     boxShadow: '0 5px 20px rgba(0, 0, 0, 0.4)',
-    color: theme.card.color
+    color: theme.card.color,
+
+    '& input[type=number]': {
+      border: 0,
+      background: theme.input.background,
+      color: theme.input.color,
+      padding: '5px 10px',
+      outline: 'none',
+      '&:focus': {
+        border: `1px solid ${theme.input.borderColor}`,
+        padding: '4px 9px'
+      }
+    },
+    '& input[type=checkbox]': {
+      margin: 'auto'
+    },
+    '& input': {
+      flex: 1
+    }
   },
   row: {
     display: 'flex',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    minHeight: 40,
+    padding: '4px 0',
+    lineHeight: '32px'
   },
   label: {
     width: 200

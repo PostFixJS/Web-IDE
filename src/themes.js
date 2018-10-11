@@ -19,6 +19,11 @@ export const light = {
   },
   divider: {
     color: 'rgba(0, 0, 0, 0.1)'
+  },
+  input: {
+    borderColor: 'rgb(0, 122, 204)',
+    background: 'rgba(0, 0, 0, 0.1)',
+    color: '#000'
   }
 }
 
@@ -43,5 +48,10 @@ export const dark = {
   },
   divider: {
     color: 'rgba(255, 255, 255, 0.2)'
+  },
+  input: {
+    borderColor: 'rgb(0, 122, 204)',
+    background: 'rgba(255, 255, 255, 0.1)',
+    color: '#fff'
   }
 }
