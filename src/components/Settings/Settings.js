@@ -2,6 +2,7 @@ import React from 'react'
 import injectSheet from 'react-jss'
 import { throttle } from 'throttle-debounce'
 import Dialog from '../Dialog'
+import Input from '../Input'
 
 const styles = (theme) => ({
   row: {
@@ -9,7 +10,13 @@ const styles = (theme) => ({
     flexDirection: 'row',
     minHeight: 40,
     padding: '4px 0',
-    lineHeight: '32px'
+    lineHeight: '32px',
+    '& input': {
+      flex: 1
+    },
+    '& input[type=checkbox]': {
+      margin: 'auto'
+    }
   },
   label: {
     width: 200
@@ -67,7 +74,7 @@ class Settings extends React.PureComponent {
           <div className={classes.label}>
             Font size
           </div>
-          <input
+          <Input
             type='number'
             min={MIN_FONT_SIZE}
             max={MAX_FONT_SIZE}

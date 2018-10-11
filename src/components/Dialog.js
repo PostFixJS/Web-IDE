@@ -29,26 +29,8 @@ const styles = (theme) => ({
     borderRadius: 3,
     background: theme.card.background,
     boxShadow: '0 5px 20px rgba(0, 0, 0, 0.4)',
-    color: theme.card.color,
-
-    '& input[type=number]': {
-      border: 0,
-      background: theme.input.background,
-      color: theme.input.color,
-      padding: '5px 10px',
-      outline: 'none',
-      '&:focus': {
-        border: `1px solid ${theme.input.borderColor}`,
-        padding: '4px 9px'
-      }
-    },
-    '& input[type=checkbox]': {
-      margin: 'auto'
-    },
-    '& input': {
-      flex: 1
-    }
-  },
+    color: theme.card.color
+  }
 })
 
 class Dialog extends React.PureComponent {
