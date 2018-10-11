@@ -74,10 +74,10 @@ export function settings (state = {
   ...getSettings()
 }, action) {
   switch (action.type) {
-    case actions.TOGGLE_THEME:
+    case actions.SET_THEME:
       return {
         ...state,
-        theme: state.theme === 'light' ? 'dark' : 'light'
+        theme: action.payload
       }
     case actions.SET_FONTSIZE:
       return {

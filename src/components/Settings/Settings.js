@@ -55,12 +55,21 @@ class Settings extends React.PureComponent {
     this.props.onFontSizeChange(size)
   })
 
+  handleToggleDarkTheme = (e) => {
+    if (e.target.checked) {
+      this.props.onThemeChange('dark')
+    } else {
+      this.props.onThemeChange('light')
+    }
+  }
+
   render () {
     const {
       classes,
       open,
       onClose,
-      fontSize
+      fontSize,
+      theme
     } = this.props
 
     return createPortal((
@@ -68,12 +77,13 @@ class Settings extends React.PureComponent {
         <div className={classes.window} onClick={this.handleCancelClick}>
           <div className={classes.row}>
             <div className={classes.label}>
-              Theme
+              Dark mode
             </div>
-            <select>
-              <option>Light</option>
-              <option>Dark</option>
-            </select>
+            <input
+              type='checkbox'
+              checked={theme === 'dark'}
+              onChange={this.handleToggleDarkTheme}
+            />
           </div>
           <div className={classes.row}>
             <div className={classes.label}>

@@ -321,10 +321,10 @@ class App extends Component {
       classes,
       code,
       onAppendReplLine,
-      onToggleTheme,
       replLines,
-      theme,
       tests,
+      theme,
+      onThemeChange,
       fontSize,
       onFontSizeChange
     } = this.props
@@ -347,8 +347,6 @@ class App extends Component {
           onSave={this.handleSave}
           onOpen={this.handleOpen}
           onShowSettings={this.handleShowSettings}
-          theme={theme}
-          onToggleTheme={onToggleTheme}
           onIncreaseFontSize={() => onFontSizeChange(fontSize + 2)}
           onDecreaseFontSize={() => onFontSizeChange(fontSize - 2)}
           onResetFontSize={() => onFontSizeChange(14)}
@@ -437,6 +435,8 @@ class App extends Component {
           onClose={this.handleHideSettings}
           fontSize={fontSize}
           onFontSizeChange={onFontSizeChange}
+          theme={theme}
+          onThemeChange={onThemeChange}
         />
       </div>
     );
@@ -452,15 +452,15 @@ export default connect((state) => ({
   stack: state.stack,
   dicts: state.dicts,
   replLines: state.replLines,
-  theme: state.settings.theme,
   tests: state.tests,
-  fontSize: state.settings.fontSize
+  fontSize: state.settings.fontSize,
+  theme: state.settings.theme
 }), (dispatch) => ({
   dispatch,
   onInputChange: (input) => dispatch(actions.setInput(input)),
-  onToggleTheme: () => dispatch(actions.toggleTheme()),
   onAppendReplLine: (line) => dispatch(actions.addReplLine(line)),
-  onFontSizeChange: (fontSize) => dispatch(actions.setFontSize(fontSize))
+  onFontSizeChange: (fontSize) => dispatch(actions.setFontSize(fontSize)),
+  onThemeChange: (theme) => dispatch(actions.setTheme(theme))
 }))((props) => (
   <ThemeProvider theme={themes[props.theme]}>
     <StyledApp {...props} />

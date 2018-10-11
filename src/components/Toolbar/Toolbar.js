@@ -31,8 +31,6 @@ export default class Toolbar extends React.Component {
       onStep,
       onOpen,
       onSave,
-      theme,
-      onToggleTheme,
       onShowSettings,
       ...other
     } = this.props
@@ -140,8 +138,5 @@ Toolbar.propTypes = {
   onStep: PropTypes.func.isRequired,
   onOpen: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
-  onToggleTheme: PropTypes.func.isRequired,
-  onIncreaseFontSize: PropTypes.func.isRequired,
-  onDecreaseFontSize: PropTypes.func.isRequired,
-  onResetFontSize: PropTypes.func.isRequired
+  onShowSettings: PropTypes.func.isRequired
 }
