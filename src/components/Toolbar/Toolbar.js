@@ -33,9 +33,7 @@ export default class Toolbar extends React.Component {
       onSave,
       theme,
       onToggleTheme,
-      onIncreaseFontSize,
-      onDecreaseFontSize,
-      onResetFontSize,
+      onShowSettings,
       ...other
     } = this.props
 
@@ -119,25 +117,9 @@ export default class Toolbar extends React.Component {
         />
         <Divider />
         <Button
-          onClick={onToggleTheme}
-          title={theme === 'light' ? 'Use Dark Theme' : 'Use Light Theme'}
+          onClick={onShowSettings}
+          title='Settings'
           icon={require('./icons/idea.svg')}
-        />
-        <Divider />
-        <Button
-          onClick={onDecreaseFontSize}
-          title='Decrease font size'
-          label='Zoom out'
-        />
-        <Button
-          onClick={onIncreaseFontSize}
-          title='Increase font size'
-          label='Zoom in'
-        />
-        <Button
-          onClick={onResetFontSize}
-          title='Reset font size'
-          label='Reset zoom'
         />
         <span style={{ float: 'right', lineHeight: '32px', fontSize: '9pt', marginRight: 5 }}>
           Icons made by <a href='https://smashicons.com/'>Smashicons</a> from <a href='https://www.flaticon.com'>www.flaticon.com</a>

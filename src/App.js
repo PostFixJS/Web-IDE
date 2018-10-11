@@ -20,6 +20,7 @@ import Runner, { InterruptedException } from './postfix-runner/PostFixRunner'
 import { positionToMonaco } from './components/Editor/monaco-integration/util'
 import * as replTestReporter from './interpreter/replTestReporter'
 import * as themes from './themes'
+import Settings from './components/Settings/Settings'
 
 const styles = (theme) => ({
   root: {
@@ -62,7 +63,8 @@ class App extends Component {
   state = {
     running: false,
     paused: false,
-    canStep: true
+    canStep: true,
+    showSettings: false
   }
   runner = new Runner()
   replRunner = this.runner.fork()
@@ -309,8 +311,12 @@ class App extends Component {
     }
   }
 
+  handleShowSettings = () => this.setState({ showSettings: true })
+
+  handleHideSettings = () => this.setState({ showSettings: false })
+
   render() {
-    const { running, paused, canStep, error } = this.state
+    const { running, paused, canStep, error, showSettings } = this.state
     const {
       classes,
       code,
@@ -326,6 +332,7 @@ class App extends Component {
     return (
       <div
         className={classes.root}
+        //style={this.state.showSettings ? { filter: 'blur(2px) saturate(0)' } : {}}
       >
         <Toolbar
           className={classes.toolbar}
@@ -339,6 +346,7 @@ class App extends Component {
           onStep={this.stepProgram}
           onSave={this.handleSave}
           onOpen={this.handleOpen}
+          onShowSettings={this.handleShowSettings}
           theme={theme}
           onToggleTheme={onToggleTheme}
           onIncreaseFontSize={() => onFontSizeChange(fontSize + 2)}
@@ -423,6 +431,13 @@ class App extends Component {
             </Card>
           </SplitLayout>
         </SplitLayout>
+
+        <Settings
+          open={showSettings}
+          onClose={this.handleHideSettings}
+          fontSize={fontSize}
+          onFontSizeChange={onFontSizeChange}
+        />
       </div>
     );
   }
