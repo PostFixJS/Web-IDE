@@ -46,6 +46,19 @@ class InputOutput extends React.Component {
       })
     }
     if (prevProps.inputPosition !== this.props.inputPosition) {
+      this.updateDecoration()
+    }
+    if (prevProps.input !== this.props.input) {
+      this.updateDecoration()
+    }
+  }
+
+  componentWillUnmount () {
+    window.removeEventListener('resize', this.updateEditorSize)
+  }
+
+  updateDecoration () {
+    if (this.props.readOnly) {
       const pos = this.inputEditor.getModel().getPositionAt(this.props.inputPosition)
       this.inputDecorations = this.inputEditor.deltaDecorations(this.inputDecorations, [
         {
@@ -54,17 +67,13 @@ class InputOutput extends React.Component {
             className: 'readInputHighlight',
             inlineClassName: 'readInputInline',
             hoverMessage: { value: 'This input was already read by the program.' },
+            stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
           }
         }
       ])
-    }
-    if (prevProps.input !== this.props.input) {
+    } else {
       this.inputDecorations = this.inputEditor.deltaDecorations(this.inputDecorations, [])
     }
-  }
-
-  componentWillUnmount () {
-    window.removeEventListener('resize', this.updateEditorSize)
   }
   
   updateEditorSize = () => {
@@ -82,10 +91,19 @@ class InputOutput extends React.Component {
         }
       }
     })
-  }
 
-  handleInputChange = (code) => {
-    this.props.onInputChange(code)
+    // prevent changing the input that was already read by the program
+    editor.onDidChangeModelContent(() => {
+      const input = editor.getModel().getValue()
+      const readInput = input.substr(0, this.props.inputPosition)
+      const oldReadInput = this.props.input.substr(0, this.props.inputPosition)
+      if (this.props.readOnly && readInput !== oldReadInput) {
+        editor.getModel().setValue(this.props.input)
+        this.updateDecoration()
+      } else {
+        this.props.onInputChange(input)
+      }
+    })
   }
 
   outputEditorDidMount = (editor) => {
@@ -165,7 +183,6 @@ class InputOutput extends React.Component {
             <MonacoEditor
               editorDidMount={this.inputEditorDidMount}
               value={input}
-              onChange={this.handleInputChange}
               options={{
                 lineNumbers: false,
                 scrollBeyondLastLine: false,
