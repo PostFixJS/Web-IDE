@@ -53,7 +53,7 @@ export default class Toolbar extends React.Component {
             value=''
             onChange={this.handleOpenDone}
             style={{ display: 'none' }}
-            accept='.pf'
+            // accept='.pf' // TODO check this on macOS
           />
         </Button>
         <KeyListener
