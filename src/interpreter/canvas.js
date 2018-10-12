@@ -364,16 +364,40 @@ export function registerBuiltIns (interpreter) {
 
   interpreter.registerBuiltIn({
     name: 'image-width',
-    execute (interpreter, token) {
-      const image = Image.from(popOperand(interpreter, { type: 'Arr' }, token))
+    * execute (interpreter, token) {
+      const { cancel, token: cancelToken } = createCancellationToken()
+
+      let image
+      yield {
+        promise: Image.from(popOperand(interpreter, { type: 'Arr' }, token))
+          .then((img) => { image = img }),
+        cancel
+      }
+      if (cancelToken.cancelled) {
+        // cancelled while loading the image
+        return
+      }
+      
       interpreter._stack.push(new types.Flt(image.width))
     }
   })
 
   interpreter.registerBuiltIn({
     name: 'image-height',
-    execute (interpreter, token) {
-      const image = Image.from(popOperand(interpreter, { type: 'Arr' }, token))
+    * execute (interpreter, token) {
+      const { cancel, token: cancelToken } = createCancellationToken()
+
+      let image
+      yield {
+        promise: Image.from(popOperand(interpreter, { type: 'Arr' }, token))
+          .then((img) => { image = img }),
+        cancel
+      }
+      if (cancelToken.cancelled) {
+        // cancelled while loading the image
+        return
+      }
+      
       interpreter._stack.push(new types.Flt(image.height))
     }
   })
