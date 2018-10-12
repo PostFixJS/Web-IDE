@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { withTheme } from 'react-jss'
 import MonacoEditor from 'react-monaco-editor'
+import * as monaco from 'monaco-editor'
 import HoverProvider from './monaco-integration/HoverProvider'
 import LanguageConfiguration from './monaco-integration/LanguageConfiguration'
 import MonarchTokensProvider from './monaco-integration/MonarchTokensProvider'
@@ -90,7 +91,7 @@ class Editor extends React.Component {
       }),
       editor.onKeyDown((e) => {
         // onDidAttemptReadOnlyEdit is not triggered when pressing del/backspace
-        if (this.props.readOnly) {
+        if (this.props.readOnly && (e.keyCode === monaco.KeyCode.Delete || e.keyCode === monaco.KeyCode.Backspace)) {
           showMessage(this.editor, 'You need to stop the program to edit the code.')
         }
       }),
