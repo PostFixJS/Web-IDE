@@ -3,12 +3,24 @@ import Color from './Color'
 import Pen from './Pen'
 import Font from './Font'
 
+/**
+ * An image. This is the super class of everything that can be drawn, e.g. rectangles and bitmaps.
+ */
 export default class Image {
+  /**
+   * Create a new image.
+   * @param {number} width Width of the image
+   * @param {number} height Height of the image
+   */
   constructor (width, height) {
     this.width = width
     this.height = height
   }
 
+  /**
+   * Create an image from the given PostFix array. Throws an error if the object does not match any shape.
+   * @param {Obj} obj PostFix object
+   */
   static async from (obj) {
     if (obj instanceof types.Arr && obj.items[0] instanceof types.Sym) {
       switch (obj.items[0].name) {
@@ -46,11 +58,14 @@ export default class Image {
   }
 }
 
+/**
+ * A square image.
+ */
 class Square extends Image {
   static from (obj) {
     if (obj.items.length >= 2 && obj.items[1] instanceof types.Num) {
       const size = obj.items[1].value
-      let fill = null
+      let fill = "#000"
       let stroke = null
       if (obj.items.length >= 3) fill = Color.from(obj.items[2])
       if (obj.items.length >= 4) stroke = Pen.from(obj.items[3])
@@ -60,6 +75,9 @@ class Square extends Image {
   }
 }
 
+/**
+ * A rectangle image.
+ */
 class Rectangle extends Image {
   constructor (width, height, fill, stroke) {
     super(width, height)
@@ -85,7 +103,7 @@ class Rectangle extends Image {
     if (obj.items.length >= 3 && obj.items[1] instanceof types.Num && obj.items[2] instanceof types.Num) {
       const width = obj.items[1].value
       const height = obj.items[2].value
-      let fill = null
+      let fill = "#000"
       let stroke = null
       if (obj.items.length >= 4) fill = Color.from(obj.items[3])
       if (obj.items.length >= 5) stroke = Pen.from(obj.items[4])
@@ -119,7 +137,7 @@ class Circle extends Image {
   static from (obj) {
     if (obj.items.length >= 2 && obj.items[1] instanceof types.Num) {
       const size = obj.items[1].value
-      let fill = null
+      let fill = "#000"
       let stroke = null
       if (obj.items.length >= 3) fill = Color.from(obj.items[2])
       if (obj.items.length >= 4) stroke = Pen.from(obj.items[3])
@@ -154,7 +172,7 @@ class Ellipse extends Image {
     if (obj.items.length >= 3 && obj.items[1] instanceof types.Num && obj.items[2] instanceof types.Num) {
       const width = obj.items[1].value
       const height = obj.items[2].value
-      let fill = null
+      let fill = "#000"
       let stroke = null
       if (obj.items.length >= 4) fill = Color.from(obj.items[3])
       if (obj.items.length >= 5) stroke = Pen.from(obj.items[4])
@@ -201,7 +219,7 @@ class Text extends Image {
     if (obj.items.length >= 3 && obj.items[1] instanceof types.Str) {
       const text = obj.items[1].value
       const font = Font.from(obj.items[2])
-      let fill = null
+      let fill = "#000"
       let stroke = null
       if (obj.items.length >= 4) fill = Color.from(obj.items[3])
       if (obj.items.length >= 5) stroke = Pen.from(obj.items[4])
@@ -539,16 +557,31 @@ class Overlay extends Image {
   }
 }
 
+/**
+ * A bitmap image that is downloaded from a URL.
+ */
 class Bitmap extends Image {
+  /**
+   * Create a bitmap of the given image.
+   * @param {HTMLImageElement} img Image
+   */
   constructor (img) {
     super(img.width, img.height)
     this.img = img
   }
 
+  /**
+   * Draw this bitmap.
+   * @param {CanvasRenderingContext2D} ctx Canvas context
+   */
   draw (ctx) {
     ctx.drawImage(this.img, 0, 0)
   }
 
+  /**
+   * Download the image and create a new Bitmap object.
+   * @param {Obj} obj PostFix object, e.g. [:bitmap "url"]
+   */
   static async from (obj) {
     if (obj.items.length === 2 && obj.items[1] instanceof types.Str) {
       return new Promise((resolve, reject) => {
