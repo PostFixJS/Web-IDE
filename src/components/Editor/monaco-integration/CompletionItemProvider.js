@@ -7,13 +7,13 @@ import { positionToMonaco } from './util'
 export default {
   provideCompletionItems: (model, position) => {
     const code = model.getValue()
-    const functions = DocParser.getFunctions(code)
+    const functions = DocParser.getFunctions(code, { withRanges: true })
     const variables = DocParser.getVariables(code)
     const datadefs = DocParser.getDatadefs(code)
     const symbols = DocParser.getSymbols(code)
 
     // may be multiple functions if they are nested
-    const functionsAtPosition = functions.filter(({ body }) => {
+    const functionsAtPosition = functions.filter(({ source: { body } }) => {
       const bodyRange = new monaco.Range.fromPositions(positionToMonaco(body.start), positionToMonaco(body.end))
       return bodyRange.containsPosition(position)
     })
