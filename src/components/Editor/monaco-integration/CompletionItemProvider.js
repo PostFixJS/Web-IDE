@@ -2,6 +2,7 @@ import * as monaco from 'monaco-editor'
 import DocParser from 'postfixjs/DocParser'
 import * as builtIns from '../../../interpreter/doc'
 import { getDatadefFunctions } from './datadef'
+import { positionToMonaco } from './util'
 
 export default {
   provideCompletionItems: (model, position) => {
@@ -11,7 +12,19 @@ export default {
     const datadefs = DocParser.getDatadefs(code)
     const symbols = DocParser.getSymbols(code)
 
+    // may be multiple functions if they are nested
+    const functionsAtPosition = functions.filter(({ body }) => {
+      const bodyRange = new monaco.Range.fromPositions(positionToMonaco(body.start), positionToMonaco(body.end))
+      return bodyRange.containsPosition(position)
+    })
+
     return [
+      ...functionsAtPosition.map((fun) => fun.params.map((param) => ({
+        label: param.name,
+        kind: monaco.languages.CompletionItemKind.Variable,
+        detail: param.type || ':Obj',
+        documentation: param.description
+      }))).reduce((allParams, fnParams) => allParams.concat(fnParams), []),
       ...functions.map((fun) => ({
         label: fun.name,
         kind: monaco.languages.CompletionItemKind.Function,
