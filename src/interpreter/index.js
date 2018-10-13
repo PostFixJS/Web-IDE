@@ -6,6 +6,7 @@ import * as actions from '../actions'
 import store from '../store'
 import { registerFunctions } from './doc'
 import * as canvas from './canvas'
+import * as storage from './storage'
 
 function print (str) {
   store.dispatch(actions.addOutput(str))
@@ -264,4 +265,5 @@ export function registerBuiltIns (interpreter) {
   })
 
   canvas.registerBuiltIns(interpreter)
+  storage.registerBuiltIns(interpreter)
 }
