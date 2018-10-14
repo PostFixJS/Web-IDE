@@ -7,6 +7,7 @@ import store from '../store'
 import { registerFunctions } from './doc'
 import * as canvas from './canvas'
 import * as storage from './storage'
+import * as http from './http'
 
 function print (str) {
   store.dispatch(actions.addOutput(str))
@@ -259,11 +260,12 @@ export function registerBuiltIns (interpreter) {
 
   interpreter.registerBuiltIn({
     name: 'debugger',
-    execute: () => {
+    execute () {
       // handled by the runner
     }
   })
 
   canvas.registerBuiltIns(interpreter)
   storage.registerBuiltIns(interpreter)
+  http.registerBuiltIns(interpreter)
 }
