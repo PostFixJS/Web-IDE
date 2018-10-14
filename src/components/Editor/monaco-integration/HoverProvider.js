@@ -4,74 +4,68 @@ import { normalizeSymbol } from 'postfixjs/tokenUtils'
 import * as monaco from 'monaco-editor'
 import * as builtIns from '../../../interpreter/doc'
 import { getDatadefFunctions } from './datadef'
+import { positionToMonaco } from './util'
 
 export default {
   provideHover: (model, position) => {
     const code = model.getValue()
     const token = getTokenAt(code, position.lineNumber - 1, position.column - 1)
+    if (token == null) return
 
-    if (token != null) {
-      if (token.tokenType === 'REFERENCE') {
-        let docs = builtIns.functions.filter((doc) => doc.name === token.token)
-        if (docs.length === 0) { // built-in functions take precedence
-          const functions = DocParser.getFunctions(code)
-          docs = functions.filter((doc) => doc.name === token.token)
+    const usageMessages = []
+
+    if (token.tokenType === 'REFERENCE') {
+      const functions = DocParser.getFunctions(code, { withRanges: true })
+
+      let builtInFunctions = builtIns.functions.filter((doc) => doc.name === token.token)
+      if (builtInFunctions.length === 0) { // built-in functions take precedence
+        usageMessages.push(...getFunctionHoverMessages(functions.filter((doc) => doc.name === token.token)))
+      } else {
+        usageMessages.push(...getFunctionHoverMessages(builtInFunctions))
+      }
+
+
+      const functionsAtPosition = functions.filter(({ source: { body } }) => {
+        const bodyRange = new monaco.Range.fromPositions(positionToMonaco(body.start), positionToMonaco(body.end))
+        return bodyRange.containsPosition(position)
+      })
+      usageMessages.push(...getVariableHoverMessage(functionsAtPosition
+        .map((fun) => fun.params)
+        .reduce((allParams, fnParams) => allParams.concat(fnParams), [])
+      ))
+
+      const datadefs = DocParser.getDatadefs(code)
+      for (const datadef of datadefs) {
+        // all generated functions start with the datadef name
+        if (token.token.indexOf(datadef.name.substr(1).toLowerCase()) !== 0) {
+          continue
         }
-        if (docs.length === 0) {
-          const datadefs = DocParser.getDatadefs(code)
-          for (const datadef of datadefs) {
-            // all generated functions start with the datadef name
-            if (token.token.indexOf(datadef.name.substr(1).toLowerCase()) !== 0) {
-              continue
-            }
-            const fun = getDatadefFunctions(datadef).find(({name}) => name === token.token)
-            if (fun) {
-              docs = [fun]
-              break
-            }
-          }
-        }
-        if (docs.length > 0) {
-          const usageMessages = getFunctionHoverMessages(docs)
-          const pos = token
-
-          return {
-            range: new monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
-            contents: usageMessages
-          }
-        }
-
-        docs = builtIns.variables.filter((doc) => doc.name === token.token)
-        if (docs.length === 0) { // built-in variables take precedence
-          const variables = DocParser.getVariables(code)
-          docs = variables.filter((doc) => doc.name === token.token)
-        }
-        if (docs.length > 0) {
-          const usageMessages = getVariableHoverMessage(docs)
-          const pos = token
-
-          return {
-            range: new monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
-            contents: usageMessages
-          }
-        }
-      } else if (token.tokenType === 'SYMBOL') {
-        const normalizedSymbol = `:${normalizeSymbol(token.token)}`
-        let docs = [
-          ...builtIns.symbols.filter((doc) => doc.name === normalizedSymbol && doc.description != null),
-          ...DocParser.getSymbols(code).filter((doc) => doc.name === normalizedSymbol && doc.description != null)
-        ]
-
-        if (docs.length > 0) {
-          const usageMessages = getSymbolHoverMessage(docs)
-          const pos = token
-
-          return {
-            range: new monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
-            contents: usageMessages
-          }
+        const fun = getDatadefFunctions(datadef).find(({name}) => name === token.token)
+        if (fun) {
+          usageMessages.push(getFunctionHoverMessages([fun])[0])
+          break
         }
       }
+
+      const builtInVariables = builtIns.variables.filter((doc) => doc.name === token.token)
+      if (builtInVariables.length === 0) { // built-in variables take precedence
+        const variables = DocParser.getVariables(code)
+        usageMessages.push(...getVariableHoverMessage(variables.filter((doc) => doc.name === token.token)))
+      } else {
+        usageMessages.push(...getVariableHoverMessage(builtInVariables))
+      }
+    } else if (token.tokenType === 'SYMBOL') {
+      const normalizedSymbol = `:${normalizeSymbol(token.token)}`
+      let docs = [
+        ...builtIns.symbols.filter((doc) => doc.name === normalizedSymbol && doc.description != null),
+        ...DocParser.getSymbols(code).filter((doc) => doc.name === normalizedSymbol && doc.description != null)
+      ]
+      usageMessages.push(...getSymbolHoverMessage(docs))
+    }
+
+    return {
+      range: new monaco.Range(token.line + 1, token.col + 1, token.line + 1, token.endCol + 1),
+      contents: usageMessages
     }
   }
 }
@@ -82,7 +76,7 @@ export default {
  * @returns Array of markdown objects that document the function
  */
 function getFunctionHoverMessages (functionDocs) {
-  return [].concat(...functionDocs.map((doc) => {
+  return functionDocs.map((doc) => {
     let signature
     const params = doc.params
       .map(({ name, type }) => `${name}${type ? ` ${type}` : ''}`)
@@ -102,7 +96,7 @@ function getFunctionHoverMessages (functionDocs) {
         ...doc.returns.map((ret) =>`*@return* ${ret.description ? ret.description : `\`\`\`${ret.type}\`\`\``}`)
       ].join('  \n')
     }
-  }))
+  })
 }
 
 /**
@@ -111,14 +105,14 @@ function getFunctionHoverMessages (functionDocs) {
  * @returns Array of markdown objects that document the variable
  */
 function getVariableHoverMessage (variableDocs) {
-  return [].concat(...variableDocs.map((doc) => {
+  return variableDocs.map((doc) => {
     return {
       value: [
-        `\`\`\`postfix\n${doc.name}\n\`\`\``,
+        doc.type ? `\`\`\`postfix\n${doc.name} ${doc.type}\n\`\`\`` : `\`\`\`postfix\n${doc.name}\n\`\`\``,
         doc.description
       ].join('  \n')
     }
-  }))
+  })
 }
 
 /**
@@ -127,12 +121,12 @@ function getVariableHoverMessage (variableDocs) {
  * @returns Array of markdown objects that document the variable
  */
 function getSymbolHoverMessage (symbolDocs) {
-  return [].concat(...symbolDocs.map((doc) => {
+  return symbolDocs.map((doc) => {
     return {
       value: [
         `\`\`\`postfix\n${doc.name}\n\`\`\``,
         doc.description
       ].join('  \n')
     }
-  }))
+  })
 }
