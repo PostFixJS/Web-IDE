@@ -97,17 +97,23 @@ function deduplicateSymbols (builtIns, userSymbols) {
  * @returns Markdown string
  */
 function getFunctionSignature (doc) {
-  let signature
   const params = doc.params
     .map(({ name, type }) => `${name}${type ? ` ${type}` : ''}`)
     .join(', ')
   const returns = doc.returns.map((r) => r.type).join(', ')
   if (returns.length > 0) {
-    signature = `(${params.length > 0 ? ` ${params}` : ''} -> ${returns} )`
+    return `( ${params.length > 0 ? `${params} ` : ''}-> ${returns} ) fun`
+  } else if (params.length > 0) {
+    return `( ${params} ) fun`
   } else {
-    signature = `(${params.length > 0 ? ` ${params} ` : ''})`
+    // no returns, no params
+    if (doc.source && doc.source.params == null) {
+      // not even a param list
+      return 'fun'
+    } else {
+      return '() fun'
+    }
   }
-  return `${signature} fun`
 }
 
 /**

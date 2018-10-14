@@ -83,14 +83,22 @@ function getFunctionHoverMessages (functionDocs) {
       .join(', ')
     const returns = doc.returns.map((r) => r.type).join(', ')
     if (returns.length > 0) {
-      signature = `(${params.length > 0 ? ` ${params}` : ''} -> ${returns} )`
+      signature = `( ${params.length > 0 ? `${params} ` : ''}-> ${returns} ) fun`
+    } else if (params.length > 0) {
+      signature = `( ${params} ) fun`
     } else {
-      signature = `(${params.length > 0 ? ` ${params} ` : ''})`
+      // no returns, no params
+      if (doc.source && doc.source.params == null) {
+        // not even a param list
+        signature = 'fun'
+      } else {
+        signature = '() fun'
+      }
     }
 
     return {
       value: [
-        `\`\`\`postfix\n${doc.name}: ${signature} fun\n\`\`\``,
+        `\`\`\`postfix\n${doc.name}: ${signature}\n\`\`\``,
         doc.description,
         ...doc.params.map((param) =>`*@param* \`${param.name}\`${param.description ? ` – ${param.description}` : ''}`),
         ...doc.returns.map((ret) =>`*@return* ${ret.description ? ret.description : `\`\`\`${ret.type}\`\`\``}`)
