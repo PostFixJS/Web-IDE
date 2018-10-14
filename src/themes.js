@@ -8,7 +8,8 @@ export const light = {
     background: '#fff',
     color: '#000',
     titleColor: 'rgba(0, 0, 0, 0.5)',
-    highlightColor: 'rgb(0, 122, 204)'
+    highlightColor: 'rgb(0, 122, 204)',
+    linkColor: 'rgb(0, 122, 204)'
   },
   highlighting: {
     bool: '#0000ff',
@@ -38,7 +39,8 @@ export const dark = {
     background: '#1e1e1e',
     color: '#fff',
     titleColor: 'rgba(255, 255, 255, 0.8)',
-    highlightColor: 'rgb(0, 122, 204)'
+    highlightColor: 'rgb(0, 122, 204)',
+    linkColor: '#569cd6'
   },
   highlighting: {
     bool: '#569cd6',

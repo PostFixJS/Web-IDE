@@ -21,8 +21,6 @@ const styles = (theme) => ({
     display: 'block'
   },
   window: {
-    width: 400,
-    height: 200,
     padding: 20,
     margin: '10% auto',
     border: `10px solid ${theme.background}`,
@@ -43,7 +41,8 @@ class Dialog extends React.PureComponent {
       children,
       classes,
       open,
-      onClose
+      onClose,
+      width
     } = this.props
 
     return createPortal((
@@ -53,6 +52,7 @@ class Dialog extends React.PureComponent {
       >
         <div
           className={classes.window}
+          style={{ width }}
           onClick={this.cancelClick}
         >
           {children}
@@ -66,7 +66,8 @@ Dialog.propTypes = {
   children: PropTypes.node,
   classes: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired
+  onClose: PropTypes.func.isRequired,
+  width: PropTypes.number
 }
 
 export default injectSheet(styles)(Dialog)

@@ -119,9 +119,6 @@ export default class Toolbar extends React.Component {
           title='Settings'
           icon={require('./icons/settings.svg')}
         />
-        <span style={{ float: 'right', lineHeight: '32px', fontSize: '9pt', marginRight: 5 }}>
-          Icons made by <a href='https://smashicons.com/'>Smashicons</a> from <a href='https://www.flaticon.com'>www.flaticon.com</a>
-        </span>
       </div>
     )
   }

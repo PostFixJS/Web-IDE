@@ -20,6 +20,17 @@ const styles = (theme) => ({
   },
   label: {
     width: 200
+  },
+  about: {
+    clear: 'both',
+    margin: '20px -20px -20px',
+    padding: 20,
+    borderTop: `1px solid ${theme.background}`,
+    fontSize: '10pt',
+    '& a': {
+      color: theme.card.linkColor,
+      textDecoration: 'none'
+    }
   }
 })
 
@@ -59,6 +70,7 @@ class Settings extends React.PureComponent {
       <Dialog
         open={open}
         onClose={onClose}
+        width={500}
       >
         <div className={classes.row}>
           <div className={classes.label}>
@@ -81,6 +93,10 @@ class Settings extends React.PureComponent {
             defaultValue={fontSize}
             onChange={this.handleFontSizeChange}
           />
+        </div>
+        <div className={classes.about}>
+          The PostFix WebIDE is a JavaScript-based IDE for the PostFix language.<br/>
+          Icons made by <a href='https://smashicons.com/' rel='noopener noreferrer' target='_blank'>Smashicons</a> from <a href='https://www.flaticon.com' rel='noopener noreferrer' target='_blank'>www.flaticon.com</a>
         </div>
       </Dialog>
     )
