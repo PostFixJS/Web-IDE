@@ -7,7 +7,7 @@ export default {
       kind: monaco.languages.CompletionItemKind.Snippet,
       documentation: 'Generate a function.',
       insertText: {
-        value: '$1: ($2) {\n    $0\n} fun'
+        value: '${1:name}: (${2:parameters}) {\n    $0\n} fun' // eslint-disable-line no-template-curly-in-string
       },
       range: {
         startLineNumber: position.lineNumber,
