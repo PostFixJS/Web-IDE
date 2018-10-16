@@ -17,7 +17,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
       `- package.json
    ```
 
-2. Install all dependencies with `npm install` in the `webide` directory
+2. Install all dependencies with `npm install` in the `postfixjs` directory and then in the `webide` directory
 
 3. To start development, run `npm start`  
    This will start a development server that automatically reloads the page on changes.
