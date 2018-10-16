@@ -98,6 +98,9 @@ export function registerBuiltIns (interpreter) {
       if (onTick && !(onTick instanceof types.Lam)) {
         throw new types.Err(`Expected on-tick callback to be a lambda function (:Lam) but got ${onTick.getTypeName()} instead`, onTick.origin || callbacks.origin)
       }
+      if (onDraw && !(onDraw instanceof types.Lam)) {
+        throw new types.Err(`Expected on-draw callback to be a lambda function (:Lam) but got ${onDraw.getTypeName()} instead`, onDraw.origin || callbacks.origin)
+      }
       const stopWhen = keyGet(callbacks, new types.Sym('stop-when'), null)
       if (stopWhen && !(stopWhen instanceof types.Lam)) {
         throw new types.Err(`Expected stop-when callback to be a lambda function (:Lam) but got ${stopWhen.getTypeName()} instead`, stopWhen.origin || callbacks.origin)
@@ -109,7 +112,7 @@ export function registerBuiltIns (interpreter) {
         enqueue(async (runObj) => {
           if (onTick) {
             interpreter._stack.push(state)
-            if (onTick.params.params.length === 2) {
+            if (onTick.params && onTick.params.params.length === 2) {
               const now = Date.now()
               interpreter._stack.push(new types.Int(now - prevTick))
               prevTick = now
