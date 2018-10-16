@@ -151,25 +151,10 @@ export function registerBuiltIns (interpreter) {
       }
       setImmediate(redraw)
 
-      const onKeyPress = keyGet(callbacks, new types.Sym('on-key-press'), null)
-      if (onKeyPress) {
-        if (!(onKeyPress instanceof types.Lam)) {
-          throw new types.Err(`Expected on-key-press callback to be a lambda function (:Lam) but got ${onKeyPress.getTypeName()} instead`, onKeyPress.origin || callbacks.origin)
-        }
-        win.addEventListener('keypress', (e) => {
-          enqueue(async (runObj) => {
-            interpreter._stack.push(state)
-            interpreter._stack.push(new types.Str(e.key))
-            await runObj(onKeyPress)
-            state = interpreter._stack.pop()
-          })
-        })
-      }
-
-      const onKeyDown = keyGet(callbacks, new types.Sym('on-key-down'), null)
+      const onKeyDown = keyGet(callbacks, new types.Sym('on-key-press'), null)
       if (onKeyDown instanceof types.Lam) {
         if (!(onKeyDown instanceof types.Lam)) {
-          throw new types.Err(`Expected on-key-down callback to be a lambda function (:Lam) but got ${onKeyDown.getTypeName()} instead`, onKeyDown.origin || callbacks.origin)
+          throw new types.Err(`Expected on-key-press callback to be a lambda function (:Lam) but got ${onKeyDown.getTypeName()} instead`, onKeyDown.origin || callbacks.origin)
         }
         win.addEventListener('keydown', (e) => {
           enqueue(async (runObj) => {
@@ -181,10 +166,10 @@ export function registerBuiltIns (interpreter) {
         })
       }
 
-      const onKeyUp = keyGet(callbacks, new types.Sym('on-key-up'), null)
+      const onKeyUp = keyGet(callbacks, new types.Sym('on-key-release'), null)
       if (onKeyUp instanceof types.Lam) {
         if (!(onKeyUp instanceof types.Lam)) {
-          throw new types.Err(`Expected on-key-up callback to be a lambda function (:Lam) but got ${onKeyUp.getTypeName()} instead`, onKeyUp.origin || callbacks.origin)
+          throw new types.Err(`Expected on-key-release callback to be a lambda function (:Lam) but got ${onKeyUp.getTypeName()} instead`, onKeyUp.origin || callbacks.origin)
         }
         win.addEventListener('keyup', (e) => {
           enqueue(async (runObj) => {
