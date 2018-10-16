@@ -51,6 +51,11 @@ class InputOutput extends React.Component {
     if (prevProps.input !== this.props.input) {
       this.updateDecoration()
     }
+    if (this.props.isWaiting && !prevProps.isWaiting) {
+      this.inputEditor.focus()
+    } else if (!this.props.isWaiting && prevProps.isWaiting) {
+      document.activeElement.blur()
+    }
   }
 
   componentWillUnmount () {
