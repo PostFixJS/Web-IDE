@@ -343,7 +343,7 @@ class App extends Component {
           running={running}
           paused={paused}
           canPause={!error}
-          canStep={canStep && !error}
+          canStep={canStep}
           onRun={this.runProgram}
           onPause={this.pauseProgram}
           onStop={this.stopProgram}
