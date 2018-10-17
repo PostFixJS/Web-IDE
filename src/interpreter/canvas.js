@@ -282,7 +282,7 @@ export function registerBuiltIns (interpreter) {
 
       yield {
         cancel,
-        promise: new Promise((resolve) => {
+        promise: new Promise((resolve, reject) => {
           img.onload = () => {
             const canvas = document.createElement('canvas')
             canvas.width = img.width
@@ -292,9 +292,8 @@ export function registerBuiltIns (interpreter) {
             canvas.remove()
             resolve()
           }
-          img.onerror = (e) => {
-            interpreter._stack.push(types.Nil.nil)
-            resolve()
+          img.onerror = () => {
+            reject(new types.Err('Could not download the image', token))
           }
           cancelToken.onCancel(() => {
             img.onload = null
@@ -434,7 +433,7 @@ export function registerBuiltIns (interpreter) {
     }],
     returns: [{
       type: ':Str',
-      description: 'Image as data url, or nil if the download failed'
+      description: 'Image as data url'
     }]
   }, {
     name: 'image-width',
