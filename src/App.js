@@ -407,12 +407,12 @@ class App extends Component {
             >
               <StackViewer
                 stack={this.props.stack}
-                invalid={!running || !paused}
+                invalid={running && !paused}
                 fontSize={fontSize}
               />
               <DictViewer
                 dicts={this.props.dicts}
-                invalid={!running || !paused}
+                invalid={running && !paused}
                 fontSize={fontSize}
               />
             </Card>
