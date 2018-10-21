@@ -204,7 +204,7 @@ class App extends Component {
 
   handleChangeBreakpoints = (breakpoints) => {
     this.runner.breakpoints = breakpoints
-    this.props.onBreakpointsChange(breakpoints)
+    this.props.onBreakpointsChange(breakpoints.slice()) // must be a different array object every time
   }
 
   handleInterpreterError (err) {
