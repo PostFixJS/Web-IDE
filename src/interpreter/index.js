@@ -4,7 +4,7 @@ import { popOperands, popOperand } from 'postfixjs/typeCheck'
 import createCancellationToken from 'postfixjs/util/cancellationToken'
 import * as actions from '../actions'
 import store from '../store'
-import { registerFunctions } from './doc'
+import { registerFunctions, registerSymbols } from './doc'
 import * as canvas from './canvas'
 import * as storage from './storage'
 import * as http from './http'
@@ -268,4 +268,54 @@ export function registerBuiltIns (interpreter) {
   canvas.registerBuiltIns(interpreter)
   storage.registerBuiltIns(interpreter)
   http.registerBuiltIns(interpreter)
+
+  registerSymbols({
+    name: ':Arr',
+    description: 'The type of an array. The arrays indices start at zero.'
+  }, {
+    name: ':Bool',
+    description: 'Type for boolean values, i.e. true and false.'
+  }, {
+    name: ':Err',
+    description: 'Error type which stops the program immediately when it is executed.'
+  }, {
+    name: ':ExeArr',
+    description: 'The type of an executable array.'
+  }, {
+    name: ':Flt',
+    description: 'Type for floating point numbers.'
+  }, {
+    name: ':Int',
+    description: 'Type for integer numbers.',
+  }, {
+    name: ':Lam',
+    description: 'The type of a lambda function, i.e. an executable array with a dictionary.'
+  }, {
+    name: ':Marker',
+    description: 'An internal type that is used to keep track of array and executable array brackets.'
+  }, {
+    name: ':Nil',
+    description: 'The nil type which is used to express the absense of a value.'
+  }, {
+    name: ':Num',
+    description: 'Union type for any number (float or integer).'
+  }, {
+    name: ':Obj',
+    description: 'Base type of all PostFix types. Everything (except nil) is an object in PostFix.'
+  }, {
+    name: ':Op',
+    description: 'An internal type used for all operators that are implemented in JavaScript.'
+  }, {
+    name: ':Params',
+    description: 'The type of parameter lists.'
+  }, {
+    name: ':Ref',
+    description: 'An internal type used for references to variables from a dictionary.'
+  }, {
+    name: ':Str',
+    description: 'Type for strings. The character indices start at zero.'
+  }, {
+    name: ':Sym',
+    description: 'A type for symbols, which can be used to name objects.'
+  })
 }

@@ -20,7 +20,7 @@ export default {
     }))) {
       // Cursor is in a param list
       const symbolEntries = mergeSymbolEntries(
-        builtIns.symbols.filter(isTypeSym),
+        builtIns.symbols.filter(({name}) => ![':Op', ':Marker', ':Nil'].includes(name)).filter(isTypeSym),
         symbols.filter(isTypeSym)
       )
       return Array.from(symbolEntries) // symbolEntries is an iterator
@@ -80,7 +80,7 @@ function mergeSymbolEntries (builtIns, userSymbols) {
   for (const sym of builtIns) {
     symbols.set(sym.name, {
       label: sym.name,
-      kind: monaco.languages.CompletionItemKind.Value,
+      kind: isTypeSym(sym) ? monaco.languages.CompletionItemKind.Class : monaco.languages.CompletionItemKind.Value,
       documentation: sym.description
     })
   }
