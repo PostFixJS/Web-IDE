@@ -1,9 +1,9 @@
 import * as monaco from 'monaco-editor'
 import DocParser from 'postfixjs/DocParser'
 import * as builtIns from '../../../interpreter/doc'
+import { isTypeSym } from '../postfixUtil'
 import { getDatadefFunctions } from './datadef'
 import { positionToMonaco  } from './util'
-import { isTypeSym } from '../postfixUtil';
 
 export default {
   provideCompletionItems: (model, position) => {
@@ -90,14 +90,14 @@ function mergeSymbolEntries (builtIns, userSymbols) {
         const other = symbols.get(sym.name)
         symbols.set(sym.name, {
           label: sym.name,
-          kind: sym.name[1].toUpperCase() === sym.name[1] ? monaco.languages.CompletionItemKind.Class : monaco.languages.CompletionItemKind.Value,
+          kind: isTypeSym(sym) ? monaco.languages.CompletionItemKind.Class : monaco.languages.CompletionItemKind.Value,
           documentation: { value: `* ${other.documentation.value || other.documentation}\n* ${sym.description}` }
         })
       }
     } else {
       symbols.set(sym.name, {
         label: sym.name,
-        kind: sym.name[1].toUpperCase() === sym.name[1] ? monaco.languages.CompletionItemKind.Class : monaco.languages.CompletionItemKind.Value,
+        kind: isTypeSym(sym) ? monaco.languages.CompletionItemKind.Class : monaco.languages.CompletionItemKind.Value,
         documentation: sym.description
       })
     }
