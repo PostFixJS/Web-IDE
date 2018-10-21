@@ -2,6 +2,7 @@ import { keyGet } from 'postfixjs/operators/impl/array'
 import { popOperands, popOperand } from 'postfixjs/typeCheck'
 import createCancellationToken from 'postfixjs/util/cancellationToken'
 import * as types from 'postfixjs/types'
+import PostFixRunner from '../postfix-runner/PostFixRunner'
 import { registerFunctions, registerSymbols } from './doc'
 import Image from './canvas/Image'
 
@@ -69,7 +70,7 @@ export function registerBuiltIns (interpreter) {
         })
         const runInQueue = async (obj) => {
           if (cancelToken.cancelled || windowClosed) return
-          const { promise, cancel } = interpreter.__runner.runInner(obj)
+          const { promise, cancel } = PostFixRunner.getRunnerOf(interpreter).runInner(obj)
           cancelQueue = cancel
           await promise
           cancelQueue = null

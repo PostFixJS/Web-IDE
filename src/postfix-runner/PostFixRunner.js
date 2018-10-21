@@ -1,10 +1,12 @@
 import Interpreter from 'postfixjs/Interpreter'
 import Lexer from 'postfixjs/Lexer'
 
+const runnerProperty = Symbol()
+
 export default class PostFixRunner {
-  constructor () {
-    this.interpreter = new Interpreter()
-    this.interpreter.__runner = this
+  constructor (options) {
+    this.interpreter = new Interpreter(options)
+    this.interpreter[runnerProperty] = this
     this._listeners = {}
     this._lastPosition = null
     this.breakpoints = []
@@ -253,6 +255,15 @@ export default class PostFixRunner {
     }
 
     return false
+  }
+
+  /**
+   * Get the PostFixRunner instance of a given interpreter.
+   * @param {Interpreter} interpreter Interpreter of a runner
+   * @returns {PostFixRunner} Runner that the interpreter belongs to, undefined if the interpreter does not belong to a runner
+   */
+  static getRunnerOf (interpreter) {
+    return interpreter[runnerProperty]
   }
 }
 
