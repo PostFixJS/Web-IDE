@@ -90,6 +90,11 @@ export function settings (state = {
         ...state,
         fontSize: action.payload
       }
+    case actions.SET_PROPER_TAILCALLS:
+      return {
+        ...state,
+        enableProperTailCalls: action.payload
+      }
     default:
       return state
   }

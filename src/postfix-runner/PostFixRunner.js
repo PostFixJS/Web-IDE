@@ -219,7 +219,7 @@ export default class PostFixRunner {
       switch (breakpoint.type) {
         case 'expression': {
           if (this._breakpointRunner == null) {
-            this._breakpointRunner = new PostFixRunner()
+            this._breakpointRunner = new PostFixRunner(this.interpreter.options)
           }
           const runner = this._breakpointRunner
           runner.interpreter = this.interpreter.copy()

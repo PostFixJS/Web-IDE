@@ -8,6 +8,7 @@ export const SET_INPUT_POSITION = 'input/SET_POSITION'
 export const SET_INPUT_WAITING = 'input/SET_WAITING'
 export const SET_THEME = 'settings/SET_THEME'
 export const SET_FONTSIZE = 'settings/SET_FONTSIZE'
+export const SET_PROPER_TAILCALLS = 'settings/SET_PROPER_TAILCALLS'
 export const ADD_TEST_RESULT = 'tests/ADD_TEST_RESULT'
 export const RESET_TESTS = 'tests/RESET_TESTS'
 export const ADD_REPL_LINE = 'repl/ADD_REPL_LINE'
@@ -50,6 +51,10 @@ export function setTheme (theme) {
 
 export function setFontSize (fontSize) {
   return { type: SET_FONTSIZE, payload: fontSize }
+}
+
+export function setProperTailCalls (enabled) {
+  return { type: SET_PROPER_TAILCALLS, payload: enabled }
 }
 
 export function reportTest (passed, type, position, params) {

@@ -57,13 +57,16 @@ class Settings extends React.PureComponent {
     }
   }
 
+  handleToggleProperTailCalls = (e) => {
+    this.props.onProperTailCallsChange(e.target.checked)
+  }
+
   render () {
     const {
       classes,
       open,
       onClose,
-      fontSize,
-      theme
+      settings: { fontSize, theme, enableProperTailCalls }
     } = this.props
 
     return (
@@ -92,6 +95,16 @@ class Settings extends React.PureComponent {
             max={MAX_FONT_SIZE}
             defaultValue={fontSize}
             onChange={this.handleFontSizeChange}
+          />
+        </div>
+        <div className={classes.row}>
+          <div className={classes.label}>
+            Proper tail calls
+          </div>
+          <input
+            type='checkbox'
+            checked={enableProperTailCalls}
+            onChange={this.handleToggleProperTailCalls}
           />
         </div>
         <div className={classes.about}>

@@ -66,12 +66,14 @@ class App extends Component {
     canStep: true,
     showSettings: false
   }
-  runner = new Runner()
-  replRunner = this.runner.fork()
   lineHighlightDecorations = []
 
   constructor (props) {
     super(props)
+    this.runner = new Runner({
+      enableProperTailCalls: this.props.settings.enableProperTailCalls
+    })
+    this.replRunner = this.runner.fork()
     registerBuiltIns(this.runner.interpreter)
     this.runner.interpreter.setTestReporter(testReporter)
     this.runner.on('position', (position) => {
@@ -102,6 +104,12 @@ class App extends Component {
 
   componentWillUnmount () {
     window.removeEventListener('resize', this.handleResize)
+  }
+
+  componentDidUpdate (prevProps) {
+    if (prevProps.settings.enableProperTailCalls !== this.props.settings.enableProperTailCalls) {
+      this.runner.interpreter.options.enableProperTailCalls = this.props.settings.enableProperTailCalls
+    }
   }
 
   handleResize = debounce(200, () => {
@@ -327,11 +335,12 @@ class App extends Component {
       onAppendReplLine,
       replLines,
       tests,
-      theme,
       onThemeChange,
-      fontSize,
-      onFontSizeChange
+      onFontSizeChange,
+      onProperTailCallsChange,
+      settings
     } = this.props
+    const { fontSize } = settings
 
     return (
       <div
@@ -435,10 +444,10 @@ class App extends Component {
         <Settings
           open={showSettings}
           onClose={this.handleHideSettings}
-          fontSize={fontSize}
+          settings={settings}
           onFontSizeChange={onFontSizeChange}
-          theme={theme}
           onThemeChange={onThemeChange}
+          onProperTailCallsChange={onProperTailCallsChange}
         />
       </div>
     );
@@ -455,16 +464,16 @@ export default connect((state) => ({
   dicts: state.dicts,
   replLines: state.replLines,
   tests: state.tests,
-  fontSize: state.settings.fontSize,
-  theme: state.settings.theme
+  settings: state.settings
 }), (dispatch) => ({
   dispatch,
   onInputChange: (input) => dispatch(actions.setInput(input)),
   onAppendReplLine: (line) => dispatch(actions.addReplLine(line)),
   onFontSizeChange: (fontSize) => dispatch(actions.setFontSize(fontSize)),
-  onThemeChange: (theme) => dispatch(actions.setTheme(theme))
+  onThemeChange: (theme) => dispatch(actions.setTheme(theme)),
+  onProperTailCallsChange: (enabled) => dispatch(actions.setProperTailCalls(enabled))
 }))((props) => (
-  <ThemeProvider theme={themes[props.theme]}>
+  <ThemeProvider theme={themes[props.settings.theme]}>
     <StyledApp {...props} />
   </ThemeProvider>
 ))
