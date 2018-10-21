@@ -204,6 +204,7 @@ class App extends Component {
 
   handleChangeBreakpoints = (breakpoints) => {
     this.runner.breakpoints = breakpoints
+    this.props.onBreakpointsChange(breakpoints)
   }
 
   handleInterpreterError (err) {
@@ -338,7 +339,8 @@ class App extends Component {
       onThemeChange,
       onFontSizeChange,
       onProperTailCallsChange,
-      settings
+      settings,
+      initialBreakpoints
     } = this.props
     const { fontSize } = settings
 
@@ -385,6 +387,7 @@ class App extends Component {
                 className={classes.editor}
                 onDragOver={this.handleDragOver}
                 onDrop={this.handleDrop}
+                defaultBreakpoints={initialBreakpoints}
                 onBreakpointsChange={this.handleChangeBreakpoints}
                 fontSize={fontSize}
                 onFontSizeChange={onFontSizeChange}
@@ -458,6 +461,7 @@ const StyledApp = injectSheet(styles)(App)
 
 export default connect((state) => ({
   code: state.code,
+  initialBreakpoints: state.breakpoints,
   input: state.input,
   output: state.output,
   stack: state.stack,
@@ -471,7 +475,8 @@ export default connect((state) => ({
   onAppendReplLine: (line) => dispatch(actions.addReplLine(line)),
   onFontSizeChange: (fontSize) => dispatch(actions.setFontSize(fontSize)),
   onThemeChange: (theme) => dispatch(actions.setTheme(theme)),
-  onProperTailCallsChange: (enabled) => dispatch(actions.setProperTailCalls(enabled))
+  onProperTailCallsChange: (enabled) => dispatch(actions.setProperTailCalls(enabled)),
+  onBreakpointsChange: (breakpoints) => dispatch(actions.setBreakpoints(breakpoints))
 }))((props) => (
   <ThemeProvider theme={themes[props.settings.theme]}>
     <StyledApp {...props} />

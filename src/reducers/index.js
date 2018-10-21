@@ -9,6 +9,15 @@ export function code (state = localStorage.getItem('code') || '', action) {
   }
 }
 
+export function breakpoints (state = tryParseJSON(localStorage.getItem('breakpoints'), []), action) {
+  switch (action.type) {
+    case actions.SET_BREAKPOINTS:
+      return action.payload
+    default:
+      return state
+  }
+}
+
 export function output (state = '', action) {
   switch (action.type) {
     case actions.ADD_OUTPUT:
@@ -69,16 +78,10 @@ const defaultSettings = {
   fontSize: 14,
   enableProperTailCalls: false
 }
-function getSettings () {
-  try {
-    return JSON.parse(localStorage.getItem('settings'))
-  } catch (e) {
-    return {}
-  }
-}
+
 export function settings (state = {
   ...defaultSettings,
-  ...getSettings()
+  ...tryParseJSON(localStorage.getItem('settings'), {})
 }, action) {
   switch (action.type) {
     case actions.SET_THEME:
@@ -124,5 +127,13 @@ export function replLines (state = [], action) {
       ]
     default:
       return state
+  }
+}
+
+function tryParseJSON (json, defaultValue) {
+  try {
+    return JSON.parse(json) || defaultValue
+  } catch (e) {
+    return defaultValue
   }
 }

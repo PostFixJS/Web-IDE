@@ -1,4 +1,5 @@
 export const SET_CODE = 'editor/SET_CODE'
+export const SET_BREAKPOINTS = 'editor/SET_BREAKPOINTS'
 export const ADD_OUTPUT = 'output/ADD_OUTPUT'
 export const CLEAR_OUTPUT = 'output/CLEAR'
 export const SET_STACK = 'stack/SET_STACK'
@@ -75,4 +76,8 @@ export function resetTests () {
 
 export function addReplLine (line) {
   return { type: ADD_REPL_LINE, payload: line }
+}
+
+export function setBreakpoints (breakpoints) {
+  return { type: SET_BREAKPOINTS, payload: breakpoints }
 }

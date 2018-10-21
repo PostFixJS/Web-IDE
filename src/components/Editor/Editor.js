@@ -132,6 +132,11 @@ class Editor extends React.Component {
         }
       })
     )
+
+    // set default breakpoints
+    for (const breakpoint of this.props.defaultBreakpoints) {
+      this.setBreakpoint(breakpoint.position, breakpoint.type, breakpoint.expression)
+    }
   }
 
   showBreakpointWidget = (monacoPosition, breakpoint, callback) => {
@@ -298,6 +303,7 @@ class Editor extends React.Component {
     const {
       code,
       innerRef,
+      defaultBreakpoints,
       onBreakpointsChange,
       onChange,
       onFontSizeChange,
@@ -334,6 +340,7 @@ Editor.propTypes = {
   code: PropTypes.string,
   onChange: PropTypes.func,
   readOnly: PropTypes.bool,
+  defaultBreakpoints: PropTypes.array.isRequired,
   onBreakpointsChange: PropTypes.func.isRequired,
   onFontSizeChange: PropTypes.func.isRequired,
   innerRef: PropTypes.func,

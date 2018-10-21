@@ -17,6 +17,9 @@ export default function (initialState) {
     if (state.code !== previousState.code) {
       localStorage.setItem('code', state.code)
     }
+    if (state.breakpoints !== previousState.breakpoints) {
+      localStorage.setItem('breakpoints', JSON.stringify(state.breakpoints))
+    }
     if (state.settings !== previousState.settings) {
       localStorage.setItem('settings', JSON.stringify(state.settings))
     }
