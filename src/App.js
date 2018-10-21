@@ -130,14 +130,14 @@ class App extends Component {
     this._repl = ref
   }
 
-  updateCode = debounce(200, (code) => {
+  updateCode = (code) => {
     // close old error widgets and remove error highlighting
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
     this._editor.closeErrorWidget()
 
     // actually update the code
     this.props.dispatch(actions.setCode(code))
-  })
+  }
 
   async run (pauseImmediately = false) {
     if (!this.runner.running) {
