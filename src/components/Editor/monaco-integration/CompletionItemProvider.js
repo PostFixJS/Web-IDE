@@ -2,7 +2,8 @@ import * as monaco from 'monaco-editor'
 import DocParser from 'postfixjs/DocParser'
 import * as builtIns from '../../../interpreter/doc'
 import { getDatadefFunctions } from './datadef'
-import { positionToMonaco } from './util'
+import { positionToMonaco  } from './util'
+import { isTypeSym } from '../postfixUtil';
 
 export default {
   provideCompletionItems: (model, position) => {
@@ -11,10 +12,23 @@ export default {
     const variables = DocParser.getVariables(code)
     const datadefs = DocParser.getDatadefs(code)
     const symbols = DocParser.getSymbols(code)
+    const paramLists = DocParser.getParamsLists(code, { withRanges: true })
+
+    if (paramLists.some((({ source }) => {
+      const paramsRange = monaco.Range.fromPositions(positionToMonaco(source.start), positionToMonaco(source.end))
+      return paramsRange.containsPosition(position)
+    }))) {
+      // Cursor is in a param list
+      const symbolEntries = mergeSymbolEntries(
+        builtIns.symbols.filter(isTypeSym),
+        symbols.filter(isTypeSym)
+      )
+      return Array.from(symbolEntries) // symbolEntries is an iterator
+    }
 
     // may be multiple functions if they are nested
     const functionsAtPosition = functions.filter(({ source: { body } }) => {
-      const bodyRange = new monaco.Range.fromPositions(positionToMonaco(body.start), positionToMonaco(body.end))
+      const bodyRange = monaco.Range.fromPositions(positionToMonaco(body.start), positionToMonaco(body.end))
       return bodyRange.containsPosition(position)
     })
 
@@ -56,12 +70,12 @@ export default {
           documentation: getFunctionHoverMessage(fun)
         }))
       ], []),
-      ...deduplicateSymbols(builtIns.symbols, symbols)
+      ...mergeSymbolEntries(builtIns.symbols, symbols)
     ]
   }
 }
 
-function deduplicateSymbols (builtIns, userSymbols) {
+function mergeSymbolEntries (builtIns, userSymbols) {
   const symbols = new Map()
   for (const sym of builtIns) {
     symbols.set(sym.name, {
