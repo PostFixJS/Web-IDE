@@ -191,13 +191,30 @@ export function registerBuiltIns (interpreter) {
       })
 
       const onMouseMove = keyGet(callbacks, new types.Sym('on-mouse-move'), null)
-      if (onMouseMove) {
-        if (!(onMouseMove instanceof types.Lam)) {
-          throw new types.Err(`Expected on-mouse-move callback to be a lambda function (:Lam) but got ${onMouseMove.getTypeName()} instead`, onMouseMove.origin || callbacks.origin)
-        }
-        canvas.addEventListener('mousemove', (e) => {
-          if (e.buttons === 0) { // 0 = no mouse button pressed
-            const {x, y} = normalizeMouse(e)
+      if (onMouseMove != null && !(onMouseMove instanceof types.Lam)) {
+        throw new types.Err(`Expected on-mouse-move callback to be a lambda function (:Lam) but got ${onMouseMove.getTypeName()} instead`, onMouseMove.origin || callbacks.origin)
+      }
+      canvas.addEventListener('mousemove', (e) => {
+        if (e.buttons === 0) { // 0 = no mouse button pressed
+          const {x, y} = normalizeMouse(e)
+          for (const hit of image.getImagesAt(x, y)) {
+            if (hit.image.taggedValues != null) {
+              const mouseMoveHandler = keyGet(hit.image.taggedValues, new types.Sym('on-mouse-move'), null)
+              if (mouseMoveHandler) {
+                enqueue(async (runObj) => { // eslint-disable-line no-loop-func
+                  if (!(mouseMoveHandler instanceof types.Lam)) {
+                    throw new types.Err(`Expected on-mouse-move callback to be a lambda function (:Lam) but got ${mouseMoveHandler.getTypeName()} instead`, mouseMoveHandler.origin || hit.image.taggedValues.origin)
+                  }
+                  interpreter._stack.push(state)
+                  interpreter._stack.push(new types.Flt(hit.x))
+                  interpreter._stack.push(new types.Flt(hit.y))
+                  await runObj(mouseMoveHandler)
+                  state = interpreter._stack.pop()
+                })
+              }
+            }
+          }
+          if (onMouseMove != null) {
             enqueue(async (runObj) => {
               interpreter._stack.push(state)
               interpreter._stack.push(new types.Flt(x))
@@ -206,17 +223,34 @@ export function registerBuiltIns (interpreter) {
               state = interpreter._stack.pop()
             })
           }
-        })
-      }
+        }
+      })
 
       const onMouseDrag = keyGet(callbacks, new types.Sym('on-mouse-drag'), null)
-      if (onMouseDrag) {
-        if (!(onMouseDrag instanceof types.Lam)) {
-          throw new types.Err(`Expected on-mouse-drag callback to be a lambda function (:Lam) but got ${onMouseDrag.getTypeName()} instead`, onMouseDrag.origin || callbacks.origin)
-        }
-        canvas.addEventListener('mousemove', (e) => {
-          if (e.buttons === 1) { // 1 = left mouse button pressed
-            const {x, y} = normalizeMouse(e)
+      if (onMouseDrag != null && !(onMouseDrag instanceof types.Lam)) {
+        throw new types.Err(`Expected on-mouse-drag callback to be a lambda function (:Lam) but got ${onMouseDrag.getTypeName()} instead`, onMouseDrag.origin || callbacks.origin)
+      }
+      canvas.addEventListener('mousemove', (e) => {
+        if (e.buttons === 1) { // 1 = left mouse button pressed
+          const {x, y} = normalizeMouse(e)
+          for (const hit of image.getImagesAt(x, y)) {
+            if (hit.image.taggedValues != null) {
+              const mouseDragHandler = keyGet(hit.image.taggedValues, new types.Sym('on-mouse-drag'), null)
+              if (mouseDragHandler) {
+                enqueue(async (runObj) => { // eslint-disable-line no-loop-func
+                  if (!(mouseDragHandler instanceof types.Lam)) {
+                    throw new types.Err(`Expected on-mouse-drag callback to be a lambda function (:Lam) but got ${mouseDragHandler.getTypeName()} instead`, mouseDragHandler.origin || hit.image.taggedValues.origin)
+                  }
+                  interpreter._stack.push(state)
+                  interpreter._stack.push(new types.Flt(hit.x))
+                  interpreter._stack.push(new types.Flt(hit.y))
+                  await runObj(mouseDragHandler)
+                  state = interpreter._stack.pop()
+                })
+              }
+            }
+          }
+          if (onMouseDrag != null) {
             enqueue(async (runObj) => {
               interpreter._stack.push(state)
               interpreter._stack.push(new types.Flt(x))
@@ -225,8 +259,8 @@ export function registerBuiltIns (interpreter) {
               state = interpreter._stack.pop()
             })
           }
-        })
-      }
+        }
+      })
 
       const onMouseDown = keyGet(callbacks, new types.Sym('on-mouse-press'), null)
       if (onMouseDown != null && !(onMouseDown instanceof types.Lam)) {
