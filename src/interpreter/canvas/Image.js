@@ -100,7 +100,7 @@ class Rectangle extends Image {
   }
 
   getImagesAt (x, y) {
-    return x >= 0 && y >= 0 && x < this.width && y < this.height ? [this] : []
+    return x >= 0 && y >= 0 && x < this.width && y < this.height ? [{ image: this, x, y }] : []
   }
 
   static from (obj) {
@@ -142,7 +142,7 @@ class Circle extends Image {
     const radius = this.width / 2
     const xCenter = x - radius
     const yCenter = y - radius
-    return Math.pow(xCenter, 2) + Math.pow(yCenter, 2) <= Math.pow(radius, 2) ? [this] : []
+    return Math.pow(xCenter, 2) + Math.pow(yCenter, 2) <= Math.pow(radius, 2) ? [{ image: this, x, y }] : []
   }
 
   static from (obj) {
@@ -184,7 +184,7 @@ class Ellipse extends Image {
     const radiusY = this.height / 2
     const xCenter = x - radiusX
     const yCenter = y - radiusY
-    return Math.pow(xCenter, 2) / Math.pow(radiusX, 2) + Math.pow(yCenter, 2) / Math.pow(radiusY, 2) <= 1 ? [this] : []
+    return Math.pow(xCenter, 2) / Math.pow(radiusX, 2) + Math.pow(yCenter, 2) / Math.pow(radiusY, 2) <= 1 ? [{ image: this, x, y }] : []
   }
 
   static from (obj) {
@@ -227,7 +227,7 @@ class Text extends Image {
 
   getImagesAt (x, y) {
     // TODO perform an actual hit test against the text
-    return x >= 0 && y >= 0 && x < this.width && y < this.height ? [this] : []
+    return x >= 0 && y >= 0 && x < this.width && y < this.height ? [{ image: this, x, y }] : []
   }
 
   static getTextWidth (text, font) {
@@ -270,7 +270,7 @@ class Scale extends Image {
   getImagesAt (x, y) {
     const hits = this.image.getImagesAt(x / this.scale, y / this.scale)
     if (hits.length > 0) {
-      return [...hits, this]
+      return [...hits, { image: this, x, y }]
     }
     return []
   }
@@ -311,7 +311,7 @@ class Rotate extends Image {
     const rotY = Math.sin(angle) * (x - width / 2) + Math.cos(angle) * (y - height / 2) + this.image.height / 2
     const hits = this.image.getImagesAt(rotX, rotY)
     if (hits.length > 0) {
-      return [...hits, this]
+      return [...hits, { image: this, x, y }]
     }
     return []
   }
@@ -374,7 +374,7 @@ class PlaceImage extends Image {
       hits = this.back.getImagesAt(x, y)
     }
     if (hits.length > 0) {
-      return [...hits, this]
+      return [...hits, { image: this, x, y }]
     }
     return []
   }
@@ -439,7 +439,7 @@ class Beside extends Image {
       for (const image of this.images) {
         const hits = image.getImagesAt(x - offsetX, y)
         if (hits.length > 0) {
-          return [...hits, this]
+          return [...hits, { image: this, x, y }]
         }
         offsetX += image.width
       }
@@ -447,7 +447,7 @@ class Beside extends Image {
       for (const image of this.images) {
         const hits = image.getImagesAt(x - offsetX, y - (this.height - image.height) / 2)
         if (hits.length > 0) {
-          return [...hits, this]
+          return [...hits, { image: this, x, y }]
         }
         offsetX += image.width
       }
@@ -455,7 +455,7 @@ class Beside extends Image {
       for (const image of this.images) {
         const hits = image.getImagesAt(x - offsetX, y - (this.height - image.height))
         if (hits.length > 0) {
-          return [...hits, this]
+          return [...hits, { image: this, x, y }]
         }
         offsetX += image.width
       }
@@ -518,7 +518,7 @@ class Above extends Image {
       for (const image of this.images) {
         const hits = image.getImagesAt(x, y - offsetY)
         if (hits.length > 0) {
-          return [...hits, this]
+          return [...hits, { image: this, x, y }]
         }
         offsetY += image.height
       }
@@ -526,7 +526,7 @@ class Above extends Image {
       for (const image of this.images) {
         const hits = image.getImagesAt(x - (this.width - image.width) / 2, y - offsetY)
         if (hits.length > 0) {
-          return [...hits, this]
+          return [...hits, { image: this, x, y }]
         }
         offsetY += image.height
       }
@@ -534,7 +534,7 @@ class Above extends Image {
       for (const image of this.images) {
         const hits = image.getImagesAt(x - (this.width - image.width), y - offsetY)
         if (hits.length > 0) {
-          return [...hits, this]
+          return [...hits, { image: this, x, y }]
         }
         offsetY += image.height
       }
@@ -662,7 +662,7 @@ class Underlay extends Image {
     }
 
     if (lastHits.length > 0) {
-      return [...lastHits, this]
+      return [...lastHits, { image: this, x, y }]
     }
     return []
   }
@@ -731,7 +731,7 @@ class Bitmap extends Image {
 
   getImagesAt (x, y) {
     // TODO maybe check the alpha value of the clicked pixel
-    return x >= 0 && y >= 0 && x < this.width && y < this.height ? [this] : []
+    return x >= 0 && y >= 0 && x < this.width && y < this.height ? [{ image: this, x, y }] : []
   }
 
   /**
