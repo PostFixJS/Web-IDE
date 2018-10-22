@@ -99,6 +99,10 @@ class Rectangle extends Image {
     }
   }
 
+  getImagesAt (x, y) {
+    return x >= 0 && y >= 0 && x < this.width && y < this.height ? [this] : []
+  }
+
   static from (obj) {
     if (obj.items.length >= 3 && obj.items[1] instanceof types.Num && obj.items[2] instanceof types.Num) {
       const width = obj.items[1].value
@@ -134,6 +138,13 @@ class Circle extends Image {
     }
   }
 
+  getImagesAt (x, y) {
+    const radius = this.width / 2
+    const xCenter = x - radius
+    const yCenter = y - radius
+    return Math.pow(xCenter, 2) + Math.pow(yCenter, 2) <= Math.pow(radius, 2) ? [this] : []
+  }
+
   static from (obj) {
     if (obj.items.length >= 2 && obj.items[1] instanceof types.Num) {
       const size = obj.items[1].value
@@ -166,6 +177,14 @@ class Ellipse extends Image {
       ctx.lineWidth = this.stroke.stroke
       ctx.stroke()
     }
+  }
+
+  getImagesAt (x, y) {
+    const radiusX = this.width / 2
+    const radiusY = this.height / 2
+    const xCenter = x - radiusX
+    const yCenter = y - radiusY
+    return Math.pow(xCenter, 2) / Math.pow(radiusX, 2) + Math.pow(yCenter, 2) / Math.pow(radiusY, 2) <= 1 ? [this] : []
   }
 
   static from (obj) {
@@ -206,6 +225,11 @@ class Text extends Image {
     }
   }
 
+  getImagesAt (x, y) {
+    // TODO perform an actual hit test against the text
+    return x >= 0 && y >= 0 && x < this.width && y < this.height ? [this] : []
+  }
+
   static getTextWidth (text, font) {
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
@@ -243,6 +267,14 @@ class Scale extends Image {
     ctx.restore()
   }
 
+  getImagesAt (x, y) {
+    const hits = this.image.getImagesAt(x / this.scale, y / this.scale)
+    if (hits.length > 0) {
+      return [...hits, this]
+    }
+    return []
+  }
+
   static async from (obj) {
     if (obj.items.length === 3 && obj.items[1] instanceof types.Num) {
       return new Scale(obj.items[1].value, await Image.from(obj.items[2]))
@@ -268,6 +300,20 @@ class Rotate extends Image {
     ctx.translate(-this.image.width / 2, -this.image.height / 2)
     this.image.draw(ctx)
     ctx.restore()
+  }
+
+  getImagesAt (x, y) {
+    // rotate the point around the center, then perform a hit test as usual
+    // https://www.encyclopediaofmath.org/index.php/Rotation
+    const { width, height } = this
+    const angle = -this.angle
+    const rotX = Math.cos(angle) * (x - width / 2) - Math.sin(angle) * (y - height / 2) + this.image.width / 2
+    const rotY = Math.sin(angle) * (x - width / 2) + Math.cos(angle) * (y - height / 2) + this.image.height / 2
+    const hits = this.image.getImagesAt(rotX, rotY)
+    if (hits.length > 0) {
+      return [...hits, this]
+    }
+    return []
   }
 
   static async from (obj) {
@@ -320,6 +366,17 @@ class PlaceImage extends Image {
     ctx.translate(this.x, this.y)
     this.front.draw(ctx)
     ctx.restore()
+  }
+
+  getImagesAt (x, y) {
+    let hits = this.front.getImagesAt(x - this.x, y - this.y)
+    if (hits.length === 0) {
+      hits = this.back.getImagesAt(x, y)
+    }
+    if (hits.length > 0) {
+      return [...hits, this]
+    }
+    return []
   }
 
   static async from (obj) {
@@ -376,6 +433,36 @@ class Beside extends Image {
     ctx.restore()
   }
 
+  getImagesAt (x, y) {
+    let offsetX = 0
+    if (this.vAlign === 'top') {
+      for (const image of this.images) {
+        const hits = image.getImagesAt(x - offsetX, y)
+        if (hits.length > 0) {
+          return [...hits, this]
+        }
+        offsetX += image.width
+      }
+    } else if (this.vAlign === 'center') {
+      for (const image of this.images) {
+        const hits = image.getImagesAt(x - offsetX, y - (this.height - image.height) / 2)
+        if (hits.length > 0) {
+          return [...hits, this]
+        }
+        offsetX += image.width
+      }
+    } else if (this.vAlign === 'bottom') {
+      for (const image of this.images) {
+        const hits = image.getImagesAt(x - offsetX, y - (this.height - image.height))
+        if (hits.length > 0) {
+          return [...hits, this]
+        }
+        offsetX += image.width
+      }
+    }
+    return []
+  }
+
   static async from (obj) {
     if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
       return new Beside(await Promise.all(obj.items[1].items.map((image) => Image.from(image))))
@@ -423,6 +510,36 @@ class Above extends Image {
       }
     }
     ctx.restore()
+  }
+
+  getImagesAt (x, y) {
+    let offsetY = 0
+    if (this.hAlign === 'left') {
+      for (const image of this.images) {
+        const hits = image.getImagesAt(x, y - offsetY)
+        if (hits.length > 0) {
+          return [...hits, this]
+        }
+        offsetY += image.height
+      }
+    } else if (this.hAlign === 'center') {
+      for (const image of this.images) {
+        const hits = image.getImagesAt(x - (this.width - image.width) / 2, y - offsetY)
+        if (hits.length > 0) {
+          return [...hits, this]
+        }
+        offsetY += image.height
+      }
+    } else if (this.hAlign === 'right') {
+      for (const image of this.images) {
+        const hits = image.getImagesAt(x - (this.width - image.width), y - offsetY)
+        if (hits.length > 0) {
+          return [...hits, this]
+        }
+        offsetY += image.height
+      }
+    }
+    return []
   }
 
   static async from (obj) {
@@ -516,6 +633,40 @@ class Underlay extends Image {
     ctx.restore()
   }
 
+  getImagesAt (x, y) {
+    let offsetX = 0
+    let offsetY = 0
+    let lastHits = []
+  
+    for (const image of this.images) {
+      let imageOffsetX = 0
+      let imageOffsetY = 0
+      if (this.hAlign === 'center') {
+        imageOffsetX = (this.maxImageWidth - image.width) / 2
+      } else if (this.hAlign === 'right') {
+        imageOffsetX = this.maxImageWidth - image.width
+      }
+      if (this.vAlign === 'center') {
+        imageOffsetY = (this.maxImageHeight - image.height) / 2
+      } else if (this.vAlign === 'bottom') {
+        imageOffsetY = this.maxImageHeight - image.height
+      }
+
+      const hits = image.getImagesAt(x - offsetX - imageOffsetX, y - offsetY - imageOffsetY)
+      if (hits.length > 0) {
+        lastHits = hits
+      }
+
+      offsetX += this.dx
+      offsetY += this.dy
+    }
+
+    if (lastHits.length > 0) {
+      return [...lastHits, this]
+    }
+    return []
+  }
+
   static async from (obj) {
     if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
       return new Underlay(await Promise.all(obj.items[1].items.map((image) => Image.from(image))))
@@ -576,6 +727,11 @@ class Bitmap extends Image {
    */
   draw (ctx) {
     ctx.drawImage(this.img, 0, 0)
+  }
+
+  getImagesAt (x, y) {
+    // TODO maybe check the alpha value of the clicked pixel
+    return x >= 0 && y >= 0 && x < this.width && y < this.height ? [this] : []
   }
 
   /**
