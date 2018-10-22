@@ -23,36 +23,46 @@ export default class Image {
    */
   static async from (obj) {
     if (obj instanceof types.Arr && obj.items[0] instanceof types.Sym) {
-      switch (obj.items[0].name) {
-        case 'square':
-          return Square.from(obj)
-        case 'rectangle':
-          return Rectangle.from(obj)
-        case 'circle':
-          return Circle.from(obj)
-        case 'ellipse':
-          return Ellipse.from(obj)
-        case 'text':
-          return Text.from(obj)
-        case 'scale':
-          return Scale.from(obj)
-        case 'rotate':
-          return Rotate.from(obj)
-        case 'place-image':
-          return PlaceImage.from(obj)
-        case 'beside':
-          return Beside.from(obj)
-        case 'above':
-          return Above.from(obj)
-        case 'overlay':
-          return Overlay.from(obj)
-        case 'underlay':
-          return Underlay.from(obj)
-        case 'bitmap':
-          return Bitmap.from(obj)
-        default:
-          throw new types.Err(`Unsupported image type ${obj.items[0].toString()}`, obj.origin)
-      }
+      const firstTag = obj.items.findIndex((item, i) => i > 0 && item instanceof types.Sym)
+      const shape = firstTag < 0 ? obj : new types.Arr(obj.items.slice(0, firstTag))
+      shape.origin = obj.origin
+      const taggedValues = new types.Arr(firstTag < 0 ? [] : obj.items.slice(firstTag))
+      taggedValues.origin = obj.origin
+
+      const image = await (() => {
+        switch (shape.items[0].name) {
+          case 'square':
+            return Square.from(shape)
+          case 'rectangle':
+            return Rectangle.from(shape)
+          case 'circle':
+            return Circle.from(shape)
+          case 'ellipse':
+            return Ellipse.from(shape)
+          case 'text':
+            return Text.from(shape)
+          case 'scale':
+            return Scale.from(shape)
+          case 'rotate':
+            return Rotate.from(shape)
+          case 'place-image':
+            return PlaceImage.from(shape)
+          case 'beside':
+            return Beside.from(shape)
+          case 'above':
+            return Above.from(shape)
+          case 'overlay':
+            return Overlay.from(shape)
+          case 'underlay':
+            return Underlay.from(shape)
+          case 'bitmap':
+            return Bitmap.from(shape)
+          default:
+            throw new types.Err(`Unsupported image type ${obj.items[0].toString()}`, obj.origin)
+        }
+      })()
+      image.taggedValues = taggedValues
+      return image
     }
     throw new types.Err('Invalid image', obj.origin)
   }
