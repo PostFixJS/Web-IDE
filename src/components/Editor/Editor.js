@@ -152,6 +152,7 @@ class Editor extends React.Component {
     widget.create()
     widget.show(monacoPosition, 2)
     this.breakpointWidget = {
+      breakpoint,
       widget,
       position: monacoPosition
     }
@@ -205,6 +206,9 @@ class Editor extends React.Component {
     const breakpointIndex = this.breakpoints.findIndex((b) => b.position.col === pos.col && b.position.line === pos.line)
     if (breakpointIndex >= 0) {
       const breakpoint = this.breakpoints[breakpointIndex]
+      if (this.breakpointWidget != null && this.breakpointWidget.breakpoint === breakpoint) {
+        this.closeBreakpointWidget()
+      }
       this.breakpoints.splice(breakpointIndex, 1)
       this.editor.deltaDecorations([breakpoint.decorationId], [])
       this.props.onBreakpointsChange(this.breakpoints)
