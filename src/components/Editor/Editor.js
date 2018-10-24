@@ -122,6 +122,18 @@ class Editor extends React.Component {
           }
         }
       }),
+      editor.addAction({
+        id: 'copy-line-to-repl',
+        label: 'Copy Line to REPL',
+        keybindings: [this.monaco.KeyMod.CtrlCmd | this.monaco.KeyMod.Shift | this.monaco.KeyCode.KEY_C],
+        contextMenuGroupId: '9_cutcopypaste',
+        contextMenuOrder: 3,
+        run: (editor) => {
+          const position = editor.getPosition()
+          const line = editor.getModel().getLineContent(position.lineNumber)
+          this.props.onCopyToRepl(line.trim())
+        }
+      }),
       editor.getModel().onDidChangeDecorations(this.handleDecorationsChanged),
       editor.onDidChangeConfiguration(() => {
         if (this.props.onFontSizeChange) {
@@ -348,6 +360,11 @@ Editor.propTypes = {
   onBreakpointsChange: PropTypes.func.isRequired,
   onFontSizeChange: PropTypes.func.isRequired,
   innerRef: PropTypes.func,
+
+  /**
+   * Function that is called when a line should be copied to the REPL.
+   */
+  onCopyToRepl: PropTypes.func.isRequired 
 }
 
 export default withTheme(Editor)

@@ -328,6 +328,8 @@ class App extends Component {
 
   handleHideSettings = () => this.setState({ showSettings: false })
 
+  handleCopyToRepl = (line) => this._repl.setInput(line)
+
   render() {
     const { running, paused, canStep, error, showSettings } = this.state
     const {
@@ -391,6 +393,7 @@ class App extends Component {
                 onBreakpointsChange={this.handleChangeBreakpoints}
                 fontSize={fontSize}
                 onFontSizeChange={onFontSizeChange}
+                onCopyToRepl={this.handleCopyToRepl}
               />
             </Card>
             <InputOutput

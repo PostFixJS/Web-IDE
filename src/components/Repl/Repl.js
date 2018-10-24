@@ -183,6 +183,19 @@ class Repl extends React.Component {
     })
   }
 
+  /**
+   * Set the REPL input and move the cursor to the end.
+   * @public
+   * @param {string} line Input line
+   */
+  setInput (line) {
+    this.editor.getModel().setValue(line)
+    const endOfLine = { column: line.length + 1, lineNumber: 1 }
+    this.editor.focus()
+    this.editor.setPosition(endOfLine)
+    this.editor.revealPosition(endOfLine)
+  }
+
   handleClick = () => {
     // don't focus the editor if the user is selecting text from the output, which would cancel the selection
     if (window.getSelection().toString() === '') {
