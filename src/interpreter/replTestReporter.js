@@ -17,7 +17,7 @@ export function reportFailed (type, params, token) {
   failed++
   if (type === 'test=') {
     const [ actual, expected ] = params
-    printLine(`✗ Test failed, expected value to equal ${expected.toString()} but got ${actual.toString()}`)
+    printLine(`✗ Test failed, expected ${expected.toString()} but got ${actual.toString()}`)
   } else if (type === 'test!=') {
     const [ actual, expected ] = params
     printLine(`✗ Test failed, expected value not to equal ${expected.toString()} but got ${actual.toString()}`)

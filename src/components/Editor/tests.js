@@ -5,15 +5,15 @@ export function getTestResultMessage ({ passed, type, params }) {
 
   if (type === 'test=') {
     const { actual, expected } = params
-    return `✗ Expected \`${actual.toString()}\` to equal \`${expected.toString()}\``
+    return `✗ Expected \`${expected.toString()}\` but got \`${actual.toString()}\``
   } else if (type === 'test!=') {
     const {actual, expected } = params
-    return `✗ Expected \`${actual.toString()}\` not to equal ${expected.toString()}`
+    return `✗ Expected value not to equal \`${expected.toString()}\` but got \`${expected.toString()}\``
   } else if (type === 'test~=') {
     const { actual, expected, tolerance } = params
-    return `✗ Expected \`${actual.toString()}\` to equal \`${expected.toString()}\` (within a tolerance of ±${tolerance.toString()})`
+    return `✗ Expected value to to equal \`${expected.toString()}\` (within a tolerance of ±${tolerance.toString()}) but got \`${actual.toString()}\``
   } else if (type === 'test!~=') {
     const { actual, expected, tolerance } = params
-    return `✗ Expected \`${actual.toString()}\` not to equal \`${expected.toString()}\` (within a tolerance of ±${tolerance.toString()})`
+    return `✗ Expected value not to equal \`${expected.toString()}\` (within a tolerance of ±${tolerance.toString()}) but got \`${actual.toString()}\``
   }
 }
