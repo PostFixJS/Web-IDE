@@ -212,7 +212,7 @@ class App extends Component {
     this.setState({ error: true, running: false, canStep: true })
     this.props.dispatch(actions.waitForInput(false))
 
-    const pos = err.origin
+    const pos = err.origin || this.runner._lastPosition || { line: 0, col: 0 }
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [
       {
         range: new this._editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
@@ -230,7 +230,7 @@ class App extends Component {
         }
       }
     ])
-    this._editor.showErrorWidget(positionToMonaco(err.origin), err)
+    this._editor.showErrorWidget(positionToMonaco(pos), err)
     this._editor.editor.revealRangeInCenterIfOutsideViewport(new this._editor.monaco.Range(
       pos.line + 1, pos.col + 1,
       pos.line + 1, pos.col + 1 + pos.token.length
