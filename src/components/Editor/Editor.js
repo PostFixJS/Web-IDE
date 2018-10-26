@@ -327,6 +327,7 @@ class Editor extends React.Component {
       tests,
       theme,
       fontSize,
+      onCopyToRepl,
       ...other
     } = this.props
 
