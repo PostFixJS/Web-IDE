@@ -262,6 +262,15 @@ class App extends Component {
     let value
     if (obj instanceof types.Flt && obj.value === Math.floor(obj.value)) {
       value = `${obj.value}.0`
+    } else if (obj instanceof types.Arr) {
+      const items = obj.items.slice(0, 200)
+      if (obj instanceof types.Lam) {
+        value = `{ ${items.join(' ')} } lam`
+      } else if (obj instanceof types.ExeArr) {
+        value = `{ ${items.join(' ')} }`
+      } else {
+        value = `[ ${items.join(' ')} ]`
+      }
     } else {
       value = obj.toString()
     }
