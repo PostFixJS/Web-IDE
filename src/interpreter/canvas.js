@@ -108,17 +108,11 @@ export function registerBuiltIns (interpreter) {
       }
       
       let image = null
-      let prevTick = Date.now()
       const redraw = () => {
         if (cancelToken.cancelled) return
         enqueue(async (runObj) => {
           if (onTick) {
             interpreter._stack.push(state)
-            if (onTick.params && onTick.params.params.length === 2) {
-              const now = Date.now()
-              interpreter._stack.push(new types.Int(now - prevTick))
-              prevTick = now
-            }
             await runObj(onTick)
             state = interpreter._stack.pop()
           }
