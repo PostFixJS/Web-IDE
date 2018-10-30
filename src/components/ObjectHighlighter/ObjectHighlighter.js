@@ -50,6 +50,7 @@ const keywords = [
   'breakif',
   'fun',
   'lam',
+  'update-lam',
   'true',
   'false',
   'nil',

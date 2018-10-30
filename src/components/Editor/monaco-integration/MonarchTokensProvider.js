@@ -17,6 +17,7 @@ export default {
     'breakif',
     'fun',
     'lam',
+    'update-lam',
     'true',
     'false',
     'nil',
@@ -44,7 +45,7 @@ export default {
       [/[a-zA-Z_$/*0-9]+:/, 'identifier'],
 
       // identifiers and keywords (define these here to give precedence to symbols)
-      [/([a-zA-Z_$+!?/*.=<>~][a-zA-Z_$+!?/*0-9.-=<>~]*[a-zA-Z_$+?/*0-9.-=<>~])|([a-zA-Z_$+?/*.=<>~])/, {
+      [/([a-zA-Z_$+!?/*.=<>~][a-zA-Z_$+!?/*0-9.\-=<>~]*[a-zA-Z_$+?/*0-9.\-=<>~])|([a-zA-Z_$+?/*.=<>~])/, {
         cases: {
           '@keywords': 'keyword',
           '@default': 'identifier'
