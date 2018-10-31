@@ -18,7 +18,7 @@ import DictViewer from './components/DictViewer/DictViewer'
 import Repl from './components/Repl/Repl'
 import Card from './components/Card'
 import Runner, { InterruptedException } from './postfix-runner/PostFixRunner'
-import { positionToMonaco } from './components/Editor/monaco-integration/util'
+import { positionToMonaco, rangeToMonaco } from './components/Editor/monaco-integration/util'
 import * as replTestReporter from './interpreter/replTestReporter'
 import Settings from './components/Settings/Settings'
 
@@ -215,7 +215,7 @@ class App extends Component {
     const pos = err.origin || this.runner._lastPosition || { line: 0, col: 0 }
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [
       {
-        range: new this._editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+        range: rangeToMonaco(pos),
         options: {
           isWholeLine: false,
           className: "errorTokenHighlight",
@@ -231,10 +231,7 @@ class App extends Component {
       }
     ])
     this._editor.showErrorWidget(positionToMonaco(pos), err)
-    this._editor.editor.revealRangeInCenterIfOutsideViewport(new this._editor.monaco.Range(
-      pos.line + 1, pos.col + 1,
-      pos.line + 1, pos.col + 1 + pos.token.length
-    ))
+    this._editor.editor.revealRangeInCenterIfOutsideViewport(rangeToMonaco(pos))
   }
 
   showInterpreterPosition (pos) {
@@ -242,7 +239,7 @@ class App extends Component {
 
     this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [
       {
-        range: new this._editor.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+        range: rangeToMonaco(pos),
         options: {
           className: "pauseTokenHighlight"
         }

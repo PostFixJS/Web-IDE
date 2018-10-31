@@ -1,3 +1,4 @@
+import * as monaco from 'monaco-editor'
 import { MessageController } from 'monaco-editor/esm/vs/editor/contrib/message/messageController'
 
 /**
@@ -10,6 +11,20 @@ export function positionToMonaco (pos) {
     lineNumber: pos.line + 1,
     column: pos.col + 1
   }
+}
+
+/**
+ * Convert a PostFix position (zero-based col/line/endCol/endLine) to a Monaco range (one-based column/lineNumber).
+ * @param {object} pos PostFix range (zero-based)
+ * @return {object} Monaco range (one-based)
+ */
+export function rangeToMonaco (range) {
+  return new monaco.Range(
+    range.line + 1,
+    range.col + 1,
+    range.endLine + 1,
+    range.endCol + 1
+  )
 }
 
 /**

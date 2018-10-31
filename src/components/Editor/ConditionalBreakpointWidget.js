@@ -8,7 +8,7 @@ import ThemeProvider from '../../ThemeProvider'
 import store from '../../store'
 import * as actions from '../../actions'
 import OneLineEditor from '../OneLineEditor'
-import { showMessage } from './monaco-integration/util'
+import { showMessage, rangeToMonaco } from './monaco-integration/util'
 
 const styles = (theme) => ({
   root: {
@@ -68,7 +68,7 @@ class RawWidget extends React.Component {
     const pos = err.origin
     this.lineHighlightDecorations = this._editor.deltaDecorations(this.lineHighlightDecorations, [
       {
-        range: new monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1 + pos.token.length),
+        range: rangeToMonaco(pos),
         options: {
           isWholeLine: false,
           className: "errorTokenHighlight",

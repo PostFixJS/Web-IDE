@@ -4,7 +4,7 @@ import { normalizeSymbol } from 'postfixjs/tokenUtils'
 import * as monaco from 'monaco-editor'
 import * as builtIns from '../../../interpreter/doc'
 import { getDatadefFunctions } from './datadef'
-import { positionToMonaco } from './util'
+import { positionToMonaco, rangeToMonaco } from './util'
 
 export default {
   provideHover: (model, position) => {
@@ -64,7 +64,7 @@ export default {
     }
 
     return {
-      range: new monaco.Range(token.line + 1, token.col + 1, token.line + 1, token.endCol + 1),
+      range: rangeToMonaco(token),
       contents: usageMessages
     }
   }
