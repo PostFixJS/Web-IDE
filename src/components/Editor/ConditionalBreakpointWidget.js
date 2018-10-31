@@ -4,12 +4,13 @@ import injectSheet from 'react-jss'
 import * as monaco from 'monaco-editor'
 import { ZoneWidget } from 'monaco-editor/esm/vs/editor/contrib/zoneWidget/zoneWidget'
 import { Provider, connect } from 'react-redux'
+import ThemeProvider from '../../ThemeProvider'
 import store from '../../store'
 import * as actions from '../../actions'
 import OneLineEditor from '../OneLineEditor'
 import { showMessage } from './monaco-integration/util'
 
-const styles = {
+const styles = (theme) => ({
   root: {
     display: 'flex',
     height: '100%',
@@ -21,8 +22,18 @@ const styles = {
     border: 'none',
     background: '#eee',
     margin: 'auto'
+  },
+  button: {
+    border: 'none',
+    background: 'transparent',
+    color: 'red',
+    outline: 'none',
+
+    '&:hover': {
+      background: theme.type === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'
+    }
   }
-}
+})
 
 class RawWidget extends React.Component {
   lineHighlightDecorations = []
@@ -113,7 +124,7 @@ class RawWidget extends React.Component {
   }
 
   render () {
-    const { classes, ...other } = this.props
+    const { classes, theme, ...other } = this.props
     return (
       <div className={classes.root}>
         <select onChange={this.handleChangeType} value={this.state.type} className={classes.select}>
@@ -128,6 +139,13 @@ class RawWidget extends React.Component {
           onChange={this.handleChangeExpression}
           {...other}
         />
+        <button
+          className={classes.button}
+          onClick={this.props.onRemove}
+          title='Remove breakpoint'
+        >
+          ✗
+        </button>
       </div>
     )
   }
@@ -140,15 +158,16 @@ const Widget = connect((state) => ({
 }))(injectSheet(styles)(RawWidget))
 
 export default class ConditionalBreakpointWidget extends ZoneWidget {
-  constructor (editor, onAccept, breakpoint, mountedCallback) {
+  constructor (editor, { onAccept, onRemove, breakpoint, onMounted }) {
     super(editor, {
       showFrame: true,
       showArrow: true,
       frameWidth: 1
     })
     this.onAccept = onAccept
+    this.onRemove = onRemove
+    this.onMounted = onMounted
     this.breakpoint = breakpoint
-    this.mountedCallback = mountedCallback
   }
 
   _setRef = (ref) => {
@@ -158,13 +177,16 @@ export default class ConditionalBreakpointWidget extends ZoneWidget {
   _fillContainer (container) {
     ReactDOM.render((
       <Provider store={store}>
-        <Widget
-          innerRef={this._setRef}
-          onAccept={this.onAccept}
-          breakpoint={this.breakpoint}
-        />
+        <ThemeProvider>
+          <Widget
+            innerRef={this._setRef}
+            onAccept={this.onAccept}
+            onRemove={this.onRemove}
+            breakpoint={this.breakpoint}
+          />
+        </ThemeProvider>
       </Provider>
-    ), container, this.mountedCallback)
+    ), container, this.onMounted)
   }
 
   _onWidth(width) {

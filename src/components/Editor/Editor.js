@@ -153,14 +153,27 @@ class Editor extends React.Component {
 
   showBreakpointWidget = (monacoPosition, breakpoint, callback) => {
     this.closeBreakpointWidget()
-    const widget = new ConditionalBreakpointWidget(this.editor, ({ type, expression }) => {
-      this.closeBreakpointWidget()
-      if (breakpoint) { // edit the existing breakpoint
-        this.unsetBreakpoint(positionFromMonaco(monacoPosition))
-      }
-      // add new breakpoint
-      this.setBreakpoint(positionFromMonaco(monacoPosition), type, expression)
-    }, breakpoint, callback ? () => callback(widget) : null)
+    const widget = new ConditionalBreakpointWidget(this.editor, {
+      onAccept: ({ type, expression }) => {
+        this.closeBreakpointWidget()
+        if (breakpoint) { // edit the existing breakpoint
+          this.unsetBreakpoint(positionFromMonaco(monacoPosition))
+        }
+        // add new breakpoint
+        this.setBreakpoint(positionFromMonaco(monacoPosition), type, expression)
+      },
+      onRemove: () => {
+        if (breakpoint) {
+          // editing an existing breakpoint, remove it
+          this.unsetBreakpoint(breakpoint.position)
+        } else {
+          // creating a new breakpoint, close the widget
+          this.closeBreakpointWidget()
+        }
+      },
+      breakpoint,
+      onMounted: callback ? () => callback(widget) : null
+    })
     widget.create()
     widget.show(monacoPosition, 2)
     this.breakpointWidget = {

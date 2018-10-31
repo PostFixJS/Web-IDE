@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import SplitLayout from 'react-splitter-layout'
 import { connect } from 'react-redux'
-import injectSheet, { ThemeProvider } from 'react-jss'
+import injectSheet from 'react-jss'
 import { debounce } from 'throttle-debounce'
 import { saveAs } from 'file-saver'
 import * as types from 'postfixjs/types'
 import './App.css';
+import ThemeProvider from './ThemeProvider'
 import Editor from './components/Editor/Editor'
 import * as actions from './actions'
 import { registerBuiltIns } from './interpreter'
@@ -19,7 +20,6 @@ import Card from './components/Card'
 import Runner, { InterruptedException } from './postfix-runner/PostFixRunner'
 import { positionToMonaco } from './components/Editor/monaco-integration/util'
 import * as replTestReporter from './interpreter/replTestReporter'
-import * as themes from './themes'
 import Settings from './components/Settings/Settings'
 
 const styles = (theme) => ({
@@ -490,7 +490,7 @@ export default connect((state) => ({
   onProperTailCallsChange: (enabled) => dispatch(actions.setProperTailCalls(enabled)),
   onBreakpointsChange: (breakpoints) => dispatch(actions.setBreakpoints(breakpoints))
 }))((props) => (
-  <ThemeProvider theme={themes[props.settings.theme]}>
+  <ThemeProvider>
     <StyledApp {...props} />
   </ThemeProvider>
 ))
