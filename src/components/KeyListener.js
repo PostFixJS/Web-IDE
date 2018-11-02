@@ -20,12 +20,12 @@ export default class KeyListener extends React.PureComponent {
       alt
     } = this.props
 
-    if (actualKeyCode === keyCode && e.ctrlKey === ctrl && e.shiftKey === shift && e.altKey === alt) {
+    if (actualKeyCode === keyCode && (!ctrl || (ctrl && (e.ctrlKey || e.metaKey))) && e.shiftKey === shift && e.altKey === alt) {
       if (!disabled) {
+        if (this.props.preventDefault) {
+          e.preventDefault()
+        }
         this.props.onKeyDown(e)
-      }
-      if (this.props.preventDefault) {
-        e.preventDefault()
       }
     }
   }
