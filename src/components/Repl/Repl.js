@@ -87,7 +87,7 @@ class Repl extends React.Component {
           }
           this.props.onExecutionFinished()
         })
-    }, 'editorTextFocus && !suggestWidgetVisible')
+    }, 'editorTextFocus')
 
     editor.addCommand(monaco.KeyCode.UpArrow, () => {
       if (this.state.running) return
@@ -254,7 +254,11 @@ class Repl extends React.Component {
         <OneLineEditor
           language='postfix'
           editorDidMount={this.editorDidMount}
-          options={{ fixedOverflowWidgets: true, fontSize }}
+          options={{
+            fixedOverflowWidgets: true,
+            acceptSuggestionOnEnter: false,
+            fontSize
+          }}
           fontSize={fontSize}
           onFontSizeChange={onFontSizeChange}
         />
