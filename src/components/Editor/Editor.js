@@ -118,7 +118,7 @@ class Editor extends React.Component {
           const position = positionFromMonaco(editor.getPosition())
           const token = getTokenAtOrNext(editor.getValue(), position.line, position.col)
           if (token) {
-            this.showBreakpointWidget(positionToMonaco(token))
+            this.showBreakpointWidget(positionToMonaco(token), this.getBreakpoint(token))
           }
         }
       }),
@@ -227,14 +227,27 @@ class Editor extends React.Component {
     this.props.onBreakpointsChange(this.breakpoints)
   }
 
+  /**
+   * Get the breakpoint at the given token position.
+   * @param {object} pos Token position
+   * @returns {object} Breakpoint at the given token position or null if no breakpoint found
+   */
+  getBreakpoint (pos) {
+    return this.breakpoints.find((b) => b.position.col === pos.col && b.position.line === pos.line)
+  }
+
+  /**
+   * Remove the breakpoint at the given token position.
+   * @param {object} pos Token position
+   * @returns {boolean} True if a breakpoint was removed, false if there was no breakpoint to remove
+   */
   unsetBreakpoint (pos) {
-    const breakpointIndex = this.breakpoints.findIndex((b) => b.position.col === pos.col && b.position.line === pos.line)
-    if (breakpointIndex >= 0) {
-      const breakpoint = this.breakpoints[breakpointIndex]
+    const breakpoint = this.getBreakpoint(pos)
+    if (breakpoint) {
       if (this.breakpointWidget != null && this.breakpointWidget.breakpoint === breakpoint) {
         this.closeBreakpointWidget()
       }
-      this.breakpoints.splice(breakpointIndex, 1)
+      this.breakpoints.splice(this.breakpoints.indexOf(breakpoint), 1)
       this.editor.deltaDecorations([breakpoint.decorationId], [])
       this.props.onBreakpointsChange(this.breakpoints)
       return true
