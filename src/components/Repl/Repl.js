@@ -174,11 +174,10 @@ class Repl extends React.Component {
   /**
    * Update the size of the editor.
    * @public
-   * @param {object} dimensions New width and height (both optional, default to the size of this component)
    */
-  layout (dimensions = {}) {
+  layout () {
     this.editor.layout({
-      width: dimensions.width || this._rootRef.clientWidth,
+      width: this._rootRef.clientWidth,
       height: this.props.fontSize
     })
   }

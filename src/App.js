@@ -112,11 +112,11 @@ class App extends Component {
     }
   }
 
-  handleResize = debounce(200, () => {
+  handleResize = () => {
     this._editor.layout()
     this._inputOutput.layout()
     this._repl.layout()
-  })
+  }
 
   setEditor = (ref) => {
     this._editor = ref
@@ -293,21 +293,6 @@ class App extends Component {
     this.showStackAndDict()
   }
 
-  handleGridHResize = () => {
-    this._editor.layout()
-    this._inputOutput.layout()
-  }
-
-  handleGridVResize = () => {
-    this._editor.layout()
-    this._inputOutput.layout()
-    this._repl.layout()
-  }
-
-  handleReplResize = (height) => {
-    this._repl.layout()
-  }
-
   handleSave = () => {
     const filename = `postfix-${new Date().toISOString()}.pf`
     saveAs(new Blob([this.props.code], { type: 'text/plain;charset=utf-8' }), filename)
@@ -375,15 +360,15 @@ class App extends Component {
           customClassName={classes.rootSplitLayout}
           percentage
           secondaryInitialSize={30}
-          onSecondaryPaneSizeChange={this.handleGridVResize}
-          onDragEnd={this.handleGridVResize}
+          onSecondaryPaneSizeChange={this.handleResize}
+          onDragEnd={this.handleResize}
         >
           <SplitLayout
             vertical
             percentage
             secondaryInitialSize={20}
-            onSecondaryPaneSizeChange={this.handleGridHResize}
-            onDragEnd={this.handleGridHResize}
+            onSecondaryPaneSizeChange={this.handleResize}
+            onDragEnd={this.handleResize}
           >
             <Card className={classes.editorCard} onClick={this.showProgramStack}>
               <Editor
@@ -419,7 +404,8 @@ class App extends Component {
             vertical
             percentage
             secondaryInitialSize={20}
-            onSecondaryPaneSizeChange={this.handleReplResize}
+            onSecondaryPaneSizeChange={this.handleResize}
+            onDragEnd={this.handleResize}
           >
             <Card
               className={classes.stackDict}

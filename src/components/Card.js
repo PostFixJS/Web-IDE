@@ -15,6 +15,7 @@ const styles = (theme) => ({
   },
   title: {
     fontSize: '9pt',
+    lineHeight: '15px',
     fontWeight: 500,
     textTransform: 'uppercase',
     color: theme.card.titleColor,

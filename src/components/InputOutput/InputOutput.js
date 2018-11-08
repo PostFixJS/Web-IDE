@@ -8,7 +8,8 @@ import Card from '../Card'
 const styles = (theme) => ({
   root: {
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    overflow: 'hidden'
   },
   editors: {
     flex: 1,
@@ -16,7 +17,8 @@ const styles = (theme) => ({
     flexDirection: 'row'
   },
   editorContainer: {
-    flex: 1
+    flex: 1,
+    overflow: 'hidden'
   },
   highlight: {
     boxShadow: `0 0 5px 1px ${theme.card.highlightColor}`
@@ -129,16 +131,15 @@ class InputOutput extends React.Component {
   /**
    * Update the size of the editor.
    * @public
-   * @param {object} dimensions New width and height (both optional, default to the size of this component)
    */
-  layout (dimensions = {}) {
+  layout () {
     this.inputEditor.layout({
-      width: (dimensions.width / 2 || (this._rootRef.clientWidth - 30) / 2) - 5,
-      height: dimensions.height || (this._rootRef.clientHeight - 20)
+      width: (this._rootRef.clientWidth - 30) / 2 - 5,
+      height: this._rootRef.clientHeight - 35
     })
     this.outputEditor.layout({
-      width: (dimensions.width / 2 || (this._rootRef.clientWidth - 30) / 2) - 5,
-      height: dimensions.height || (this._rootRef.clientHeight - 20)
+      width: (this._rootRef.clientWidth - 30) / 2 - 5,
+      height: this._rootRef.clientHeight - 35
     })
   }
 

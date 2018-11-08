@@ -5,18 +5,16 @@ import Button from './Button'
 import Divider from './Divider'
 
 export default class Toolbar extends React.Component {
+  _fileInput = React.createRef()
+
   handleOpen = () => {
-    this._fileInput.click()
+    this._fileInput.current.click()
   }
 
   handleOpenDone = (e) => {
     const reader = new FileReader()
     reader.onloadend = (e) => this.props.onOpen(e.target.result)
     reader.readAsText(e.target.files[0])
-  }
-
-  handleFileInputRef = (ref) => {
-    this._fileInput = ref
   }
 
   render () {
@@ -49,7 +47,7 @@ export default class Toolbar extends React.Component {
         >
           <input
             type='file'
-            ref={this.handleFileInputRef}
+            ref={this._fileInput}
             value=''
             onChange={this.handleOpenDone}
             style={{ display: 'none' }}

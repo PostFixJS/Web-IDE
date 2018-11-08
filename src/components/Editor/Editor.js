@@ -15,6 +15,7 @@ import ErrorWidget from './ErrorWidget'
 import { getTestResultMessage } from './tests'
 
 class Editor extends React.Component {
+  _rootRef = React.createRef()
   disposables = []
   breakpoints = []
   breakpointWidget = null
@@ -327,17 +328,14 @@ class Editor extends React.Component {
     }
   }
 
-  setRootRef = (ref) => this._rootRef = ref
-
   /**
    * Update the size of the editor.
    * @public
-   * @param {object} dimensions New width and height (both optional, default to the size of this component)
    */
-  layout (dimensions = {}) {
+  layout () {
     this.editor.layout({
-      width: dimensions.width || this._rootRef.clientWidth,
-      height: dimensions.height || this._rootRef.clientHeight
+      width: this._rootRef.current.clientWidth,
+      height: this._rootRef.current.clientHeight
     })
   }
 
@@ -359,7 +357,7 @@ class Editor extends React.Component {
 
     return (
       <div
-        ref={this.setRootRef}
+        ref={this._rootRef}
         {...other}
       >
         <MonacoEditor
