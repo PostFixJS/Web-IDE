@@ -366,7 +366,11 @@ class Editor extends React.Component {
           language='postfix'
           value={code}
           onChange={onChange}
-          options={{ theme: this.props.theme.monaco.baseTheme, fontSize }}
+          options={{
+            theme: this.props.theme.monaco.baseTheme,
+            fontSize, 
+            fixedOverflowWidgets: true
+          }}
         />
       </div>
     )
