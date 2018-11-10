@@ -17,6 +17,10 @@ export default class Toolbar extends React.Component {
     reader.readAsText(e.target.files[0])
   }
 
+  handleShowHelp = () => {
+    window.open('https://postfix.hci.uni-hannover.de/postfix-lang.html', '_blank')
+  }
+
   render () {
     const {
       running,
@@ -116,6 +120,11 @@ export default class Toolbar extends React.Component {
           onClick={onShowSettings}
           title='Settings'
           icon={require('./icons/settings.svg')}
+        />
+        <Button
+          onClick={this.handleShowHelp}
+          title='PostFix Tutorial'
+          icon={require('./icons/info.svg')}
         />
       </div>
     )
