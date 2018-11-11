@@ -8,7 +8,7 @@ import LanguageConfiguration from './monaco-integration/LanguageConfiguration'
 import MonarchTokensProvider from './monaco-integration/MonarchTokensProvider'
 import CompletionItemProvider from './monaco-integration/CompletionItemProvider'
 import * as snippetProviders from './monaco-integration/snippets'
-import { getTokenAtOrNext, getTokenAt} from './postfixUtil'
+import { getTokenAtOrNext, getTokenAt } from './postfixUtil'
 import ConditionalBreakpointWidget from './ConditionalBreakpointWidget'
 import { positionToMonaco, positionFromMonaco, showMessage } from './monaco-integration/util'
 import ErrorWidget from './ErrorWidget'
@@ -104,7 +104,7 @@ class Editor extends React.Component {
         contextMenuGroupId: '1_modification',
         run: (editor) => {
           const position = positionFromMonaco(editor.getPosition())
-          const token = getTokenAtOrNext(editor.getValue(), position.line, position.col)
+          const token = getTokenAtOrNext(editor.getValue(), position, { includeEndOfToken: true })
           if (token) {
             this.toggleBreakpoint({ line: token.line, col: token.col })
           }
@@ -117,7 +117,7 @@ class Editor extends React.Component {
         contextMenuGroupId: '1_modification',
         run: (editor) => {
           const position = positionFromMonaco(editor.getPosition())
-          const token = getTokenAtOrNext(editor.getValue(), position.line, position.col)
+          const token = getTokenAtOrNext(editor.getValue(), position, { includeEndOfToken: true })
           if (token) {
             this.showBreakpointWidget(positionToMonaco(token), this.getBreakpoint(token))
           }
@@ -308,7 +308,7 @@ class Editor extends React.Component {
     for (let i = 0; i < this.breakpoints.length; i++) {
       const breakpoint = this.breakpoints[i]
       const decorationRange = this.editor.getModel().getDecorationRange(breakpoint.decorationId)
-      const token = getTokenAt(code, decorationRange.startLineNumber - 1, decorationRange.startColumn - 1)
+      const token = getTokenAt(code, { line: decorationRange.startLineNumber - 1, col: decorationRange.startColumn - 1 })
       if (token) {
         if (breakpoint.position.col !== token.col || breakpoint.position.line !== token.line) {
           // breakpoint has moved, update it

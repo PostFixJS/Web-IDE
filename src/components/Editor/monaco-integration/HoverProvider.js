@@ -4,12 +4,12 @@ import { normalizeSymbol } from 'postfixjs/tokenUtils'
 import * as monaco from 'monaco-editor'
 import * as builtIns from '../../../interpreter/doc'
 import { getDatadefFunctions } from './datadef'
-import { positionToMonaco, rangeToMonaco } from './util'
+import { positionToMonaco, rangeToMonaco, positionFromMonaco } from './util'
 
 export default {
   provideHover: (model, position) => {
     const code = model.getValue()
-    const token = getTokenAt(code, position.lineNumber - 1, position.column - 1)
+    const token = getTokenAt(code, positionFromMonaco(position))
     if (token == null) return
 
     const usageMessages = []
