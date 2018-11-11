@@ -210,16 +210,33 @@ class Editor extends React.Component {
     }
   }
 
+
+  /**
+   * Get the ID of the next breakpoint.
+   */
+  _generateBreakpointId = (() => {
+    let id = 0
+    return () => id++
+  })()
+
+  /**
+   * Add a breakpoint.
+   * @param {Position} pos Token position
+   * @param {string} type Type of the breakpoint (unconditional, expression or hit)
+   * @param {(string|number)} expression Expression or hit count
+   */
   setBreakpoint (pos, type = 'unconditional', expression) {
+    const id = `${this._generateBreakpointId()}`
     const [newBreakpoint] = this.editor.deltaDecorations([], [{
       range: new this.monaco.Range(pos.line + 1, pos.col + 1, pos.line + 1, pos.col + 1),
       options: {
         isWholeLine: false,
-        beforeContentClassName: `breakpoint ${type}`,
+        beforeContentClassName: `breakpoint ${type} bp-${id}`,
         stickiness: this.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
       }
     }])
     this.breakpoints.push({
+      id,
       decorationId: newBreakpoint,
       position: pos,
       type,
@@ -263,19 +280,21 @@ class Editor extends React.Component {
   }
 
   handleEditorMouseUp = (e) => {
-    if (e.event.leftButton && e.target.element.classList.contains('breakpoint')) {
-      const breakpointPos = positionFromMonaco(e.target.position)
+    if (e.event.leftButton && e.event.browserEvent.target.classList.contains('breakpoint')) {
+      // In Firefox, the event doesn't contain the position, so the breakpoint ID is put into the inline classname.
+      // This is a bit hacky, but it works.
+      const id = Array.prototype.find.call(e.event.browserEvent.target.classList, (c) => c.indexOf('bp-') === 0)
+      const breakpoint = this.breakpoints.find((breakpoint) => breakpoint.id === id.substr(3))
 
       if (e.event.shiftKey) {
-        this.unsetBreakpoint(breakpointPos)
+        this.unsetBreakpoint(breakpoint.position)
         return
       }
 
-      const breakpoint = this.breakpoints.find(({ position }) => position.col === breakpointPos.col && position.line === breakpointPos.line)
       if (breakpoint.type === 'unconditional') {
-        this.unsetBreakpoint(breakpointPos)
+        this.unsetBreakpoint(breakpoint.position)
       } else {
-        this.showBreakpointWidget(e.target.position, breakpoint)
+        this.showBreakpointWidget(positionToMonaco(breakpoint.position), breakpoint)
       }
     }
   }
@@ -315,7 +334,7 @@ class Editor extends React.Component {
         breakpoint.position.line + 1, breakpoint.position.col + 1),
       options: {
         isWholeLine: false,
-        beforeContentClassName: `breakpoint ${breakpoint.type}`,
+        beforeContentClassName: `breakpoint ${breakpoint.type} bp-${breakpoint.id}`,
         stickiness: this.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
       }
     })))
