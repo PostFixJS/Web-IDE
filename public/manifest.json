@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "PostFix",
+  "name": "PostFix WebIDE",
   "icons": [
     {
       "src": "favicon.ico",
