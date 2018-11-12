@@ -25,6 +25,10 @@ const styles = (theme) => ({
     clear: 'both',
     margin: '20px -20px -20px',
     padding: 20,
+    paddingLeft: 88,
+    minHeight: 88,
+    background: `url(${require('./logo.svg')}) 20px 20px no-repeat`,
+    backgroundSize: '48px',
     borderTop: `1px solid ${theme.background}`,
     fontSize: '10pt',
     '& a': {
