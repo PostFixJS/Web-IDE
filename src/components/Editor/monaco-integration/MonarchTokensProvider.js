@@ -4,7 +4,7 @@
 export default {
   // Set defaultToken to invalid to see what you do not tokenize yet
   defaultToken: 'invalid',
-  escapes: /\\[\\"]/,
+  escapes: /\\["rtn]/,
   keywords: [
     '!',
     'if',
@@ -39,13 +39,13 @@ export default {
       [/[(){}[\]]/, '@brackets'],
 
       // symbols
-      [/:[A-Z][a-zA-Z_$/*0-9]*/, 'type.identifier'],
-      [/:[a-zA-Z_$/*0-9]*/, 'identifier'],
-      [/[A-Z][a-zA-Z_$/*0-9]*:/, 'type.identifier'],
-      [/[a-zA-Z_$/*0-9]+:/, 'identifier'],
+      [/:[A-Z][^"\s,[\]()]*/, 'type.identifier'],
+      [/:[^"\s,[\]()]+/, 'identifier'],
+      [/[A-Z][^"\s,[\]()]*:/, 'type.identifier'],
+      [/[^"\s,[\]()]+:/, 'identifier'],
 
       // identifiers and keywords (define these here to give precedence to symbols)
-      [/([a-zA-Z_$+!?/*.=<>~][a-zA-Z_$+!?/*0-9.\-=<>~]*[a-zA-Z_$+?/*0-9.\-=<>~])|([a-zA-Z_$+?/*.=<>~])/, {
+      [/[^0-9"\s,[\]()][^"\s,[\]()]*/, {
         cases: {
           '@keywords': 'keyword',
           '@default': 'identifier'
