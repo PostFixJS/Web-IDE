@@ -22,7 +22,7 @@ export function registerBuiltIns (interpreter) {
       
       const top = (window.outerHeight - windowHeight) / 2 + window.screenY
       const left = (window.outerWidth - windowWidth) / 2 + window.screenX
-      
+
       const { cancel, token: cancelToken } = createCancellationToken()
       let rejectAll
       let windowClosed = false
@@ -68,8 +68,12 @@ export function registerBuiltIns (interpreter) {
             cancelQueue()
           }
         })
-        const runInQueue = async (obj) => {
+
+        const runInQueue = async (obj, ...args) => {
           if (cancelToken.cancelled || windowClosed) return
+          for (const arg of args) {
+            interpreter._stack.push(arg)
+          }
           const { promise, cancel } = PostFixRunner.getRunnerOf(interpreter).runInner(obj)
           cancelQueue = cancel
           await promise
@@ -91,7 +95,7 @@ export function registerBuiltIns (interpreter) {
           return queue
         }
       })()
-      
+
       let state = initialState
 
       const onDraw = keyGet(callbacks, new types.Sym('on-draw'), null)
@@ -112,14 +116,12 @@ export function registerBuiltIns (interpreter) {
         if (cancelToken.cancelled) return
         enqueue(async (runObj) => {
           if (onTick) {
-            interpreter._stack.push(state)
-            await runObj(onTick)
+            await runObj(onTick, state)
             state = interpreter._stack.pop()
           }
 
           if (onDraw) {
-            interpreter._stack.push(state)
-            await runObj(onDraw)
+            await runObj(onDraw, state)
             image = await Image.from(interpreter._stack.pop())
           }
           // global requestAnimationFrame
@@ -134,8 +136,7 @@ export function registerBuiltIns (interpreter) {
           })
 
           if (stopWhen) {
-            interpreter._stack.push(state)
-            await runObj(stopWhen)
+            await runObj(stopWhen, state)
             const stop = interpreter._stack.pop()
             if (!(stop instanceof types.Bool)) {
               cancel()
@@ -156,9 +157,7 @@ export function registerBuiltIns (interpreter) {
         }
         win.addEventListener('keydown', (e) => {
           enqueue(async (runObj) => {
-            interpreter._stack.push(state)
-            interpreter._stack.push(new types.Str(e.key))
-            await runObj(onKeyDown)
+            await runObj(onKeyDown, state, new types.Str(e.key))
             state = interpreter._stack.pop()
           })
         })
@@ -171,9 +170,7 @@ export function registerBuiltIns (interpreter) {
         }
         win.addEventListener('keyup', (e) => {
           enqueue(async (runObj) => {
-            interpreter._stack.push(state)
-            interpreter._stack.push(new types.Str(e.key))
-            await runObj(onKeyUp)
+            await runObj(onKeyUp, state, new types.Str(e.key))
             state = interpreter._stack.pop()
           })
         })
@@ -199,10 +196,7 @@ export function registerBuiltIns (interpreter) {
                   if (!(mouseMoveHandler instanceof types.Lam)) {
                     throw new types.Err(`Expected on-mouse-move callback to be a lambda function (:Lam) but got ${mouseMoveHandler.getTypeName()} instead`, mouseMoveHandler.origin || hit.image.taggedValues.origin)
                   }
-                  interpreter._stack.push(state)
-                  interpreter._stack.push(new types.Flt(hit.x))
-                  interpreter._stack.push(new types.Flt(hit.y))
-                  await runObj(mouseMoveHandler)
+                  await runObj(mouseMoveHandler, state, new types.Flt(hit.x), new types.Flt(hit.y))
                   state = interpreter._stack.pop()
                 })
               }
@@ -210,10 +204,7 @@ export function registerBuiltIns (interpreter) {
           }
           if (onMouseMove != null) {
             enqueue(async (runObj) => {
-              interpreter._stack.push(state)
-              interpreter._stack.push(new types.Flt(x))
-              interpreter._stack.push(new types.Flt(y))
-              await runObj(onMouseMove)
+              await runObj(onMouseMove, state, new types.Flt(x), new types.Flt(y))
               state = interpreter._stack.pop()
             })
           }
@@ -235,10 +226,7 @@ export function registerBuiltIns (interpreter) {
                   if (!(mouseDragHandler instanceof types.Lam)) {
                     throw new types.Err(`Expected on-mouse-drag callback to be a lambda function (:Lam) but got ${mouseDragHandler.getTypeName()} instead`, mouseDragHandler.origin || hit.image.taggedValues.origin)
                   }
-                  interpreter._stack.push(state)
-                  interpreter._stack.push(new types.Flt(hit.x))
-                  interpreter._stack.push(new types.Flt(hit.y))
-                  await runObj(mouseDragHandler)
+                  await runObj(mouseDragHandler, state, new types.Flt(hit.x), new types.Flt(hit.y))
                   state = interpreter._stack.pop()
                 })
               }
@@ -246,10 +234,7 @@ export function registerBuiltIns (interpreter) {
           }
           if (onMouseDrag != null) {
             enqueue(async (runObj) => {
-              interpreter._stack.push(state)
-              interpreter._stack.push(new types.Flt(x))
-              interpreter._stack.push(new types.Flt(y))
-              await runObj(onMouseDrag)
+              await runObj(onMouseDrag, state, new types.Flt(x), new types.Flt(y))
               state = interpreter._stack.pop()
             })
           }
@@ -270,10 +255,7 @@ export function registerBuiltIns (interpreter) {
                 if (!(mouseDownHandler instanceof types.Lam)) {
                   throw new types.Err(`Expected on-mouse-press callback to be a lambda function (:Lam) but got ${mouseDownHandler.getTypeName()} instead`, mouseDownHandler.origin || hit.image.taggedValues.origin)
                 }
-                interpreter._stack.push(state)
-                interpreter._stack.push(new types.Flt(hit.x))
-                interpreter._stack.push(new types.Flt(hit.y))
-                await runObj(mouseDownHandler)
+                await runObj(mouseDownHandler, state, new types.Flt(hit.x), new types.Flt(hit.y))
                 state = interpreter._stack.pop()
               })
             }
@@ -281,10 +263,7 @@ export function registerBuiltIns (interpreter) {
         }
         if (onMouseDown != null) {
           enqueue(async (runObj) => {
-            interpreter._stack.push(state)
-            interpreter._stack.push(new types.Flt(x))
-            interpreter._stack.push(new types.Flt(y))
-            await runObj(onMouseDown)
+            await runObj(onMouseDown, state, new types.Flt(x), new types.Flt(y))
             state = interpreter._stack.pop()
           })
         }
@@ -304,10 +283,7 @@ export function registerBuiltIns (interpreter) {
                 if (!(mouseUpHandler instanceof types.Lam)) {
                   throw new types.Err(`Expected on-mouse-release callback to be a lambda function (:Lam) but got ${mouseUpHandler.getTypeName()} instead`, mouseUpHandler.origin || hit.image.taggedValues.origin)
                 }
-                interpreter._stack.push(state)
-                interpreter._stack.push(new types.Flt(hit.x))
-                interpreter._stack.push(new types.Flt(hit.y))
-                await runObj(mouseUpHandler)
+                await runObj(mouseUpHandler, state, new types.Flt(hit.x), new types.Flt(hit.y))
                 state = interpreter._stack.pop()
               })
             }
@@ -315,10 +291,7 @@ export function registerBuiltIns (interpreter) {
         }
         if (onMouseUp != null) {
           enqueue(async (runObj) => {
-            interpreter._stack.push(state)
-            interpreter._stack.push(new types.Flt(x))
-            interpreter._stack.push(new types.Flt(y))
-            await runObj(onMouseUp)
+            await runObj(onMouseUp, state, new types.Flt(x), new types.Flt(y))
             state = interpreter._stack.pop()
           })
         }
