@@ -122,16 +122,22 @@ export function registerBuiltIns (interpreter) {
 
           if (onDraw) {
             await runObj(onDraw, state)
+            if (interpreter._stack.accessibleCount === 0) {
+              cancel()
+              throw new types.Err('Expected on-draw to push an image on the stack but the stack is empty', onDraw.origin || callbacks.origin)
+            }
             image = await Image.from(interpreter._stack.pop())
           }
           // global requestAnimationFrame
           requestAnimationFrame(() => {
-            const ctx = canvas.getContext('2d')
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
-            ctx.save()
-            ctx.scale(canvas.width / width, canvas.height / height)
-            image.draw(ctx)
-            ctx.restore()
+            if (image) {
+              const ctx = canvas.getContext('2d')
+              ctx.clearRect(0, 0, canvas.width, canvas.height)
+              ctx.save()
+              ctx.scale(canvas.width / width, canvas.height / height)
+              image.draw(ctx)
+              ctx.restore()
+            }
             if (!cancelToken.cancelled) redraw()
           })
 
