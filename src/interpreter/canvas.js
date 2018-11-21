@@ -101,13 +101,16 @@ export function registerBuiltIns (interpreter) {
       const onDraw = keyGet(callbacks, new types.Sym('on-draw'), null)
       const onTick = keyGet(callbacks, new types.Sym('on-tick'), null)
       if (onTick && !(onTick instanceof types.Lam)) {
+        cancel()
         throw new types.Err(`Expected on-tick callback to be a lambda function (:Lam) but got ${onTick.getTypeName()} instead`, onTick.origin || callbacks.origin)
       }
       if (onDraw && !(onDraw instanceof types.Lam)) {
+        cancel()
         throw new types.Err(`Expected on-draw callback to be a lambda function (:Lam) but got ${onDraw.getTypeName()} instead`, onDraw.origin || callbacks.origin)
       }
       const stopWhen = keyGet(callbacks, new types.Sym('stop-when'), null)
       if (stopWhen && !(stopWhen instanceof types.Lam)) {
+        cancel()
         throw new types.Err(`Expected stop-when callback to be a lambda function (:Lam) but got ${stopWhen.getTypeName()} instead`, stopWhen.origin || callbacks.origin)
       }
       
@@ -117,6 +120,10 @@ export function registerBuiltIns (interpreter) {
         enqueue(async (runObj) => {
           if (onTick) {
             await runObj(onTick, state)
+            if (interpreter._stack.accessibleCount === 0) {
+              cancel()
+              throw new types.Err('Expected on-tick to push the next state on the stack but the stack is empty', onTick.origin || callbacks.origin)
+            }
             state = interpreter._stack.pop()
           }
 
@@ -143,10 +150,14 @@ export function registerBuiltIns (interpreter) {
 
           if (stopWhen) {
             await runObj(stopWhen, state)
+            if (interpreter._stack.accessibleCount === 0) {
+              cancel()
+              throw new types.Err('Expected stop-when to push a :Bool on the stack but the stack is empty', stopWhen.origin || callbacks.origin)
+            }
             const stop = interpreter._stack.pop()
             if (!(stop instanceof types.Bool)) {
               cancel()
-              throw new types.Err(`Expected on-stop to push a :Bool on the stack but got ${stop.getTypeName()} instead`, stop.origin || callbacks.origin)
+              throw new types.Err(`Expected stop-when to push a :Bool on the stack but got ${stop.getTypeName()} instead`, stop.origin || callbacks.origin)
             }
             if (stop.value) {
               cancel()
@@ -164,6 +175,10 @@ export function registerBuiltIns (interpreter) {
         win.addEventListener('keydown', (e) => {
           enqueue(async (runObj) => {
             await runObj(onKeyDown, state, new types.Str(e.key))
+            if (interpreter._stack.accessibleCount === 0) {
+              cancel()
+              throw new types.Err('Expected on-key-press to push the next state on the stack but the stack is empty', onKeyDown.origin || callbacks.origin)
+            }
             state = interpreter._stack.pop()
           })
         })
@@ -177,6 +192,10 @@ export function registerBuiltIns (interpreter) {
         win.addEventListener('keyup', (e) => {
           enqueue(async (runObj) => {
             await runObj(onKeyUp, state, new types.Str(e.key))
+            if (interpreter._stack.accessibleCount === 0) {
+              cancel()
+              throw new types.Err('Expected on-key-release to push the next state on the stack but the stack is empty', onKeyUp.origin || callbacks.origin)
+            }
             state = interpreter._stack.pop()
           })
         })
@@ -203,6 +222,10 @@ export function registerBuiltIns (interpreter) {
                     throw new types.Err(`Expected on-mouse-move callback to be a lambda function (:Lam) but got ${mouseMoveHandler.getTypeName()} instead`, mouseMoveHandler.origin || hit.image.taggedValues.origin)
                   }
                   await runObj(mouseMoveHandler, state, new types.Flt(hit.x), new types.Flt(hit.y))
+                  if (interpreter._stack.accessibleCount === 0) {
+                    cancel()
+                    throw new types.Err('Expected on-mouse-move to push the next state on the stack but the stack is empty', mouseMoveHandler.origin || callbacks.origin)
+                  }
                   state = interpreter._stack.pop()
                 })
               }
@@ -211,6 +234,10 @@ export function registerBuiltIns (interpreter) {
           if (onMouseMove != null) {
             enqueue(async (runObj) => {
               await runObj(onMouseMove, state, new types.Flt(x), new types.Flt(y))
+              if (interpreter._stack.accessibleCount === 0) {
+                cancel()
+                throw new types.Err('Expected on-mouse-move to push the next state on the stack but the stack is empty', onMouseMove.origin || callbacks.origin)
+              }
               state = interpreter._stack.pop()
             })
           }
@@ -233,6 +260,10 @@ export function registerBuiltIns (interpreter) {
                     throw new types.Err(`Expected on-mouse-drag callback to be a lambda function (:Lam) but got ${mouseDragHandler.getTypeName()} instead`, mouseDragHandler.origin || hit.image.taggedValues.origin)
                   }
                   await runObj(mouseDragHandler, state, new types.Flt(hit.x), new types.Flt(hit.y))
+                  if (interpreter._stack.accessibleCount === 0) {
+                    cancel()
+                    throw new types.Err('Expected on-mouse-drag to push the next state on the stack but the stack is empty', mouseDragHandler.origin || callbacks.origin)
+                  }
                   state = interpreter._stack.pop()
                 })
               }
@@ -241,6 +272,10 @@ export function registerBuiltIns (interpreter) {
           if (onMouseDrag != null) {
             enqueue(async (runObj) => {
               await runObj(onMouseDrag, state, new types.Flt(x), new types.Flt(y))
+              if (interpreter._stack.accessibleCount === 0) {
+                cancel()
+                throw new types.Err('Expected on-mouse-drag to push the next state on the stack but the stack is empty', onMouseDrag.origin || callbacks.origin)
+              }
               state = interpreter._stack.pop()
             })
           }
@@ -262,6 +297,10 @@ export function registerBuiltIns (interpreter) {
                   throw new types.Err(`Expected on-mouse-press callback to be a lambda function (:Lam) but got ${mouseDownHandler.getTypeName()} instead`, mouseDownHandler.origin || hit.image.taggedValues.origin)
                 }
                 await runObj(mouseDownHandler, state, new types.Flt(hit.x), new types.Flt(hit.y))
+                if (interpreter._stack.accessibleCount === 0) {
+                  cancel()
+                  throw new types.Err('Expected on-mouse-press to push the next state on the stack but the stack is empty', mouseDownHandler.origin || callbacks.origin)
+                }
                 state = interpreter._stack.pop()
               })
             }
@@ -270,6 +309,10 @@ export function registerBuiltIns (interpreter) {
         if (onMouseDown != null) {
           enqueue(async (runObj) => {
             await runObj(onMouseDown, state, new types.Flt(x), new types.Flt(y))
+            if (interpreter._stack.accessibleCount === 0) {
+              cancel()
+              throw new types.Err('Expected on-mouse-press to push the next state on the stack but the stack is empty', onMouseDown.origin || callbacks.origin)
+            }
             state = interpreter._stack.pop()
           })
         }
@@ -290,6 +333,10 @@ export function registerBuiltIns (interpreter) {
                   throw new types.Err(`Expected on-mouse-release callback to be a lambda function (:Lam) but got ${mouseUpHandler.getTypeName()} instead`, mouseUpHandler.origin || hit.image.taggedValues.origin)
                 }
                 await runObj(mouseUpHandler, state, new types.Flt(hit.x), new types.Flt(hit.y))
+                if (interpreter._stack.accessibleCount === 0) {
+                  cancel()
+                  throw new types.Err('Expected on-mouse-release to push the next state on the stack but the stack is empty', mouseUpHandler.origin || callbacks.origin)
+                }
                 state = interpreter._stack.pop()
               })
             }
@@ -298,6 +345,10 @@ export function registerBuiltIns (interpreter) {
         if (onMouseUp != null) {
           enqueue(async (runObj) => {
             await runObj(onMouseUp, state, new types.Flt(x), new types.Flt(y))
+            if (interpreter._stack.accessibleCount === 0) {
+              cancel()
+              throw new types.Err('Expected on-mouse-release to push the next state on the stack but the stack is empty', onMouseUp.origin || callbacks.origin)
+            }
             state = interpreter._stack.pop()
           })
         }
