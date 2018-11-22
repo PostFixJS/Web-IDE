@@ -6,6 +6,46 @@ import PostFixRunner from '../postfix-runner/PostFixRunner'
 import { registerFunctions, registerSymbols } from './doc'
 import Image from './canvas/Image'
 
+/**
+ * Add a listener for the window resize events and scale the canvas to the window size, keeping the aspect ratio.
+ * The canvas size is changed for the first time when this function is called.
+ * @param {HTMLCanvasElement} canvas Canvas element
+ * @param {Window} win Window the canvas is in
+ * @param {number} imageWidth Original image width
+ * @param {number} imageHeight Original image height
+ * @param {onSizeChanged} function Optional callback function invoked when the size changed
+ */
+function resizeCanvasToWindowSize (canvas, win, imageWidth, imageHeight, onSizeChanged) {
+  const updateCanvas = () => {
+    if (imageWidth > imageHeight) {
+      // landscape canvas
+      let newWidth = win.innerWidth
+      let newHeight = imageHeight * newWidth / imageWidth
+      if (newHeight > win.innerHeight) {
+        newHeight = win.innerHeight
+        newWidth = imageWidth * newHeight / imageHeight
+      }
+      canvas.width = newWidth
+      canvas.height = newHeight
+    } else {
+      // portrait or square
+      let newHeight = win.innerHeight
+      let newWidth = imageWidth * newHeight / imageHeight
+      if (newWidth > win.innerWidth) {
+        newWidth = win.innerWidth
+        newHeight = imageHeight * newWidth / imageWidth
+      }
+      canvas.width = newWidth
+      canvas.height = newHeight
+    }
+
+    if (onSizeChanged) onSizeChanged()
+  }
+
+  win.addEventListener('resize', updateCanvas)
+  updateCanvas()
+}
+
 export function registerBuiltIns (interpreter) {
   interpreter.registerBuiltIn({
     name: 'show',
@@ -31,32 +71,19 @@ export function registerBuiltIns (interpreter) {
       const canvas = win.document.createElement('canvas')
       canvas.style.margin = '0 auto'
       canvas.style.display = 'block'
-      canvas.width = windowWidth
-      canvas.height = windowHeight
       win.document.body.style.margin = 0
       win.document.body.appendChild(canvas)
       win.addEventListener('unload', () => { windowClosed = true })
-      win.addEventListener('resize', () => {
-        if (windowWidth > windowHeight) {
-          // landscape canvas
-          let newWidth = win.innerWidth
-          let newHeight = windowHeight * newWidth / windowWidth
-          if (newHeight > win.innerHeight) {
-            newHeight = win.innerHeight
-            newWidth = windowWidth * newHeight / windowHeight
-          }
-          canvas.width = newWidth
-          canvas.height = newHeight
-        } else {
-          // portrait or square
-          let newHeight = win.innerHeight
-          let newWidth = windowWidth * newHeight / windowHeight
-          if (newWidth > win.innerWidth) {
-            newWidth = win.innerWidth
-            newHeight = windowHeight * newWidth / windowWidth
-          }
-          canvas.width = newWidth
-          canvas.height = newHeight
+
+      let image = null
+      const ctx = canvas.getContext('2d')
+      resizeCanvasToWindowSize(canvas, win, windowWidth, windowHeight, () => {
+        if (image) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+          ctx.save()
+          ctx.scale(canvas.width / width, canvas.height / height)
+          image.draw(ctx)
+          ctx.restore()
         }
       })
 
@@ -113,8 +140,7 @@ export function registerBuiltIns (interpreter) {
         cancel()
         throw new types.Err(`Expected stop-when callback to be a lambda function (:Lam) but got ${stopWhen.getTypeName()} instead`, stopWhen.origin || callbacks.origin)
       }
-      
-      let image = null
+
       const redraw = () => {
         if (cancelToken.cancelled) return
         enqueue(async (runObj) => {
@@ -138,7 +164,6 @@ export function registerBuiltIns (interpreter) {
           // global requestAnimationFrame
           requestAnimationFrame(() => {
             if (image) {
-              const ctx = canvas.getContext('2d')
               ctx.clearRect(0, 0, canvas.width, canvas.height)
               ctx.save()
               ctx.scale(canvas.width / width, canvas.height / height)
@@ -428,7 +453,13 @@ export function registerBuiltIns (interpreter) {
       canvas.height = image.height
       win.document.body.style.margin = 0
       win.document.body.appendChild(canvas)
-      image.draw(canvas.getContext('2d'))
+
+      const ctx = canvas.getContext('2d')
+      resizeCanvasToWindowSize(canvas, win, image.width, image.height, () => {
+        ctx.scale(canvas.width / image.width, canvas.height / image.height)
+        image.draw(ctx)
+        ctx.restore()
+      })
 
       // TODO resize canvas and repaint when the window is resized
 
