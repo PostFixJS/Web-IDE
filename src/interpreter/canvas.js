@@ -164,7 +164,7 @@ export function registerBuiltIns (interpreter) {
 
           win.requestAnimationFrame(() => {
             if (image) {
-              ctx.setTransform(0, 0, 0, 0, 0, 0)
+              ctx.resetTransform()
               ctx.clearRect(0, 0, canvas.width, canvas.height)
               ctx.setTransform(canvas.width / width, 0, 0, canvas.height / height, 0, 0)
               image.draw(ctx)
