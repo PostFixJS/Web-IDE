@@ -161,14 +161,13 @@ export function registerBuiltIns (interpreter) {
             }
             image = await Image.from(interpreter._stack.pop())
           }
-          // global requestAnimationFrame
-          requestAnimationFrame(() => {
+
+          win.requestAnimationFrame(() => {
             if (image) {
+              ctx.setTransform(0, 0, 0, 0, 0, 0)
               ctx.clearRect(0, 0, canvas.width, canvas.height)
-              ctx.save()
-              ctx.scale(canvas.width / width, canvas.height / height)
+              ctx.setTransform(canvas.width / width, 0, 0, canvas.height / height, 0, 0)
               image.draw(ctx)
-              ctx.restore()
             }
             if (!cancelToken.cancelled) redraw()
           })
