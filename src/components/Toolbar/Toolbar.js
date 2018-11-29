@@ -21,10 +21,6 @@ export default class Toolbar extends React.Component {
     window.open('https://postfix.hci.uni-hannover.de/postfix-lang.html', '_blank')
   }
 
-  handleShowSurvey = () => {
-    window.open('https://iq4s.hci.uni-hannover.de/index.php?id=4b9b734e', '_blank')
-  }
-
   render () {
     const {
       running,
@@ -129,13 +125,6 @@ export default class Toolbar extends React.Component {
           onClick={this.handleShowHelp}
           title='PostFix Tutorial'
           icon={require('./icons/info.svg')}
-        />
-        <Divider />
-        <Button
-          onClick={this.handleShowSurvey}
-          title='Student Survey'
-          label='Student Survey'
-          icon={require('./icons/survey.svg')}
         />
       </div>
     )
