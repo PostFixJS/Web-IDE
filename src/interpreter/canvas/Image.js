@@ -335,7 +335,7 @@ class Rotate extends Image {
 }
 
 class PlaceImage extends Image {
-  constructor (front, back, x, y, hAlign = 'left', vAlign = 'top') {
+  constructor (front, back, x, y, hAlign = 'center', vAlign = 'center') {
     super(0, 0) // width and height are set below
     this.front = front
     this.back = back
@@ -366,13 +366,15 @@ class PlaceImage extends Image {
       default:
         throw new Error(`Unsupported vertical alignment ${vAlign}`)
     }
-    this.width = Math.max(front.width + this.x, back.width)
-    this.height = Math.max(front.height + this.y, back.height)
+    this.width = back.width
+    this.height = back.height
   }
 
   draw (ctx) {
     this.back.draw(ctx)
     ctx.save()
+    ctx.rect(0, 0, this.back.width, this.back.height)
+    ctx.clip()
     ctx.translate(this.x, this.y)
     this.front.draw(ctx)
     ctx.restore()
