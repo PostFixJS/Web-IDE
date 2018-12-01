@@ -307,9 +307,12 @@ class App extends Component {
   handleDrop = (e) => {
     e.preventDefault()
     if (e.dataTransfer.files.length > 0) {
-      const reader = new FileReader()
-      reader.onloadend = (e) => this.handleOpen(e.target.result)
-      reader.readAsText(e.dataTransfer.files[0])
+      const file = e.dataTransfer.files[0]
+      if (/\.pf$/.test(file.name)) {
+        const reader = new FileReader()
+        reader.onloadend = (e) => this.handleOpen(e.target.result)
+        reader.readAsText(file)
+      }
     }
   }
 
