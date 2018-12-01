@@ -30,7 +30,7 @@ export default {
         return bodyRange.containsPosition(position)
       })
       usageMessages.push(...getVariableHoverMessage(functionsAtPosition
-        .map((fun) => fun.params)
+        .map((fun) => fun.params.filter(({ name }) => name === token.token))
         .reduce((allParams, fnParams) => allParams.concat(fnParams), [])
       ))
 
