@@ -6,8 +6,8 @@ export default function (initialState) {
   const store = createStore(
     combineReducers(reducers),
     initialState,
-    process.env.NODE_ENV !== 'production' && window.devToolsExtension
-      ? window.devToolsExtension()
+    process.env.NODE_ENV !== 'production' && window.__REDUX_DEVTOOLS_EXTENSION__
+      ? window.__REDUX_DEVTOOLS_EXTENSION__()
       : undefined
   )
 
