@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import MonacoEditor from 'react-monaco-editor'
+import { disableCommandPalette } from './Editor/monaco-integration/util'
 
 export default class OneLineEditor extends React.Component {
   state = { height: 0 }
@@ -10,10 +11,6 @@ export default class OneLineEditor extends React.Component {
     this.setState({
       height: editor.getConfiguration().lineHeight
     })
-
-    if (this.props.editorDidMount) {
-      this.props.editorDidMount(editor, monaco)
-    }
    
     editor.onDidChangeConfiguration(() => {
       if (this.props.onFontSizeChange) {
@@ -24,6 +21,12 @@ export default class OneLineEditor extends React.Component {
       }
       this.setState({ height: this.editor.getConfiguration().lineHeight })
     })
+    
+    disableCommandPalette(editor)
+
+    if (this.props.editorDidMount) {
+      this.props.editorDidMount(editor, monaco)
+    }
   }
 
   componentDidUpdate (prevProps) {
@@ -53,6 +56,7 @@ export default class OneLineEditor extends React.Component {
           minimap: {
             enabled: false
           },
+          contextmenu: false,
           overviewRulerBorder: false,
           overviewRulerLanes: 0,
           hideCursorInOverviewRuler: true,

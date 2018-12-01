@@ -4,6 +4,7 @@ import cx from 'classnames'
 import MonacoEditor from 'react-monaco-editor'
 import * as monaco from 'monaco-editor'
 import Card from '../Card'
+import { disableCommandPalette } from '../Editor/monaco-integration/util'
 
 const styles = (theme) => ({
   root: {
@@ -29,6 +30,7 @@ class InputOutput extends React.Component {
   state = {
     visible: 'output'
   }
+  rootRef = React.createRef()
   inputDecorations = []
 
   componentDidMount () {
@@ -111,6 +113,8 @@ class InputOutput extends React.Component {
         this.props.onInputChange(input)
       }
     })
+
+    disableCommandPalette(editor)
   }
 
   outputEditorDidMount = (editor) => {
@@ -124,9 +128,9 @@ class InputOutput extends React.Component {
         }
       }
     })
-  }
 
-  setRootRef = (ref) => this._rootRef = ref
+    disableCommandPalette(editor)
+  }
 
   /**
    * Update the size of the editor.
@@ -134,12 +138,12 @@ class InputOutput extends React.Component {
    */
   layout () {
     this.inputEditor.layout({
-      width: (this._rootRef.clientWidth - 30) / 2 - 5,
-      height: this._rootRef.clientHeight - 35
+      width: (this.rootRef.current.clientWidth - 30) / 2 - 5,
+      height: this.rootRef.current.clientHeight - 35
     })
     this.outputEditor.layout({
-      width: (this._rootRef.clientWidth - 30) / 2 - 5,
-      height: this._rootRef.clientHeight - 35
+      width: (this.rootRef.current.clientWidth - 30) / 2 - 5,
+      height: this.rootRef.current.clientHeight - 35
     })
   }
 
@@ -159,7 +163,7 @@ class InputOutput extends React.Component {
 
     return (
       <div
-        ref={this.setRootRef}
+        ref={this.rootRef}
         className={classes.root}
         {...other}
       >
@@ -175,6 +179,7 @@ class InputOutput extends React.Component {
                 minimap: {
                   enabled: false
                 },
+                contextmenu: false,
                 wordWrap: 'on',
                 renderLineHighlight: 'none',
                 fontSize
@@ -195,6 +200,7 @@ class InputOutput extends React.Component {
                 minimap: {
                   enabled: false
                 },
+                contextmenu: false,
                 wordWrap: 'on',
                 renderWhitespace: 'all',
                 renderControlCharacters: true,

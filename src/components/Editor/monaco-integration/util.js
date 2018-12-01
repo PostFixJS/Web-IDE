@@ -48,3 +48,17 @@ export function positionFromMonaco (monacoPos) {
 export function showMessage (editor, message, position = editor.getPosition()) {
   MessageController.get(editor).showMessage(message, position)
 }
+
+/**
+ * Disable the command palette of the given editor that is shown by pressing F1.
+ * @param {IEditor} editor Monaco editor
+ */
+export function disableCommandPalette (editor) {
+  // disable F1 to open the command palette (https://github.com/Microsoft/monaco-editor/issues/419)
+  editor.addAction({
+    id: 'remove-command-palette',
+    label: '',
+    run: () => {},
+    keybindings: [monaco.KeyCode.F1, monaco.KeyMod.Alt | monaco.KeyCode.F1]
+  })
+}
