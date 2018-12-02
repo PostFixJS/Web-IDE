@@ -38,7 +38,7 @@ export function getDatadefFunctions (datadef) {
     },
     ...datadef.fields.map((field) => ({
         name: `${datadefName}-${field.name}`,
-        description: `Get the ${field.name} field of the given ${datadef.name} instance.`,
+        description: `Get the \`${field.name}\` field of the given ${datadef.name} instance.`,
         params: [{
           name: datadefName,
           type: datadef.name,
@@ -46,12 +46,12 @@ export function getDatadefFunctions (datadef) {
         }],
         returns: [{
           type: field.type,
-          description: field.description
+          description: field.description || `Value of the \`${field.name}\` field`
         }]
       })),
     ...datadef.fields.map((field) => ({
         name: `${datadefName}-${field.name}-set`,
-        description: `Set the ${field.name} field of the given ${datadef.name} instance.`,
+        description: `Set the \`${field.name}\` field of the given ${datadef.name} instance.`,
         params: [{
           name: datadefName,
           type: datadef.name,
@@ -59,7 +59,7 @@ export function getDatadefFunctions (datadef) {
         }, {
           name: field.name,
           type: field.type,
-          description: field.description
+          description: field.description || `New value of the \`${field.name}\` field`
         }],
         returns: [{
           type: datadef.name,
@@ -76,7 +76,7 @@ export function getDatadefFunctions (datadef) {
         }, {
           name: 'updater',
           type: ':ExeArr',
-          description: `Update function that will be called with the current ${field.name} value (${field.type}) and must return a new value`
+          description: `Update function that will be called with the current \`${field.name}\` value (${field.type}) and must return a new value`
         }],
         returns: [{
           type: datadef.name,
