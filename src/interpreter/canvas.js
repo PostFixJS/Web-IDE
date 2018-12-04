@@ -652,7 +652,7 @@ export function registerBuiltIns (interpreter) {
     description: 'Symbol to define an image consisting of an image that is placed beside another image.'
   }, {
     name: ':above',
-    describe: 'Symbol to define an image consisting of an image that is placed above another image.'
+    description: 'Symbol to define an image consisting of an image that is placed above another image.'
   }, {
     name: ':overlay',
     description: 'Symbol to define an image consisting of multiple overlaying images.'
