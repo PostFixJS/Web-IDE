@@ -108,6 +108,11 @@ class App extends Component {
     if (prevProps.settings.enableProperTailCalls !== this.props.settings.enableProperTailCalls) {
       this.runner.interpreter.options.enableProperTailCalls = this.props.settings.enableProperTailCalls
     }
+
+    if(prevProps.input.isWaiting !== this.props.input.isWaiting) {
+      // update stack and dict while the program is waiting for input
+      this.showStackAndDict()
+    }
   }
 
   handleResize = () => {
@@ -138,10 +143,11 @@ class App extends Component {
   }
 
   async run (pauseImmediately = false) {
-    if (!this.runner.running) {
+    if (!this.runner.running) { // start new execution
       this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
       this._editor.closeErrorWidget()
       this.props.dispatch(actions.setInputPosition(0))
+      this.props.dispatch(actions.setInput(''))
       this.props.dispatch(actions.clearOutput())
       this.props.dispatch(actions.resetTests())
 
@@ -165,7 +171,7 @@ class App extends Component {
           }
         }
       }
-    } else {
+    } else { // continue paused execution
       this.lineHighlightDecorations = this._editor.editor.deltaDecorations(this.lineHighlightDecorations, [])
       this.runner.continue()
     }
@@ -395,7 +401,7 @@ class App extends Component {
               inputPosition={this.props.input.position}
               onInputChange={this.props.onInputChange}
               isWaiting={this.props.input.isWaiting}
-              readOnly={running}
+              readOnly={!running}
               style={{ width: '100%', height: '100%', position: 'absolute' }}
               fontSize={fontSize}
               onFontSizeChange={onFontSizeChange}

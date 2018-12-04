@@ -4,7 +4,7 @@ import cx from 'classnames'
 import MonacoEditor from 'react-monaco-editor'
 import * as monaco from 'monaco-editor'
 import Card from '../Card'
-import { disableCommandPalette } from '../Editor/monaco-integration/util'
+import { disableCommandPalette, showMessage } from '../Editor/monaco-integration/util'
 
 const styles = (theme) => ({
   root: {
@@ -49,6 +49,10 @@ class InputOutput extends React.Component {
         fontSize: this.props.fontSize
       })
     }
+    if (prevProps.readOnly !== this.props.readOnly) {
+      this.inputEditor.updateOptions({ readOnly: this.props.readOnly })
+      this.updateDecoration()
+    }
     if (prevProps.inputPosition !== this.props.inputPosition) {
       this.updateDecoration()
     }
@@ -67,22 +71,18 @@ class InputOutput extends React.Component {
   }
 
   updateDecoration () {
-    if (this.props.readOnly) {
-      const pos = this.inputEditor.getModel().getPositionAt(this.props.inputPosition)
-      this.inputDecorations = this.inputEditor.deltaDecorations(this.inputDecorations, [
-        {
-          range: new monaco.Range(1, 1, pos.lineNumber, pos.column),
-          options: {
-            className: 'readInputHighlight',
-            inlineClassName: 'readInputInline',
-            hoverMessage: { value: 'This input was already read by the program.' },
-            stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
-          }
+    const pos = this.inputEditor.getModel().getPositionAt(this.props.inputPosition)
+    this.inputDecorations = this.inputEditor.deltaDecorations(this.inputDecorations, [
+      {
+        range: new monaco.Range(1, 1, pos.lineNumber, pos.column),
+        options: {
+          className: 'readInputHighlight',
+          inlineClassName: 'readInputInline',
+          hoverMessage: { value: 'This input was already read by the program.' },
+          stickiness: monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
         }
-      ])
-    } else {
-      this.inputDecorations = this.inputEditor.deltaDecorations(this.inputDecorations, [])
-    }
+      }
+    ])
   }
   
   updateEditorSize = () => {
@@ -91,7 +91,11 @@ class InputOutput extends React.Component {
 
   inputEditorDidMount = (editor) => {
     this.inputEditor = editor
-   
+
+    editor.onDidAttemptReadOnlyEdit((e) => {
+      showMessage(this.inputEditor, 'You can only provide input when the program prompts for input.')
+    })
+
     editor.onDidChangeConfiguration(() => {
       if (this.props.onFontSizeChange) {
         const fontSize = editor.getConfiguration().fontInfo.fontSize
@@ -195,6 +199,7 @@ class InputOutput extends React.Component {
               editorDidMount={this.inputEditorDidMount}
               value={input}
               options={{
+                readOnly,
                 lineNumbers: false,
                 scrollBeyondLastLine: false,
                 minimap: {
