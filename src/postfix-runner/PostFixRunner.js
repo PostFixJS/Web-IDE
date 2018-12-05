@@ -3,6 +3,32 @@ import Lexer from 'postfixjs/Lexer'
 
 const runnerProperty = Symbol()
 
+const maybeImmediate = (() => {
+  let ctn = 999
+
+  /**
+   * Invoke the callback function immediately or defer it. Every 1000th function call is deferred.
+   * This allows fast functions while keeping the event loop spinning.
+   * @param {Function} cb Callback function
+   */
+  const maybeImmediate = (cb) => {
+    ctn++
+    if (ctn === 1000) {
+      ctn = 0
+      setImmediate(cb)
+    } else {
+      cb()
+    }
+  }
+
+  /**
+   * Reset the counter so that the next call will be defered.
+   */
+  maybeImmediate.deferNext = () => { ctn = 999 }
+
+  return maybeImmediate
+})()
+
 export default class PostFixRunner {
   constructor (options) {
     this.interpreter = new Interpreter(options)
@@ -37,6 +63,7 @@ export default class PostFixRunner {
   }
 
   run (code, pauseImmediately = false, reset = true) {
+    maybeImmediate.deferNext()
     this._pauseRequested = false
 
     for (const breakpoint of this.breakpoints) {
@@ -72,13 +99,12 @@ export default class PostFixRunner {
           this._emit('pause', this._lastPosition)
         }
       } else {
-        this._timeoutId = setImmediate(this._step)
+        maybeImmediate(this._step)
       }
     })
   }
 
   runInner (obj) {
-    clearImmediate(this._timeoutId)
     this._runnerStateStack.push(this._runnerState)
     this._runnerState = {
       stepper: this.interpreter.startRunObj(obj),
@@ -95,7 +121,7 @@ export default class PostFixRunner {
       promise: new Promise(async (resolve, reject) => {
         this._runnerState.resolveRun = resolve
         this._runnerState.rejectRun = reject
-        this._timeoutId = setImmediate(this._step)
+        maybeImmediate(this._step)
       }),
       cancel: this._runnerState.stepper.cancel
     }
@@ -103,11 +129,13 @@ export default class PostFixRunner {
 
   continue () {
     this._pauseRequested = false
-    this._timeoutId = setImmediate(this._step)
+    maybeImmediate(this._step)
     this._emit('continue')
   }
 
   _step = async () => {
+    if (!this.running) return
+
     await this._stepImpl()
     try {
       if (this.running) {
@@ -115,7 +143,7 @@ export default class PostFixRunner {
           this._pauseRequested = false
           this._emit('pause', this._lastPosition)
         } else {
-          this._timeoutId = setImmediate(this._step)
+          maybeImmediate(this._step)
         }
       } else if (this._runnerStateStack.length > 0) {
         this._runnerState = this._runnerStateStack.pop()
@@ -170,8 +198,6 @@ export default class PostFixRunner {
       if (this._breakpointRunner != null) {
         this._breakpointRunner.stop()
       }
-
-      clearImmediate(this._timeoutId)
 
       while (this._runnerState != null) {
         this._runnerState.rejectRun(new InterruptedException())
