@@ -20,6 +20,7 @@ import { positionToMonaco, rangeToMonaco } from './components/Editor/monaco-inte
 import * as replTestReporter from './interpreter/replTestReporter'
 import Settings from './components/Settings/Settings'
 import OfflineHandler from './containers/OfflineHandler'
+import ShortcutOverlay from './components/ShortcutOverlay'
 
 const styles = (theme) => ({
   root: {
@@ -63,7 +64,8 @@ class App extends Component {
     running: false,
     paused: false,
     canStep: true,
-    showSettings: false
+    showSettings: false,
+    showShortcuts: false
   }
   lineHighlightDecorations = []
 
@@ -327,10 +329,21 @@ class App extends Component {
 
   handleHideSettings = () => this.setState({ showSettings: false })
 
+  handleShowShortcuts = () => this.setState({ showShortcuts: true })
+
+  handleHideShortcuts = () => this.setState({ showShortcuts: false })
+
   handleCopyToRepl = (line) => this._repl.setInput(line)
 
   render() {
-    const { running, paused, canStep, error, showSettings } = this.state
+    const {
+      running,
+      paused,
+      canStep,
+      error,
+      showSettings,
+      showShortcuts
+    } = this.state
     const {
       classes,
       code,
@@ -363,6 +376,7 @@ class App extends Component {
           onSave={this.handleSave}
           onOpen={this.handleOpen}
           onShowSettings={this.handleShowSettings}
+          onShowKeyboardShortcuts={this.handleShowShortcuts}
         />
         <SplitLayout
           customClassName={classes.rootSplitLayout}
@@ -454,6 +468,10 @@ class App extends Component {
           onFontSizeChange={onFontSizeChange}
           onThemeChange={onThemeChange}
           onProperTailCallsChange={onProperTailCallsChange}
+        />
+        <ShortcutOverlay
+          open={showShortcuts}
+          onClose={this.handleHideShortcuts}
         />
 
         <OfflineHandler />

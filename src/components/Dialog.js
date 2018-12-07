@@ -34,7 +34,7 @@ const styles = (theme) => ({
   header: {
     fontSize: '20px',
     lineHeight: '24px',
-    marginBottom: 8
+    marginBottom: 16
   },
   footer: {
     height: 42,

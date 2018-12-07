@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import KeyListener from '../KeyListener'
 import Button from './Button'
+import DropdownButton from './DropdownButton'
 import Divider from './Divider'
 
 export default class Toolbar extends React.Component {
@@ -121,10 +122,17 @@ export default class Toolbar extends React.Component {
           title='Settings'
           icon={require('./icons/settings.svg')}
         />
-        <Button
+        <DropdownButton
           onClick={this.handleShowHelp}
-          title='PostFix Tutorial'
+          title='Help'
           icon={require('./icons/info.svg')}
+          items={[{
+            title: 'PostFix Tutorial',
+            onClick: this.handleShowHelp
+          }, {
+            title: 'Keyboard shortcuts',
+            onClick: this.props.onShowKeyboardShortcuts
+          }]}
         />
       </div>
     )
@@ -142,5 +150,6 @@ Toolbar.propTypes = {
   onStep: PropTypes.func.isRequired,
   onOpen: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
-  onShowSettings: PropTypes.func.isRequired
+  onShowSettings: PropTypes.func.isRequired,
+  onShowKeyboardShortcuts: PropTypes.func.isRequired
 }
