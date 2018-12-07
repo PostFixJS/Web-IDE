@@ -25,6 +25,8 @@ class OfflineHandler extends React.Component {
 
   handleCloseUpdateDialog = () => this.setState({ showUpdateDialog: false })
 
+  handleCloseOfflineHintDialog = () => this.setState({ showOfflineHintDialog: false })
+
   render () {
     return (
       <React.Fragment>
