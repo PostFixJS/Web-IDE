@@ -19,6 +19,7 @@ import Runner, { InterruptedException } from './postfix-runner/PostFixRunner'
 import { positionToMonaco, rangeToMonaco } from './components/Editor/monaco-integration/util'
 import * as replTestReporter from './interpreter/replTestReporter'
 import Settings from './components/Settings/Settings'
+import OfflineHandler from './containers/OfflineHandler'
 
 const styles = (theme) => ({
   root: {
@@ -454,6 +455,8 @@ class App extends Component {
           onThemeChange={onThemeChange}
           onProperTailCallsChange={onProperTailCallsChange}
         />
+
+        <OfflineHandler />
       </div>
     );
   }

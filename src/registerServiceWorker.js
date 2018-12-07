@@ -1,3 +1,5 @@
+import store from './store'
+
 // In production, we register a service worker to serve assets from local cache.
 
 // This lets the app load faster on subsequent visits in production, and gives
@@ -66,11 +68,13 @@ function registerValidSW(swUrl) {
               // It's the perfect time to display a "New content is
               // available; please refresh." message in your web app.
               console.log('New content is available; please refresh.');
+              store.dispatch({ type: 'SW_UPDATED' })
             } else {
               // At this point, everything has been precached.
               // It's the perfect time to display a
               // "Content is cached for offline use." message.
               console.log('Content is cached for offline use.');
+              store.dispatch({ type: 'SW_INSTALLED' })
             }
           }
         };

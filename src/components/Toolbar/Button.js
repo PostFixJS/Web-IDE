@@ -11,6 +11,7 @@ const styles = (theme) => ({
     float: 'left',
     borderRadius: 2,
     color: theme.type === 'light' ? '#000' : '#fff',
+    fontSize: '12px',
 
     '&:hover': {
       background: theme.type === 'light' ? 'rgba(255, 255, 255, 0.6)' : 'rgba(255, 255, 255, 0.2)'

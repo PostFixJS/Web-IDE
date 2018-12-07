@@ -3,6 +3,7 @@ import injectSheet from 'react-jss'
 import { throttle } from 'throttle-debounce'
 import Dialog from '../Dialog'
 import Input from '../Input'
+import Button from '../Button'
 
 const styles = (theme) => ({
   row: {
@@ -31,6 +32,7 @@ const styles = (theme) => ({
     backgroundSize: '48px',
     borderTop: `1px solid ${theme.background}`,
     fontSize: '10pt',
+    lineHeight: '1',
     '& a': {
       color: theme.card.linkColor,
       textDecoration: 'none'
@@ -78,6 +80,14 @@ class Settings extends React.PureComponent {
         open={open}
         onClose={onClose}
         width={500}
+        buttons={[
+          <Button
+            onClick={onClose}
+            key='ok'
+          >
+            OK
+          </Button>
+        ]}
       >
         <div className={classes.row}>
           <div className={classes.label}>

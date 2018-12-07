@@ -130,6 +130,17 @@ export function replLines (state = [], action) {
   }
 }
 
+export function serviceWorker (state = { installed: false, updateAvailable: false }, action) {
+  switch (action.type) {
+    case 'SW_UPDATED':
+      return { ...state, updateAvailable: true }
+    case 'SW_INSTALLED':
+      return { ...state, installed: true }
+    default:
+      return state
+  }
+}
+
 function tryParseJSON (json, defaultValue) {
   try {
     return JSON.parse(json) || defaultValue

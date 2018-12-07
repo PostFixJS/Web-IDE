@@ -27,7 +27,28 @@ const styles = (theme) => ({
     borderRadius: 3,
     background: theme.card.background,
     boxShadow: '0 5px 20px rgba(0, 0, 0, 0.4)',
-    color: theme.card.color
+    color: theme.card.color,
+    fontSize: '14px',
+    lineHeight: '18px'
+  },
+  header: {
+    fontSize: '20px',
+    lineHeight: '24px',
+    marginBottom: 8
+  },
+  footer: {
+    height: 42,
+    display: 'flex',
+    flexDirection: 'row',
+    margin: '20px -20px -20px',
+    paddingTop: 10,
+    background: theme.background,
+    '& > *': {
+      marginLeft: 8
+    }
+  },
+  filler: {
+    flex: 1
   }
 })
 
@@ -38,10 +59,12 @@ class Dialog extends React.PureComponent {
 
   render () {
     const {
+      buttons,
       children,
       classes,
       open,
       onClose,
+      title,
       width
     } = this.props
 
@@ -55,7 +78,14 @@ class Dialog extends React.PureComponent {
           style={{ width }}
           onClick={this.cancelClick}
         >
+          {title && <div className={classes.header}>{title}</div>}
           {children}
+          {buttons && (
+            <div className={classes.footer}>
+              <div className={classes.filler} />
+              {buttons}
+            </div>
+          )}
         </div>
       </div>
     ), document.body)
@@ -63,10 +93,12 @@ class Dialog extends React.PureComponent {
 }
 
 Dialog.propTypes = {
+  buttons: PropTypes.arrayOf(PropTypes.element),
   children: PropTypes.node,
   classes: PropTypes.object.isRequired,
   open: PropTypes.bool.isRequired,
-  onClose: PropTypes.func.isRequired,
+  onClose: PropTypes.func,
+  title: PropTypes.string,
   width: PropTypes.number
 }
 
