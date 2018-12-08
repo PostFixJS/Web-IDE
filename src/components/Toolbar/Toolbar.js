@@ -35,6 +35,7 @@ export default class Toolbar extends React.Component {
       onOpen,
       onSave,
       onShowSettings,
+      onShowKeyboardShortcuts,
       ...other
     } = this.props
 
@@ -127,7 +128,7 @@ export default class Toolbar extends React.Component {
           title='Help'
           icon={require('./icons/info.svg')}
           items={[{
-            title: 'PostFix Tutorial',
+            title: 'PostFix language tutorial',
             onClick: this.handleShowHelp
           }, {
             title: 'Keyboard shortcuts',

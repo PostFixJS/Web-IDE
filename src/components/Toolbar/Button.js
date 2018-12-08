@@ -1,5 +1,6 @@
 import React from 'react'
 import injectStyle from 'react-jss'
+import cx from 'classnames'
 
 const styles = (theme) => ({
   root: {
@@ -37,15 +38,18 @@ const styles = (theme) => ({
     float: 'left'
   },
   label: {
-    marginLeft: 8,
     lineHeight: '16px',
-    float: 'left'
+    float: 'left',
+
+    'img ~ &': {
+      marginLeft: 8
+    }
   }
 })
 
-function Button ({ classes, children, icon, label, ...other }) {
+function Button ({ classes, children, icon, label, className, ...other }) {
   return (
-    <button className={classes.root} {...other}>
+    <button className={cx(classes.root, className)} {...other}>
       {icon && <img
         src={icon}
         className={classes.icon}
