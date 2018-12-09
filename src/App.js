@@ -21,6 +21,7 @@ import * as replTestReporter from './interpreter/replTestReporter'
 import Settings from './components/Settings/Settings'
 import OfflineHandler from './containers/OfflineHandler'
 import ShortcutOverlay from './components/ShortcutOverlay'
+import Documentation from './components/Documentation/Documentation'
 
 const styles = (theme) => ({
   root: {
@@ -28,8 +29,15 @@ const styles = (theme) => ({
     flexDirection: 'column',
     width: '100%',
     height: '100%',
-    padding: 5,
     background: theme.background
+  },
+  editorRoot: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    height: '100%',
+    padding: 5,
+    paddingRight: 0
   },
   toolbar: {
     padding: '0 5px'
@@ -363,21 +371,6 @@ class App extends Component {
         className={classes.root}
         //style={this.state.showSettings ? { filter: 'blur(2px) saturate(0)' } : {}}
       >
-        <Toolbar
-          className={classes.toolbar}
-          running={running}
-          paused={paused}
-          canPause={!error}
-          canStep={canStep}
-          onRun={this.runProgram}
-          onPause={this.pauseProgram}
-          onStop={this.stopProgram}
-          onStep={this.stepProgram}
-          onSave={this.handleSave}
-          onOpen={this.handleOpen}
-          onShowSettings={this.handleShowSettings}
-          onShowKeyboardShortcuts={this.handleShowShortcuts}
-        />
         <SplitLayout
           customClassName={classes.rootSplitLayout}
           percentage
@@ -385,80 +378,106 @@ class App extends Component {
           onSecondaryPaneSizeChange={this.handleResize}
           onDragEnd={this.handleResize}
         >
-          <SplitLayout
-            vertical
-            percentage
-            secondaryInitialSize={20}
-            onSecondaryPaneSizeChange={this.handleResize}
-            onDragEnd={this.handleResize}
-          >
-            <Card className={classes.editorCard} onClick={this.showProgramStack}>
-              <Editor
-                innerRef={this.setEditor}
-                code={code}
-                tests={tests}
-                onChange={this.updateCode}
-                readOnly={running}
-                className={classes.editor}
-                onDragOver={this.handleDragOver}
-                onDrop={this.handleDrop}
-                defaultBreakpoints={initialBreakpoints}
-                onBreakpointsChange={this.handleChangeBreakpoints}
-                fontSize={fontSize}
-                onFontSizeChange={onFontSizeChange}
-                onCopyToRepl={this.handleCopyToRepl}
-              />
-            </Card>
-            <InputOutput
-              innerRef={this.setInputOutput}
-              output={this.props.output}
-              input={this.props.input.value}
-              inputPosition={this.props.input.position}
-              onInputChange={this.props.onInputChange}
-              isWaiting={this.props.input.isWaiting}
-              readOnly={!running}
-              style={{ width: '100%', height: '100%', position: 'absolute' }}
-              fontSize={fontSize}
-              onFontSizeChange={onFontSizeChange}
+          <div className={classes.editorRoot}>
+            <Toolbar
+              className={classes.toolbar}
+              running={running}
+              paused={paused}
+              canPause={!error}
+              canStep={canStep}
+              onRun={this.runProgram}
+              onPause={this.pauseProgram}
+              onStop={this.stopProgram}
+              onStep={this.stepProgram}
+              onSave={this.handleSave}
+              onOpen={this.handleOpen}
+              onShowSettings={this.handleShowSettings}
+              onShowKeyboardShortcuts={this.handleShowShortcuts}
             />
-          </SplitLayout>
-          <SplitLayout
-            vertical
-            percentage
-            secondaryInitialSize={20}
-            onSecondaryPaneSizeChange={this.handleResize}
-            onDragEnd={this.handleResize}
-          >
-            <Card
-              className={classes.stackDict}
-              title='Stack &amp; Dictionaries'
-              scrollable
+            <SplitLayout
+              customClassName={classes.rootSplitLayout}
+              percentage
+              secondaryInitialSize={30}
+              onSecondaryPaneSizeChange={this.handleResize}
+              onDragEnd={this.handleResize}
             >
-              <StackViewer
-                stack={this.props.stack}
-                invalid={running && !paused}
-                fontSize={fontSize}
-              />
-              <DictViewer
-                dicts={this.props.dicts}
-                invalid={running && !paused}
-                fontSize={fontSize}
-              />
-            </Card>
-            <Card className={classes.repl} title='REPL'>
-              <Repl
-                innerRef={this.setRepl}
-                style={{ width: '100%', height: '100%' }}
-                lines={replLines}
-                onAppendLine={onAppendReplLine}
-                runner={this.replRunner}
-                disabled={running && !paused}
-                onExecutionFinished={this.handleReplExecutionFinished}
-                fontSize={fontSize}
-                onFontSizeChange={onFontSizeChange}
-              />
-            </Card>
-          </SplitLayout>
+              <SplitLayout
+                vertical
+                percentage
+                secondaryInitialSize={20}
+                onSecondaryPaneSizeChange={this.handleResize}
+                onDragEnd={this.handleResize}
+              >
+                <Card className={classes.editorCard} onClick={this.showProgramStack}>
+                  <Editor
+                    innerRef={this.setEditor}
+                    code={code}
+                    tests={tests}
+                    onChange={this.updateCode}
+                    readOnly={running}
+                    className={classes.editor}
+                    onDragOver={this.handleDragOver}
+                    onDrop={this.handleDrop}
+                    defaultBreakpoints={initialBreakpoints}
+                    onBreakpointsChange={this.handleChangeBreakpoints}
+                    fontSize={fontSize}
+                    onFontSizeChange={onFontSizeChange}
+                    onCopyToRepl={this.handleCopyToRepl}
+                  />
+                </Card>
+                <InputOutput
+                  innerRef={this.setInputOutput}
+                  output={this.props.output}
+                  input={this.props.input.value}
+                  inputPosition={this.props.input.position}
+                  onInputChange={this.props.onInputChange}
+                  isWaiting={this.props.input.isWaiting}
+                  readOnly={!running}
+                  style={{ width: '100%', height: '100%', position: 'absolute' }}
+                  fontSize={fontSize}
+                  onFontSizeChange={onFontSizeChange}
+                />
+              </SplitLayout>
+              <SplitLayout
+                vertical
+                percentage
+                secondaryInitialSize={20}
+                onSecondaryPaneSizeChange={this.handleResize}
+                onDragEnd={this.handleResize}
+              >
+                <Card
+                  className={classes.stackDict}
+                  title='Stack &amp; Dictionaries'
+                  scrollable
+                >
+                  <StackViewer
+                    stack={this.props.stack}
+                    invalid={running && !paused}
+                    fontSize={fontSize}
+                  />
+                  <DictViewer
+                    dicts={this.props.dicts}
+                    invalid={running && !paused}
+                    fontSize={fontSize}
+                  />
+                </Card>
+                <Card className={classes.repl} title='REPL'>
+                  <Repl
+                    innerRef={this.setRepl}
+                    style={{ width: '100%', height: '100%' }}
+                    lines={replLines}
+                    onAppendLine={onAppendReplLine}
+                    runner={this.replRunner}
+                    disabled={running && !paused}
+                    onExecutionFinished={this.handleReplExecutionFinished}
+                    fontSize={fontSize}
+                    onFontSizeChange={onFontSizeChange}
+                  />
+                </Card>
+              </SplitLayout>
+            </SplitLayout>
+          </div>
+          <Documentation />
         </SplitLayout>
 
         <Settings
