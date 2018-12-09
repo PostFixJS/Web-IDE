@@ -6,6 +6,7 @@ const styles = (theme) => ({
   root: {
     fontSize: '14px',
     lineHeight: '18px',
+    paddingTop: 8,
     marginBottom: 36,
     '&:last-child': {
       marginBottom: 0
@@ -29,7 +30,12 @@ const styles = (theme) => ({
     opacity: 0.7
   },
   subtitle: {
-    fontWeight: 500
+    fontWeight: 500,
+    display: 'block',
+    clear: 'left',
+    '& > em': {
+      fontWeight: 400
+    }
   },
   description: {
     margin: '0 0 8px',
@@ -56,7 +62,8 @@ class FunctionEntry extends React.Component {
   render () {
     const {
       classes,
-      fun
+      fun,
+      ...other
     } = this.props
     const {
       name,
@@ -68,37 +75,45 @@ class FunctionEntry extends React.Component {
     const signature = getFunctionSignature(this.props.fun)
 
     return (
-      <div className={classes.root}>
+      <div className={classes.root} {...other}>
         <h3 className={classes.name}>{name}</h3>
         {signature && <span className={classes.synopsis}>{signature}</span>}
         <p className={classes.description}>{description}</p>
         
-        <span className={classes.subtitle}>Params: </span>{params.length === 0 && <em>none</em>}
-        {params.length > 0 && <table className={classes.paramsTable}>
-          {params.map((param) => (
-            <tr>
-              <td className={classes.code}>{param.name}</td>
-              <td className={cx(classes.code, classes.paramType)}>{param.type}</td>
-              <td className={classes.paramDescription}>{param.description}</td>
-            </tr>
-          ))}
-        </table>}
+        <span className={classes.subtitle}>Params: {params.length === 0 && <em>none</em>}</span>
+        {params.length > 0 && (
+          <table className={classes.paramsTable}>
+          <tbody>
+            {params.map((param) => (
+              <tr key={param.name}>
+                <td className={classes.code}>{param.name}</td>
+                <td className={cx(classes.code, classes.paramType)}>{param.type}</td>
+                <td className={classes.paramDescription}>{param.description}</td>
+              </tr>
+            ))}
+            </tbody>
+          </table>
+        )}
         
-        <span className={classes.subtitle}>Returns: </span>{returns.length === 0 && <em>nothing</em>}
-        {returns.length > 0 && <table className={classes.paramsTable}>
-          {returns.map((ret) => (
-            <tr>
-              <td className={cx(classes.code, classes.paramType)}>{ret.type}</td>
-              <td className={classes.paramDescription}>{ret.description}</td>
-            </tr>
-          ))}
-        </table>}
+        <span className={classes.subtitle}>Returns: {returns.length === 0 && <em>nothing</em>}</span>
+        {returns.length > 0 && (
+          <table className={classes.paramsTable}>
+            <tbody>
+              {returns.map((ret, i) => (
+                <tr key={i}>
+                  <td className={cx(classes.code, classes.paramType)}>{ret.type}</td>
+                  <td className={classes.paramDescription}>{ret.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     )
   }
 }
 
-export default injectSheet(styles)(FunctionEntry)
+export default injectSheet(styles, { inject: ['classes'] })(FunctionEntry)
 
 
 /**

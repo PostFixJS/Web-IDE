@@ -4,6 +4,7 @@ import * as builtIns from '../../../interpreter/doc'
 import { isTypeSym } from '../postfixUtil'
 import { getDatadefFunctions } from './datadef'
 import { positionToMonaco  } from './util'
+import { getFunctionId } from '../../Documentation/Documentation'
 
 export default {
   provideCompletionItems: (model, position) => {
@@ -53,7 +54,7 @@ export default {
           insertText: fun.name,
           kind: monaco.languages.CompletionItemKind.Function,
           detail: getFunctionSignature(fun),
-          documentation: getFunctionHoverMessage(fun)
+          documentation: getFunctionHoverMessage(fun, true)
         })),
         ...variables.map((variable) => ({
           label: variable.name,
@@ -144,12 +145,13 @@ function getFunctionSignature (doc) {
 /**
  * Generate markdown text for documentation of a function.
  * @param {object} doc DocParser output object for a function
+ * @param {boolean} showMore Whether to include a link to the docs (only available for built-in functions)
  * @returns Markdown object that document the function
  */
-export function getFunctionHoverMessage (doc) {
+export function getFunctionHoverMessage (doc, showMore = false) {
   return {
     value: [
-      doc.description,
+      showMore ? `${doc.description} [More…](pfdoc|${getFunctionId(doc)} "More…")` : doc.description,
       ...doc.params.map((param) => `*@param* \`${param.name}\`${param.description ? ` – ${param.description}` : ''}`),
       ...doc.returns.map((ret) => `*@return* ${ret.description ? ret.description : `\`\`\`${ret.type}\`\`\``}`)
     ].join('  \n')
