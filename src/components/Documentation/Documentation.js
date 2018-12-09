@@ -3,8 +3,6 @@ import injectSheet from 'react-jss'
 import * as builtIns from '../../interpreter/doc'
 import FunctionEntry from './FunctionEntry'
 
-const functions = [...builtIns.functions].sort((a, b) => a.name.localeCompare(b.name))
-
 const styles = (theme) => ({
   root: {
     boxShadow: '0 0 3px rgba(0, 0, 0, 0.1)',
@@ -18,6 +16,7 @@ const styles = (theme) => ({
 class Documentation extends React.Component {
   render () {
     const { classes } = this.props
+    const functions = [...builtIns.functions].sort((a, b) => a.name.localeCompare(b.name))
 
     return (
       <div className={classes.root}>
