@@ -1,15 +1,21 @@
 import React from 'react'
 import injectSheet from 'react-jss'
 import cx from 'classnames'
+import SyntaxHighlighter from '../SyntaxHighlighter/SyntaxHighlighter';
 
 const styles = (theme) => ({
   root: {
     fontSize: '14px',
-    lineHeight: '18px',
-    paddingTop: 8,
-    marginBottom: 36,
+    lineHeight: '20px',
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderBottom: `1px solid ${theme.divider.color}`,
+    '&:first-child': {
+      paddingTop: 8
+    },
     '&:last-child': {
-      marginBottom: 0
+      paddingBottom: 0,
+      borderBottom: 'none'
     }
   },
   code: {
@@ -55,6 +61,10 @@ const styles = (theme) => ({
   paramDescription: {
     paddingLeft: '4px !important',
     maxWidth: 500
+  },
+  example: {
+    display: 'block',
+    margin: '4px 0 4px 4px'
   }
 })
 
@@ -73,6 +83,8 @@ class FunctionEntry extends React.Component {
     } = fun
 
     const signature = getFunctionSignature(this.props.fun)
+    const examples = this.props.fun.tags && this.props.fun.tags.example
+    const examplesCount = (examples && examples.length) || 0
 
     return (
       <div className={classes.root} {...other}>
@@ -108,6 +120,14 @@ class FunctionEntry extends React.Component {
             </tbody>
           </table>
         )}
+        
+        {examplesCount === 1 && <span className={classes.subtitle}>Example:</span>}
+        {examplesCount > 1 && <span className={classes.subtitle}>Examples:</span>}
+        {examplesCount > 0 && examples.map((example, i) => (
+          <code key={i} className={classes.example}>
+            <SyntaxHighlighter>{example}</SyntaxHighlighter>
+          </code>
+        ))}
       </div>
     )
   }
