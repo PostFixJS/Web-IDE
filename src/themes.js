@@ -17,7 +17,8 @@ export const light = {
     symType: '#008080',
     sym: '#000',
     symHighlight: '#0000ff',
-    num: '#09885a'
+    num: '#09885a',
+    comment: '#008000'
   },
   divider: {
     color: 'rgba(0, 0, 0, 0.1)'
@@ -48,7 +49,8 @@ export const dark = {
     symType: '#3dc9b0',
     sym: '#d4d4d4',
     symHighlight: '#569cd6',
-    num: '#b5cea8'
+    num: '#b5cea8',
+    comment: '#608b4e'
   },
   divider: {
     color: 'rgba(255, 255, 255, 0.2)'

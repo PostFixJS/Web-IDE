@@ -2,8 +2,9 @@ import React from 'react'
 import injectSheet from 'react-jss'
 import { InterruptedException } from '../../postfix-runner/PostFixRunner'
 import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
-import OneLineEditor from '../OneLineEditor';
+import OneLineEditor from '../OneLineEditor'
 import { showMessage } from '../Editor/monaco-integration/util'
+import SyntaxHighlighter from '../SyntaxHighlighter/SyntaxHighlighter'
 
 const styles = (theme) => ({
   root: {
@@ -233,7 +234,7 @@ class Repl extends React.Component {
         <div className={classes.output} style={{ fontSize }} ref={this.setOutputRef}>
           {lines.map((line, i) => line.type === 'input' ? (
             <p key={i} className={classes.line}>
-              &gt; {line.value}
+              &gt; <SyntaxHighlighter>{line.value}</SyntaxHighlighter>
               {i === lines.length - 1 && (<span> – <a onClick={this.handleCancel}>Cancel</a></span>)}
             </p>
           ) : line.type === 'error' ? (
