@@ -14,6 +14,11 @@ const styles = (theme) => ({
 })
 
 class Documentation extends React.Component {
+  shouldComponentUpdate () {
+    // the docs never change, no need to re-render them
+    return false
+  }
+
   componentDidMount () {
     // this is a bit hacky, but it is the only way to make a link work in Monaco markdown currently (see https://github.com/Microsoft/monaco-editor/issues/749)
     document.addEventListener('click', (e) => {
