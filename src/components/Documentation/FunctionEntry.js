@@ -99,7 +99,7 @@ class FunctionEntry extends React.Component {
             {params.map((param) => (
               <tr key={param.name}>
                 <td className={classes.code}>{param.name}</td>
-                <td className={cx(classes.code, classes.paramType)}>{param.type}</td>
+                <td className={cx(classes.code, classes.paramType)}>{param.type || ':Obj'}</td>
                 <td className={classes.paramDescription}>{param.description}</td>
               </tr>
             ))}
@@ -113,7 +113,7 @@ class FunctionEntry extends React.Component {
             <tbody>
               {returns.map((ret, i) => (
                 <tr key={i}>
-                  <td className={cx(classes.code, classes.paramType)}>{ret.type}</td>
+                  <td className={cx(classes.code, classes.paramType)}>{ret.type || ':Obj'}</td>
                   <td className={classes.paramDescription}>{ret.description}</td>
                 </tr>
               ))}
