@@ -14,6 +14,7 @@ const styles = (theme) => ({
   root: {
     display: 'flex',
     height: '100%',
+    position: 'relative',
     '& .react-monaco-editor-container': {
       margin: 'auto'
     }
@@ -21,17 +22,33 @@ const styles = (theme) => ({
   select: {
     border: 'none',
     background: '#eee',
-    margin: 'auto'
+    margin: 'auto',
+    width: 100,
+    minWidth: 100,
+    maxWidth: 100
   },
   button: {
     border: 'none',
     background: 'transparent',
     color: 'red',
     outline: 'none',
+    width: 24,
 
     '&:hover': {
       background: theme.type === 'light' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)'
     }
+  },
+  placeholder: {
+    fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
+    position: 'absolute',
+    bottom: 2,
+    left: 116,
+    opacity: 0.5,
+    maxWidth: 'calc(100% - 116px - 24px)',
+    overflowX: 'hidden',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    pointerEvents: 'none'
   }
 })
 
@@ -139,6 +156,16 @@ class RawWidget extends React.Component {
           onChange={this.handleChangeExpression}
           {...other}
         />
+        {!this.state.expressions[this.state.type] && this.state.type === 'expression' && (
+          <div className={classes.placeholder} style={{ fontSize: other.fontSize }}>
+            Break if the expression returns true. Press Enter to save, Escape to cancel.
+          </div>
+        )}
+        {!this.state.expressions[this.state.type] && this.state.type === 'hit' && (
+          <div className={classes.placeholder} style={{ fontSize: other.fontSize }}>
+            Break after the given number of hits. Press Enter to save, Escape to cancel.
+          </div>
+        )}
         <button
           className={classes.button}
           onClick={this.props.onRemove}
