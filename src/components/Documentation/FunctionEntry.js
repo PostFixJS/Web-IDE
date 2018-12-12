@@ -1,6 +1,7 @@
 import React from 'react'
 import injectSheet from 'react-jss'
 import cx from 'classnames'
+import ReactMarkdown from 'react-markdown'
 import SyntaxHighlighter from '../SyntaxHighlighter/SyntaxHighlighter';
 
 const styles = (theme) => ({
@@ -31,7 +32,7 @@ const styles = (theme) => ({
     fontFamily: '"Droid Sans Mono", monospace, monospace, "Droid Sans Fallback"',
     fontSize: '12px',
     lineHeight: '12px',
-    margin: '0 0 8px',
+    margin: 0,
     display: 'inline-block',
     opacity: 0.7
   },
@@ -44,8 +45,12 @@ const styles = (theme) => ({
     }
   },
   description: {
-    margin: '0 0 8px',
-    maxWidth: 500
+    maxWidth: 500,
+    marginTop: 8,
+
+    '& p, & ul': {
+      margin: '0 0 8px',
+    }
   },
   paramsTable: {
     border: 0,
@@ -90,7 +95,7 @@ class FunctionEntry extends React.Component {
       <div className={classes.root} {...other}>
         <h3 className={classes.name}>{name}</h3>
         {signature && <span className={classes.synopsis}>{signature}</span>}
-        <p className={classes.description}>{description}</p>
+        <ReactMarkdown className={classes.description} source={description} />
         
         <span className={classes.subtitle}>Params: {params.length === 0 && <em>none</em>}</span>
         {params.length > 0 && (
@@ -137,9 +142,9 @@ export default injectSheet(styles, { inject: ['classes'] })(FunctionEntry)
 
 
 /**
- * Generate markdown text for a function signature.
+ * Generate text for a function signature.
  * @param {object} doc DocParser output objects for a function
- * @returns Markdown string
+ * @returns Function signature
  */
 export function getFunctionSignature (doc) {
   const params = doc.params

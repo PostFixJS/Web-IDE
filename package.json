@@ -42,6 +42,7 @@
     "react-dev-utils": "^5.0.1",
     "react-dom": "^16.4.1",
     "react-jss": "^8.6.1",
+    "react-markdown": "^4.0.4",
     "react-monaco-editor": "^0.22.0",
     "react-redux": "^5.0.7",
     "react-splitter-layout": "^3.0.1",
