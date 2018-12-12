@@ -108,14 +108,16 @@ class RawWidget extends React.Component {
       editor.layout()
       editor.focus()
     })
-    editor.addCommand(monaco.KeyCode.Enter, () => {
-      const { type } = this.state
-      const expression = editor.getValue()
+    editor.onKeyDown((e) => {
+      if (e.keyCode === monaco.KeyCode.Enter) {
+        const { type } = this.state
+        const expression = editor.getValue()
 
-      if (this.state.type === 'hit' && !/^\d+$/.test(expression)) {
-        showMessage(editor, 'Hit count must be a non-negative number.')
-      } else {
-        this.props.onAccept({ type, expression })
+        if (this.state.type === 'hit' && !/^\d+$/.test(expression)) {
+          showMessage(editor, 'Hit count must be a non-negative number.')
+        } else {
+          this.props.onAccept({ type, expression })
+        }
       }
     })
     editor.onDidChangeModelContent(() => {

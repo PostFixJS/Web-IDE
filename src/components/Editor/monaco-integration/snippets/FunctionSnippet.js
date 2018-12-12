@@ -10,9 +10,8 @@ export default {
         label: 'Generate a function',
         kind: monaco.languages.CompletionItemKind.Snippet,
         documentation: 'Generate a function.',
-        insertText: {
-          value: '${1:name}: (${2:parameters}) {\n    $0\n} fun' // eslint-disable-line no-template-curly-in-string
-        },
+        insertText: '${1:name}: (${2:parameters}) {\n    $0\n} fun', // eslint-disable-line no-template-curly-in-string
+        insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
         range: {
           startLineNumber: position.lineNumber,
           startColumn: position.column,
@@ -22,6 +21,6 @@ export default {
       })
     }
 
-    return items
+    return { suggestions: items }
   }
 }

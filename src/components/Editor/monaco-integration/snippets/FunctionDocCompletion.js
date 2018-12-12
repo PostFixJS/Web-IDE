@@ -27,28 +27,29 @@ export default {
         if (paramsListTokens) {
           const params = parseParamsList(tokens.slice(paramsListTokens.firstToken, paramsListTokens.lastToken + 1))
 
-          return [{
-            label: 'Generate function documentation',
-            kind: monaco.languages.CompletionItemKind.Snippet,
-            documentation: 'Generate a documentation comment for the function in the next line.',
-            insertText: {
-              value: [
+          return {
+            suggestions: [{
+              label: 'Generate function documentation',
+              kind: monaco.languages.CompletionItemKind.Snippet,
+              documentation: 'Generate a documentation comment for the function in the next line.',
+              insertText: [
                 '', '$1',
                 ...params.params.map((param, i) => `@param ${param.name} $${i + 2}`),
                 ...params.returns.map((ret, i) => `@return $${i + params.params.length + 2}`),
                 '>#$0'
-              ].join('\n')
-            },
-            range: {
-              startLineNumber: position.lineNumber,
-              startColumn: position.column,
-              endLineNumber: position.lineNumber,
-              endColumn: position.column + 3
-            }
-          }]
+              ].join('\n'),
+              insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
+              range: {
+                startLineNumber: position.lineNumber,
+                startColumn: position.column,
+                endLineNumber: position.lineNumber,
+                endColumn: position.column + 3
+              }
+            }]
+          }
         }
       }
     }
-    return []
+    return { suggestions: [] }
   }
 }

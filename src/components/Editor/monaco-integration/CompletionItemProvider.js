@@ -32,46 +32,54 @@ export default {
       return bodyRange.containsPosition(position)
     })
 
-    return [
-      ...functionsAtPosition.map((fun) => fun.params.map((param) => ({
-        label: param.name,
-        kind: monaco.languages.CompletionItemKind.Variable,
-        detail: param.type || ':Obj',
-        documentation: param.description
-      }))).reduce((allParams, fnParams) => allParams.concat(fnParams), []),
-      ...functions.map((fun) => ({
-        label: fun.name,
-        kind: monaco.languages.CompletionItemKind.Function,
-        detail: getFunctionSignature(fun),
-        documentation: getFunctionHoverMessage(fun)
-      })),
-      ...builtIns.functions.map((fun) => ({
-        label: fun.name,
-        kind: monaco.languages.CompletionItemKind.Function,
-        detail: getFunctionSignature(fun),
-        documentation: getFunctionHoverMessage(fun)
-      })),
-      ...variables.map((fun) => ({
-        label: fun.name,
-        kind: monaco.languages.CompletionItemKind.Variable,
-        documentation: fun.description
-      })),
-      ...builtIns.variables.map((fun) => ({
-        label: fun.name,
-        kind: monaco.languages.CompletionItemKind.Variable,
-        documentation: fun.description
-      })),
-      ...datadefs.reduce((items, datadef) => [
-        ...items,
-        ...getDatadefFunctions(datadef).map((fun) => ({
+    return {
+      suggestions: [
+        ...functionsAtPosition.map((fun) => fun.params.map((param) => ({
+          label: param.name,
+          insertText: param.name,
+          kind: monaco.languages.CompletionItemKind.Variable,
+          detail: param.type || ':Obj',
+          documentation: param.description
+        }))).reduce((allParams, fnParams) => allParams.concat(fnParams), []),
+        ...functions.map((fun) => ({
           label: fun.name,
+          insertText: fun.name,
           kind: monaco.languages.CompletionItemKind.Function,
           detail: getFunctionSignature(fun),
           documentation: getFunctionHoverMessage(fun)
-        }))
-      ], []),
-      ...mergeSymbolEntries(builtIns.symbols, symbols)
-    ]
+        })),
+        ...builtIns.functions.map((fun) => ({
+          label: fun.name,
+          insertText: fun.name,
+          kind: monaco.languages.CompletionItemKind.Function,
+          detail: getFunctionSignature(fun),
+          documentation: getFunctionHoverMessage(fun)
+        })),
+        ...variables.map((variable) => ({
+          label: variable.name,
+          insertText: variable.name,
+          kind: monaco.languages.CompletionItemKind.Variable,
+          documentation: variable.description
+        })),
+        ...builtIns.variables.map((fun) => ({
+          label: fun.name,
+          insertText: fun.name,
+          kind: monaco.languages.CompletionItemKind.Variable,
+          documentation: fun.description
+        })),
+        ...datadefs.reduce((items, datadef) => [
+          ...items,
+          ...getDatadefFunctions(datadef).map((fun) => ({
+            label: fun.name,
+            insertText: fun.name,
+            kind: monaco.languages.CompletionItemKind.Function,
+            detail: getFunctionSignature(fun),
+            documentation: getFunctionHoverMessage(fun)
+          }))
+        ], []),
+        ...mergeSymbolEntries(builtIns.symbols, symbols)
+      ]
+    }
   }
 }
 
@@ -80,6 +88,7 @@ function mergeSymbolEntries (builtIns, userSymbols) {
   for (const sym of builtIns) {
     symbols.set(sym.name, {
       label: sym.name,
+      insertText: sym.name,
       kind: isTypeSym(sym) ? monaco.languages.CompletionItemKind.Class : monaco.languages.CompletionItemKind.Value,
       documentation: sym.description
     })
@@ -90,6 +99,7 @@ function mergeSymbolEntries (builtIns, userSymbols) {
         const other = symbols.get(sym.name)
         symbols.set(sym.name, {
           label: sym.name,
+          insertText: sym.name,
           kind: isTypeSym(sym) ? monaco.languages.CompletionItemKind.Class : monaco.languages.CompletionItemKind.Value,
           documentation: { value: `* ${other.documentation.value || other.documentation}\n* ${sym.description}` }
         })
@@ -97,6 +107,7 @@ function mergeSymbolEntries (builtIns, userSymbols) {
     } else {
       symbols.set(sym.name, {
         label: sym.name,
+        insertText: sym.name,
         kind: isTypeSym(sym) ? monaco.languages.CompletionItemKind.Class : monaco.languages.CompletionItemKind.Value,
         documentation: sym.description
       })
