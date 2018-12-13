@@ -257,7 +257,8 @@ class Repl extends React.Component {
           options={{
             fixedOverflowWidgets: true,
             acceptSuggestionOnEnter: false,
-            fontSize
+            fontSize,
+            snippetSuggestions: 'none'
           }}
           fontSize={fontSize}
           onFontSizeChange={onFontSizeChange}

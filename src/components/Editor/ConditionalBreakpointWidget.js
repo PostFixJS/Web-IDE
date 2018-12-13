@@ -153,7 +153,7 @@ class RawWidget extends React.Component {
         <OneLineEditor
           language={this.state.type === 'expression' ? 'postfix' : 'text'}
           editorDidMount={this.editorDidMount}
-          options={{ fixedOverflowWidgets: true }}
+          options={{ fixedOverflowWidgets: true, snippetSuggestions: 'none' }}
           value={this.state.expressions[this.state.type] || ''}
           onChange={this.handleChangeExpression}
           {...other}
