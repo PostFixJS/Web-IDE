@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import SplitLayout from 'react-splitter-layout'
 import { connect } from 'react-redux'
 import injectSheet from 'react-jss'
+import cx from 'classnames'
 import { saveAs } from 'file-saver'
 import * as types from 'postfixjs/types'
 import ThemeProvider from './ThemeProvider'
@@ -64,6 +65,9 @@ const styles = (theme) => ({
     width: 'calc(100% - 10px)',
     height: 'calc(100% - 10px)',
     position: 'absolute'
+  },
+  noDocumentationPanel: {
+    paddingRight: 5
   }
 })
 
@@ -76,6 +80,7 @@ class App extends Component {
     showShortcuts: false
   }
   lineHighlightDecorations = []
+  scrollDocsTo = null
 
   constructor (props) {
     super(props)
@@ -109,10 +114,12 @@ class App extends Component {
 
   componentDidMount () {
     window.addEventListener('resize', this.handleResize)
+    document.addEventListener('click', this.handleClickLink)
   }
 
   componentWillUnmount () {
     window.removeEventListener('resize', this.handleResize)
+    document.removeEventListener('click', this.handleClickLink)
   }
 
   componentDidUpdate (prevProps) {
@@ -120,9 +127,14 @@ class App extends Component {
       this.runner.interpreter.options.enableProperTailCalls = this.props.settings.enableProperTailCalls
     }
 
-    if(prevProps.input.isWaiting !== this.props.input.isWaiting) {
+    if (prevProps.input.isWaiting !== this.props.input.isWaiting) {
       // update stack and dict while the program is waiting for input
       this.showStackAndDict()
+    }
+
+    if (!prevProps.settings.showDocumentationPanel && this.props.settings.showDocumentationPanel && this.scrollDocsTo != null) {
+      document.getElementById(this.scrollDocsTo).scrollIntoView()
+      this.scrollDocsTo = null
     }
   }
 
@@ -130,6 +142,23 @@ class App extends Component {
     this._editor.layout()
     this._inputOutput.layout()
     this._repl.layout()
+  }
+
+  handleClickLink = (e) => {
+    // this is a bit hacky, but it is the only way to make a link work in Monaco markdown currently (see https://github.com/Microsoft/monaco-editor/issues/749)
+    if (e.target.tagName === 'A') {
+      const dataHref = e.target.dataset.href
+      if (dataHref != null && dataHref.startsWith('pfdoc|')) {
+        const [, id] = dataHref.split('|')
+
+        if (!this.props.settings.showDocumentationPanel) {
+          this.scrollDocsTo = `pfdoc-${id}`
+          this.props.onToggleDocumentationPanel()
+        } else {
+          document.getElementById(`pfdoc-${id}`).scrollIntoView()
+        }
+      }
+    }
   }
 
   setEditor = (ref) => {
@@ -360,16 +389,16 @@ class App extends Component {
       tests,
       onThemeChange,
       onFontSizeChange,
+      onToggleDocumentationPanel,
       onProperTailCallsChange,
       settings,
       initialBreakpoints
     } = this.props
-    const { fontSize } = settings
+    const { fontSize, showDocumentationPanel } = settings
 
     return (
       <div
         className={classes.root}
-        //style={this.state.showSettings ? { filter: 'blur(2px) saturate(0)' } : {}}
       >
         <SplitLayout
           customClassName={classes.rootSplitLayout}
@@ -378,7 +407,7 @@ class App extends Component {
           onSecondaryPaneSizeChange={this.handleResize}
           onDragEnd={this.handleResize}
         >
-          <div className={classes.editorRoot}>
+          <div className={cx(classes.editorRoot, { [classes.noDocumentationPanel]: !showDocumentationPanel })}>
             <Toolbar
               className={classes.toolbar}
               running={running}
@@ -393,6 +422,7 @@ class App extends Component {
               onOpen={this.handleOpen}
               onShowSettings={this.handleShowSettings}
               onShowKeyboardShortcuts={this.handleShowShortcuts}
+              onToggleDocumentationPanel={onToggleDocumentationPanel}
             />
             <SplitLayout
               customClassName={classes.rootSplitLayout}
@@ -477,7 +507,7 @@ class App extends Component {
               </SplitLayout>
             </SplitLayout>
           </div>
-          <Documentation />
+          {showDocumentationPanel && <Documentation />}
         </SplitLayout>
 
         <Settings
@@ -518,7 +548,8 @@ export default connect((state) => ({
   onFontSizeChange: (fontSize) => dispatch(actions.setFontSize(fontSize)),
   onThemeChange: (theme) => dispatch(actions.setTheme(theme)),
   onProperTailCallsChange: (enabled) => dispatch(actions.setProperTailCalls(enabled)),
-  onBreakpointsChange: (breakpoints) => dispatch(actions.setBreakpoints(breakpoints))
+  onBreakpointsChange: (breakpoints) => dispatch(actions.setBreakpoints(breakpoints)),
+  onToggleDocumentationPanel: () => dispatch(actions.toggleDocumentationPanel())
 }))((props) => (
   <ThemeProvider>
     <StyledApp {...props} />

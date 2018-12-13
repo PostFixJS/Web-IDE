@@ -36,6 +36,7 @@ export default class Toolbar extends React.Component {
       onSave,
       onShowSettings,
       onShowKeyboardShortcuts,
+      onToggleDocumentationPanel,
       ...other
     } = this.props
 
@@ -131,8 +132,11 @@ export default class Toolbar extends React.Component {
             title: 'PostFix language tutorial',
             onClick: this.handleShowHelp
           }, {
+            title: 'Toggle documentation panel',
+            onClick: onToggleDocumentationPanel
+          }, {
             title: 'Keyboard shortcuts',
-            onClick: this.props.onShowKeyboardShortcuts
+            onClick: onShowKeyboardShortcuts
           }]}
         />
       </div>
@@ -152,5 +156,6 @@ Toolbar.propTypes = {
   onOpen: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
   onShowSettings: PropTypes.func.isRequired,
-  onShowKeyboardShortcuts: PropTypes.func.isRequired
+  onShowKeyboardShortcuts: PropTypes.func.isRequired,
+  onToggleDocumentationPanel: PropTypes.func.isRequired
 }

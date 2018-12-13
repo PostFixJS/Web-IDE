@@ -76,7 +76,8 @@ export function dicts (state = [], action) {
 const defaultSettings = {
   theme: 'light',
   fontSize: 14,
-  enableProperTailCalls: false
+  enableProperTailCalls: false,
+  showDocumentationPanel: true
 }
 
 export function settings (state = {
@@ -98,6 +99,11 @@ export function settings (state = {
       return {
         ...state,
         enableProperTailCalls: action.payload
+      }
+    case actions.TOGGLE_DOCUMENTATION_PANEL:
+      return {
+        ...state,
+        showDocumentationPanel: !state.showDocumentationPanel
       }
     default:
       return state

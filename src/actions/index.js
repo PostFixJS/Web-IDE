@@ -10,6 +10,7 @@ export const SET_INPUT_WAITING = 'input/SET_WAITING'
 export const SET_THEME = 'settings/SET_THEME'
 export const SET_FONTSIZE = 'settings/SET_FONTSIZE'
 export const SET_PROPER_TAILCALLS = 'settings/SET_PROPER_TAILCALLS'
+export const TOGGLE_DOCUMENTATION_PANEL = 'settings/TOGGLE_DOCUMENTATION_PANEL'
 export const ADD_TEST_RESULT = 'tests/ADD_TEST_RESULT'
 export const RESET_TESTS = 'tests/RESET_TESTS'
 export const ADD_REPL_LINE = 'repl/ADD_REPL_LINE'
@@ -56,6 +57,10 @@ export function setFontSize (fontSize) {
 
 export function setProperTailCalls (enabled) {
   return { type: SET_PROPER_TAILCALLS, payload: enabled }
+}
+
+export function toggleDocumentationPanel () {
+  return { type: TOGGLE_DOCUMENTATION_PANEL }
 }
 
 export function reportTest (passed, type, position, params) {

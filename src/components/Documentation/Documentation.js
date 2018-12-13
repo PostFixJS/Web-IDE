@@ -13,25 +13,7 @@ const styles = (theme) => ({
   }
 })
 
-class Documentation extends React.Component {
-  shouldComponentUpdate () {
-    // the docs never change, no need to re-render them
-    return false
-  }
-
-  componentDidMount () {
-    // this is a bit hacky, but it is the only way to make a link work in Monaco markdown currently (see https://github.com/Microsoft/monaco-editor/issues/749)
-    document.addEventListener('click', (e) => {
-      if (e.target.tagName === 'A') {
-        const dataHref = e.target.dataset.href
-        if (dataHref != null && dataHref.startsWith('pfdoc|')) {
-          const [, id] = dataHref.split('|')
-          document.getElementById(`pfdoc-${id}`).scrollIntoView()
-        }
-      }
-    })
-  }
-
+class Documentation extends React.PureComponent {
   render () {
     const { classes } = this.props
     const functions = [...builtIns.functions].sort((a, b) => a.name.localeCompare(b.name))
