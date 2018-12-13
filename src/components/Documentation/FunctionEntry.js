@@ -69,7 +69,8 @@ const styles = (theme) => ({
   },
   example: {
     display: 'block',
-    margin: '4px 0 4px 4px'
+    margin: '4px 0 4px 4px',
+    whiteSpace: 'pre-wrap'
   }
 })
 
@@ -129,9 +130,9 @@ class FunctionEntry extends React.Component {
         {examplesCount === 1 && <span className={classes.subtitle}>Example:</span>}
         {examplesCount > 1 && <span className={classes.subtitle}>Examples:</span>}
         {examplesCount > 0 && examples.map((example, i) => (
-          <code key={i} className={classes.example}>
+          <pre key={i} className={classes.example}>
             <SyntaxHighlighter>{example}</SyntaxHighlighter>
-          </code>
+          </pre>
         ))}
       </div>
     )
