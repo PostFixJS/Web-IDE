@@ -114,12 +114,12 @@ class App extends Component {
 
   componentDidMount () {
     window.addEventListener('resize', this.handleResize)
-    document.addEventListener('click', this.handleClickLink)
+    document.addEventListener('mousedown', this.handleClickLink)
   }
 
   componentWillUnmount () {
     window.removeEventListener('resize', this.handleResize)
-    document.removeEventListener('click', this.handleClickLink)
+    document.removeEventListener('mousedown', this.handleClickLink)
   }
 
   componentDidUpdate (prevProps) {
@@ -149,6 +149,8 @@ class App extends Component {
     if (e.target.tagName === 'A') {
       const dataHref = e.target.dataset.href
       if (dataHref != null && dataHref.startsWith('pfdoc|')) {
+        e.preventDefault()
+        e.stopPropagation()
         const [, id] = dataHref.split('|')
 
         if (!this.props.settings.showDocumentationPanel) {
