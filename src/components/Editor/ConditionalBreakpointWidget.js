@@ -110,6 +110,7 @@ class RawWidget extends React.Component {
     })
     editor.onKeyDown((e) => {
       if (e.keyCode === monaco.KeyCode.Enter) {
+        e.preventDefault()
         const { type } = this.state
         const expression = editor.getValue()
 
