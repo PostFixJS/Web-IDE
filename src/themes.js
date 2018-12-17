@@ -25,7 +25,7 @@ export const light = {
   },
   input: {
     borderColor: 'rgb(0, 122, 204)',
-    background: 'rgba(0, 0, 0, 0.1)',
+    background: 'rgba(0, 0, 0, 0.05)',
     color: '#000'
   }
 }
