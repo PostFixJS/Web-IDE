@@ -8,6 +8,7 @@ import LanguageConfiguration from './monaco-integration/LanguageConfiguration'
 import MonarchTokensProvider from './monaco-integration/MonarchTokensProvider'
 import CompletionItemProvider from './monaco-integration/CompletionItemProvider'
 import * as snippetProviders from './monaco-integration/snippets'
+import MarkerProvier from './monaco-integration/MarkerProvider'
 import { getTokenAtOrNext, getTokenAt } from './postfixUtil'
 import ConditionalBreakpointWidget from './ConditionalBreakpointWidget'
 import { positionToMonaco, positionFromMonaco, showMessage } from './monaco-integration/util'
@@ -82,6 +83,7 @@ class Editor extends React.Component {
   }
 
   editorDidMount = (editor) => {
+    this.markerProvider = new MarkerProvier(editor)
     this.editor = editor
     editor.updateOptions({
       readOnly: this.props.readOnly
