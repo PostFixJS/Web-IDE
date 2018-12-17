@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import injectSheet from 'react-jss'
+import cx from 'classnames'
 
 const styles = (theme) => ({
   root: {
@@ -16,10 +17,10 @@ const styles = (theme) => ({
   },
 })
 
-function Input ({ classes, theme, ...other }) {
+function Input ({ classes, className, theme, ...other }) {
   return (
     <input
-      className={classes.root}
+      className={cx(classes.root, className)}
       {...other}
     />
   )

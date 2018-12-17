@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import SplitLayout from 'react-splitter-layout'
 import { connect } from 'react-redux'
 import injectSheet from 'react-jss'
+import cx from 'classnames'
 import { saveAs } from 'file-saver'
 import * as types from 'postfixjs/types'
 import ThemeProvider from './ThemeProvider'
@@ -21,6 +22,7 @@ import * as replTestReporter from './interpreter/replTestReporter'
 import Settings from './components/Settings/Settings'
 import OfflineHandler from './containers/OfflineHandler'
 import ShortcutOverlay from './components/ShortcutOverlay'
+import Documentation from './components/Documentation/Documentation'
 
 const styles = (theme) => ({
   root: {
@@ -28,8 +30,15 @@ const styles = (theme) => ({
     flexDirection: 'column',
     width: '100%',
     height: '100%',
-    padding: 5,
     background: theme.background
+  },
+  editorRoot: {
+    display: 'flex',
+    flexDirection: 'column',
+    width: '100%',
+    height: '100%',
+    padding: 5,
+    paddingRight: 0
   },
   toolbar: {
     padding: '0 5px'
@@ -56,6 +65,9 @@ const styles = (theme) => ({
     width: 'calc(100% - 10px)',
     height: 'calc(100% - 10px)',
     position: 'absolute'
+  },
+  noDocumentationPanel: {
+    paddingRight: 5
   }
 })
 
@@ -68,6 +80,8 @@ class App extends Component {
     showShortcuts: false
   }
   lineHighlightDecorations = []
+  scrollDocsTo = null
+  documentationRef = React.createRef()
 
   constructor (props) {
     super(props)
@@ -101,10 +115,12 @@ class App extends Component {
 
   componentDidMount () {
     window.addEventListener('resize', this.handleResize)
+    document.addEventListener('mousedown', this.handleClickLink)
   }
 
   componentWillUnmount () {
     window.removeEventListener('resize', this.handleResize)
+    document.removeEventListener('mousedown', this.handleClickLink)
   }
 
   componentDidUpdate (prevProps) {
@@ -112,9 +128,14 @@ class App extends Component {
       this.runner.interpreter.options.enableProperTailCalls = this.props.settings.enableProperTailCalls
     }
 
-    if(prevProps.input.isWaiting !== this.props.input.isWaiting) {
+    if (prevProps.input.isWaiting !== this.props.input.isWaiting) {
       // update stack and dict while the program is waiting for input
       this.showStackAndDict()
+    }
+
+    if (!prevProps.settings.showDocumentationPanel && this.props.settings.showDocumentationPanel && this.scrollDocsTo != null) {
+      this.documentationRef.current.scrollIntoView(this.scrollDocsTo)
+      this.scrollDocsTo = null
     }
   }
 
@@ -122,6 +143,25 @@ class App extends Component {
     this._editor.layout()
     this._inputOutput.layout()
     this._repl.layout()
+  }
+
+  handleClickLink = (e) => {
+    // this is a bit hacky, but it is the only way to make a link work in Monaco markdown currently (see https://github.com/Microsoft/monaco-editor/issues/749)
+    if (e.target.tagName === 'A') {
+      const dataHref = e.target.dataset.href
+      if (dataHref != null && dataHref.startsWith('pfdoc|')) {
+        e.preventDefault()
+        e.stopPropagation()
+        const [, id] = dataHref.split('|')
+
+        if (!this.props.settings.showDocumentationPanel) {
+          this.scrollDocsTo = `pfdoc-${id}`
+          this.props.onToggleDocumentationPanel()
+        } else {
+          this.documentationRef.current.scrollIntoView(`pfdoc-${id}`)
+        }
+      }
+    }
   }
 
   setEditor = (ref) => {
@@ -352,32 +392,17 @@ class App extends Component {
       tests,
       onThemeChange,
       onFontSizeChange,
+      onToggleDocumentationPanel,
       onProperTailCallsChange,
       settings,
       initialBreakpoints
     } = this.props
-    const { fontSize } = settings
+    const { fontSize, showDocumentationPanel } = settings
 
     return (
       <div
         className={classes.root}
-        //style={this.state.showSettings ? { filter: 'blur(2px) saturate(0)' } : {}}
       >
-        <Toolbar
-          className={classes.toolbar}
-          running={running}
-          paused={paused}
-          canPause={!error}
-          canStep={canStep}
-          onRun={this.runProgram}
-          onPause={this.pauseProgram}
-          onStop={this.stopProgram}
-          onStep={this.stepProgram}
-          onSave={this.handleSave}
-          onOpen={this.handleOpen}
-          onShowSettings={this.handleShowSettings}
-          onShowKeyboardShortcuts={this.handleShowShortcuts}
-        />
         <SplitLayout
           customClassName={classes.rootSplitLayout}
           percentage
@@ -385,80 +410,107 @@ class App extends Component {
           onSecondaryPaneSizeChange={this.handleResize}
           onDragEnd={this.handleResize}
         >
-          <SplitLayout
-            vertical
-            percentage
-            secondaryInitialSize={20}
-            onSecondaryPaneSizeChange={this.handleResize}
-            onDragEnd={this.handleResize}
-          >
-            <Card className={classes.editorCard} onClick={this.showProgramStack}>
-              <Editor
-                innerRef={this.setEditor}
-                code={code}
-                tests={tests}
-                onChange={this.updateCode}
-                readOnly={running}
-                className={classes.editor}
-                onDragOver={this.handleDragOver}
-                onDrop={this.handleDrop}
-                defaultBreakpoints={initialBreakpoints}
-                onBreakpointsChange={this.handleChangeBreakpoints}
-                fontSize={fontSize}
-                onFontSizeChange={onFontSizeChange}
-                onCopyToRepl={this.handleCopyToRepl}
-              />
-            </Card>
-            <InputOutput
-              innerRef={this.setInputOutput}
-              output={this.props.output}
-              input={this.props.input.value}
-              inputPosition={this.props.input.position}
-              onInputChange={this.props.onInputChange}
-              isWaiting={this.props.input.isWaiting}
-              readOnly={!running}
-              style={{ width: '100%', height: '100%', position: 'absolute' }}
-              fontSize={fontSize}
-              onFontSizeChange={onFontSizeChange}
+          <div className={cx(classes.editorRoot, { [classes.noDocumentationPanel]: !showDocumentationPanel })}>
+            <Toolbar
+              className={classes.toolbar}
+              running={running}
+              paused={paused}
+              canPause={!error}
+              canStep={canStep}
+              onRun={this.runProgram}
+              onPause={this.pauseProgram}
+              onStop={this.stopProgram}
+              onStep={this.stepProgram}
+              onSave={this.handleSave}
+              onOpen={this.handleOpen}
+              onShowSettings={this.handleShowSettings}
+              onShowKeyboardShortcuts={this.handleShowShortcuts}
+              onToggleDocumentationPanel={onToggleDocumentationPanel}
             />
-          </SplitLayout>
-          <SplitLayout
-            vertical
-            percentage
-            secondaryInitialSize={20}
-            onSecondaryPaneSizeChange={this.handleResize}
-            onDragEnd={this.handleResize}
-          >
-            <Card
-              className={classes.stackDict}
-              title='Stack &amp; Dictionaries'
-              scrollable
+            <SplitLayout
+              customClassName={classes.rootSplitLayout}
+              percentage
+              secondaryInitialSize={30}
+              onSecondaryPaneSizeChange={this.handleResize}
+              onDragEnd={this.handleResize}
             >
-              <StackViewer
-                stack={this.props.stack}
-                invalid={running && !paused}
-                fontSize={fontSize}
-              />
-              <DictViewer
-                dicts={this.props.dicts}
-                invalid={running && !paused}
-                fontSize={fontSize}
-              />
-            </Card>
-            <Card className={classes.repl} title='REPL'>
-              <Repl
-                innerRef={this.setRepl}
-                style={{ width: '100%', height: '100%' }}
-                lines={replLines}
-                onAppendLine={onAppendReplLine}
-                runner={this.replRunner}
-                disabled={running && !paused}
-                onExecutionFinished={this.handleReplExecutionFinished}
-                fontSize={fontSize}
-                onFontSizeChange={onFontSizeChange}
-              />
-            </Card>
-          </SplitLayout>
+              <SplitLayout
+                vertical
+                percentage
+                secondaryInitialSize={20}
+                onSecondaryPaneSizeChange={this.handleResize}
+                onDragEnd={this.handleResize}
+              >
+                <Card className={classes.editorCard} onClick={this.showProgramStack}>
+                  <Editor
+                    innerRef={this.setEditor}
+                    code={code}
+                    tests={tests}
+                    onChange={this.updateCode}
+                    readOnly={running}
+                    className={classes.editor}
+                    onDragOver={this.handleDragOver}
+                    onDrop={this.handleDrop}
+                    defaultBreakpoints={initialBreakpoints}
+                    onBreakpointsChange={this.handleChangeBreakpoints}
+                    fontSize={fontSize}
+                    onFontSizeChange={onFontSizeChange}
+                    onCopyToRepl={this.handleCopyToRepl}
+                  />
+                </Card>
+                <InputOutput
+                  innerRef={this.setInputOutput}
+                  output={this.props.output}
+                  input={this.props.input.value}
+                  inputPosition={this.props.input.position}
+                  onInputChange={this.props.onInputChange}
+                  isWaiting={this.props.input.isWaiting}
+                  readOnly={!running}
+                  style={{ width: '100%', height: '100%', position: 'absolute' }}
+                  fontSize={fontSize}
+                  onFontSizeChange={onFontSizeChange}
+                />
+              </SplitLayout>
+              <SplitLayout
+                vertical
+                percentage
+                secondaryInitialSize={20}
+                onSecondaryPaneSizeChange={this.handleResize}
+                onDragEnd={this.handleResize}
+              >
+                <Card
+                  className={classes.stackDict}
+                  title='Stack &amp; Dictionaries'
+                  scrollable
+                >
+                  <StackViewer
+                    stack={this.props.stack}
+                    invalid={running && !paused}
+                    fontSize={fontSize}
+                  />
+                  <DictViewer
+                    dicts={this.props.dicts}
+                    invalid={running && !paused}
+                    fontSize={fontSize}
+                  />
+                </Card>
+                <Card className={classes.repl} title='REPL'>
+                  <Repl
+                    innerRef={this.setRepl}
+                    style={{ width: '100%', height: '100%' }}
+                    lines={replLines}
+                    onAppendLine={onAppendReplLine}
+                    runner={this.replRunner}
+                    disabled={running && !paused}
+                    onExecutionFinished={this.handleReplExecutionFinished}
+                    fontSize={fontSize}
+                    onFontSizeChange={onFontSizeChange}
+                  />
+                </Card>
+              </SplitLayout>
+            </SplitLayout>
+          </div>
+          {showDocumentationPanel && <Documentation innerRef={this.documentationRef} />}
         </SplitLayout>
 
         <Settings
@@ -499,7 +551,8 @@ export default connect((state) => ({
   onFontSizeChange: (fontSize) => dispatch(actions.setFontSize(fontSize)),
   onThemeChange: (theme) => dispatch(actions.setTheme(theme)),
   onProperTailCallsChange: (enabled) => dispatch(actions.setProperTailCalls(enabled)),
-  onBreakpointsChange: (breakpoints) => dispatch(actions.setBreakpoints(breakpoints))
+  onBreakpointsChange: (breakpoints) => dispatch(actions.setBreakpoints(breakpoints)),
+  onToggleDocumentationPanel: () => dispatch(actions.toggleDocumentationPanel())
 }))((props) => (
   <ThemeProvider>
     <StyledApp {...props} />

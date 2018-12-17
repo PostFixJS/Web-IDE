@@ -5,6 +5,7 @@ import * as monaco from 'monaco-editor'
 import * as builtIns from '../../../interpreter/doc'
 import { getDatadefFunctions } from './datadef'
 import { positionToMonaco, rangeToMonaco, positionFromMonaco } from './util'
+import { getFunctionId } from '../../Documentation/Documentation';
 
 export default {
   provideHover: (model, position) => {
@@ -21,7 +22,7 @@ export default {
       if (builtInFunctions.length === 0) { // built-in functions take precedence
         usageMessages.push(...getFunctionHoverMessages(functions.filter((doc) => doc.name === token.token)))
       } else {
-        usageMessages.push(...getFunctionHoverMessages(builtInFunctions))
+        usageMessages.push(...getFunctionHoverMessages(builtInFunctions, true))
       }
 
 
@@ -73,9 +74,10 @@ export default {
 /**
  * Generate markdown text for documentation of a function.
  * @param {object[]} functionDocs DocParser output objects for a function
+ * @param {boolean} showMore Whether to include a link to the docs (only available for built-in functions)
  * @returns Array of markdown objects that document the function
  */
-function getFunctionHoverMessages (functionDocs) {
+function getFunctionHoverMessages (functionDocs, showMore = false) {
   return functionDocs.map((doc) => {
     let signature
     const params = doc.params
@@ -99,7 +101,7 @@ function getFunctionHoverMessages (functionDocs) {
     return {
       value: [
         `\`\`\`postfix\n${doc.name}: ${signature}\n\`\`\``,
-        doc.description,
+        showMore ? `${doc.description} [More…](pfdoc|${getFunctionId(doc)} "More…")` : doc.description,
         ...doc.params.map((param) =>`*@param* \`${param.name}\`${param.description ? ` – ${param.description}` : ''}`),
         ...doc.returns.map((ret) =>`*@return* ${ret.description ? ret.description : `\`\`\`${ret.type}\`\`\``}`)
       ].join('  \n')
