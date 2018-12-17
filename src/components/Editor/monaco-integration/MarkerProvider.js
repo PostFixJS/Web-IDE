@@ -1,7 +1,9 @@
 import * as monaco from 'monaco-editor'
 import { debounce } from 'throttle-debounce'
 import Lexer from 'postfixjs/Lexer'
-import { readParamsList } from 'postfixjs/tokenUtils'
+import { readParamsList, normalizeSymbol } from 'postfixjs/tokenUtils'
+import { isBuiltInType } from 'postfixjs/types/util'
+import DocParser from 'postfixjs/DocParser'
 import * as builtIns from '../../../interpreter/doc'
 import { isTypeSym } from '../postfixUtil'
 import { rangeToMonaco } from './util'
@@ -24,23 +26,28 @@ export default class MarkerProvier {
    * Check the code and update the markers.
    */
   check = debounce(500, () => {
-    const tokens = Lexer.parse(this.model.getValue())
+    const code = this.model.getValue()
+    const tokens = Lexer.parse(code)
+    const datadefs = DocParser.getDatadefs(code)
+
     monaco.editor.setModelMarkers(this.model, 'webide', [
       ...this.checkBrackets(tokens),
-      ...this.checkParamsLists(tokens)
+      ...this.checkParamsLists(tokens, { datadefs })
     ])
   });
 
   /**
    * Check the given tokens for invalid parameter lists.
    * @param {Token[]} tokens Tokenized code
+   * @param {object} data Additional data to be used
+   * @param {object[]} data.datadefs Data definitions in the code
    * @yields {IMarkerData} Markers of errors
    */
-  * checkParamsLists (tokens) {
+  * checkParamsLists (tokens, data) {
     for (let i = 0; i < tokens.length; i++) {
       const paramsList = readParamsList(tokens, i)
       if (paramsList) {
-        yield * this.checkParamsList(tokens.slice(paramsList.firstToken, paramsList.lastToken + 1))
+        yield * this.checkParamsList(tokens.slice(paramsList.firstToken, paramsList.lastToken + 1), data)
         i = paramsList.lastToken // + 1 is done by the for loop
       }
     }
@@ -49,9 +56,11 @@ export default class MarkerProvier {
   /**
    * Check the given tokens of a parameter list for invalid parameter lists.
    * @param {Token[]} tokens Tokens of a parameter list
+   * @param {object} data Additional data to be used
+   * @param {object[]} data.datadefs Data definitions in the code
    * @yields {IMarkerData} Markers of errors
    */
-  * checkParamsList (tokens) {
+  * checkParamsList (tokens, { datadefs }) {
     let rightArrowPosition = tokens.findIndex((token) => token.tokenType === 'RIGHT_ARROW')
     const paramsEnd = rightArrowPosition >= 0 ? rightArrowPosition : tokens.length - 1
 
@@ -88,9 +97,13 @@ export default class MarkerProvier {
           message: `${token.token} is not a valid type name.`,
           ...rangeToMonaco(token)
         }
+      } else if (token.tokenType === 'SYMBOL' && !isBuiltInType(token.token) && !datadefs.some(({ name }) => name === normalizeSymbol(token.token, true))) {
+        yield {
+          severity: monaco.MarkerSeverity.Warning,
+          message: `Unknown type name ${token.token}.`,
+          ...rangeToMonaco(token)
+        }
       }
-
-      // TODO check if the type is known (built-in or datadef'd) if the token is a symbol
     }
 
     // check returns, if any
