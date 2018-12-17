@@ -2,6 +2,7 @@ import * as monaco from 'monaco-editor'
 import { debounce } from 'throttle-debounce'
 import Lexer from 'postfixjs/Lexer'
 import { readParamsList, normalizeSymbol } from 'postfixjs/tokenUtils'
+import * as builtIns from '../../../interpreter/doc'
 import { rangeToMonaco } from './util'
 
 /**
@@ -51,9 +52,10 @@ export default class MarkerProvier {
    */
   * checkParamsList (tokens) {
     let rightArrowPosition = tokens.findIndex((token) => token.tokenType === 'RIGHT_ARROW')
+    const paramsEnd = rightArrowPosition >= 0 ? rightArrowPosition : tokens.length - 1
 
     // check params
-    for (let i = 1; i < rightArrowPosition; i++) {
+    for (let i = 1; i < paramsEnd; i++) {
       const token = tokens[i]
       if (!(token.tokenType === 'REFERENCE' || token.tokenType === 'SYMBOL')) {
         yield {
@@ -74,6 +76,15 @@ export default class MarkerProvier {
           ...rangeToMonaco(token)
         }
       }
+
+      if (token.tokenType === 'REFERENCE' && builtIns.functions.some(({ name }) => name === token.token)) {
+        yield {
+          severity: monaco.MarkerSeverity.Warning,
+          message: `${token.token} collides with a built-in with the same name. You should rename the parameter.`,
+          ...rangeToMonaco(token)
+        }
+      }
+
       // TODO check if the type is known (built-in or datadef'd) if the token is a symbol
     }
 
