@@ -53,7 +53,7 @@ class Documentation extends React.PureComponent {
       ...fun,
       id: getFunctionId(fun),
       _params: fun.params.map((p) => p.description).join(' '),
-      _params: fun.returns.map((p) => p.description).join(' '),
+      _returns: fun.returns.map((p) => p.description).join(' '),
     })))
   }
 

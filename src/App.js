@@ -81,7 +81,7 @@ class App extends Component {
   }
   lineHighlightDecorations = []
   scrollDocsTo = null
-  documentationRef = React.createRef()
+  documentationRef = null // react-jss throws a warning when using React.createRef()
 
   constructor (props) {
     super(props)
@@ -118,6 +118,8 @@ class App extends Component {
     document.addEventListener('mousedown', this.handleClickLink)
   }
 
+  handleDocumentationRef = (ref) => { this.documentationRef = ref }
+
   componentWillUnmount () {
     window.removeEventListener('resize', this.handleResize)
     document.removeEventListener('mousedown', this.handleClickLink)
@@ -134,7 +136,7 @@ class App extends Component {
     }
 
     if (!prevProps.settings.showDocumentationPanel && this.props.settings.showDocumentationPanel && this.scrollDocsTo != null) {
-      this.documentationRef.current.scrollIntoView(this.scrollDocsTo)
+      this.documentationRef.scrollIntoView(this.scrollDocsTo)
       this.scrollDocsTo = null
     }
   }
@@ -158,7 +160,7 @@ class App extends Component {
           this.scrollDocsTo = `pfdoc-${id}`
           this.props.onToggleDocumentationPanel()
         } else {
-          this.documentationRef.current.scrollIntoView(`pfdoc-${id}`)
+          this.documentationRef.scrollIntoView(`pfdoc-${id}`)
         }
       }
     }
@@ -510,7 +512,7 @@ class App extends Component {
               </SplitLayout>
             </SplitLayout>
           </div>
-          {showDocumentationPanel && <Documentation innerRef={this.documentationRef} />}
+          {showDocumentationPanel && <Documentation innerRef={this.handleDocumentationRef} />}
         </SplitLayout>
 
         <Settings
