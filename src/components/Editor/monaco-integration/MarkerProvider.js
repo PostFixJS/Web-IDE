@@ -1,8 +1,9 @@
 import * as monaco from 'monaco-editor'
 import { debounce } from 'throttle-debounce'
 import Lexer from 'postfixjs/Lexer'
-import { readParamsList, normalizeSymbol } from 'postfixjs/tokenUtils'
+import { readParamsList } from 'postfixjs/tokenUtils'
 import * as builtIns from '../../../interpreter/doc'
+import { isTypeSym } from '../postfixUtil'
 import { rangeToMonaco } from './util'
 
 /**
@@ -75,12 +76,16 @@ export default class MarkerProvier {
           message: 'Expected a parameter name to preced this type name.',
           ...rangeToMonaco(token)
         }
-      }
-
-      if (token.tokenType === 'REFERENCE' && builtIns.functions.some(({ name }) => name === token.token)) {
+      } else if (token.tokenType === 'REFERENCE' && builtIns.functions.some(({ name }) => name === token.token)) {
         yield {
           severity: monaco.MarkerSeverity.Warning,
           message: `${token.token} collides with a built-in with the same name. You should rename the parameter.`,
+          ...rangeToMonaco(token)
+        }
+      } else if (token.tokenType === 'SYMBOL' && !isTypeSym(token.token)) {
+        yield {
+          severity: monaco.MarkerSeverity.Error,
+          message: `${token.token} is not a valid type name.`,
           ...rangeToMonaco(token)
         }
       }
@@ -92,14 +97,13 @@ export default class MarkerProvier {
     if (rightArrowPosition >= 0) {
       for (let i = rightArrowPosition + 1; i < tokens.length - 1; i++) {
         const token = tokens[i]
-        const name = normalizeSymbol(token.token, false)
         if (token.tokenType !== 'SYMBOL') {
           yield {
             severity: monaco.MarkerSeverity.Error,
             message: 'The return list may only contain type names (e.g. :Int).',
             ...rangeToMonaco(token)
           }
-        } else if (name[0] !== name[0].toUpperCase()) {
+        } else if (!isTypeSym(token.token)) {
           yield {
             severity: monaco.MarkerSeverity.Error,
             message: `${token.token} is not a valid type name.`,
