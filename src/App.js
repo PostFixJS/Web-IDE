@@ -81,6 +81,7 @@ class App extends Component {
   }
   lineHighlightDecorations = []
   scrollDocsTo = null
+  documentationRef = React.createRef()
 
   constructor (props) {
     super(props)
@@ -133,7 +134,7 @@ class App extends Component {
     }
 
     if (!prevProps.settings.showDocumentationPanel && this.props.settings.showDocumentationPanel && this.scrollDocsTo != null) {
-      document.getElementById(this.scrollDocsTo).scrollIntoView()
+      this.documentationRef.current.scrollIntoView(this.scrollDocsTo)
       this.scrollDocsTo = null
     }
   }
@@ -157,7 +158,7 @@ class App extends Component {
           this.scrollDocsTo = `pfdoc-${id}`
           this.props.onToggleDocumentationPanel()
         } else {
-          document.getElementById(`pfdoc-${id}`).scrollIntoView()
+          this.documentationRef.current.scrollIntoView(`pfdoc-${id}`)
         }
       }
     }
@@ -509,7 +510,7 @@ class App extends Component {
               </SplitLayout>
             </SplitLayout>
           </div>
-          {showDocumentationPanel && <Documentation />}
+          {showDocumentationPanel && <Documentation innerRef={this.documentationRef} />}
         </SplitLayout>
 
         <Settings

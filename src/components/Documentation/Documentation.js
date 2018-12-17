@@ -77,6 +77,15 @@ class Documentation extends React.PureComponent {
     }
   })
 
+  /**
+   * Clear the search and scroll the given ID into the view.
+   */
+  scrollIntoView = (id) => {
+    this.setState({ search: '' }, () => {
+      document.getElementById(id).scrollIntoView()
+    })
+  }
+
   render () {
     const { classes } = this.props
     const { search, searchResults } = this.state
