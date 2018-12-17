@@ -34,7 +34,7 @@ const styles = (theme) => ({
   results: {
     flex: 1,
     overflowY: 'auto',
-    padding: '0 16px'
+    padding: '0 16px 12px'
   }
 })
 
@@ -68,8 +68,7 @@ class Documentation extends React.PureComponent {
     if (this.state.search !== '') { // otherwise, search was cancelled while waiting
       let functions
       if (search.trim() === '') {
-        functions = [...builtIns.functions]
-          .sort((a, b) => a.name.localeCompare(b.name))
+        functions = [...builtIns.functions].sort((a, b) => a.name.localeCompare(b.name))
       } else {
         functions = jsSearchIndex.search(search)
       }
@@ -89,7 +88,7 @@ class Documentation extends React.PureComponent {
   render () {
     const { classes } = this.props
     const { search, searchResults } = this.state
-    const functions = search.trim().length > 0 ? searchResults : builtIns.functions
+    const functions = search.trim().length > 0 ? searchResults : [...builtIns.functions].sort((a, b) => a.name.localeCompare(b.name))
 
     return (
       <div className={classes.root}>
