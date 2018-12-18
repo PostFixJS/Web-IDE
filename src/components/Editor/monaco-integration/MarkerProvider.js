@@ -72,41 +72,17 @@ export default class MarkerProvier {
     for (let i = 1; i < paramsEnd; i++) {
       const token = tokens[i]
       if (!(token.tokenType === 'REFERENCE' || token.tokenType === 'SYMBOL')) {
-        yield {
-          severity: monaco.MarkerSeverity.Error,
-          message: 'The parameter list may only contain variable names and type names.',
-          ...rangeToMonaco(token)
-        }
+        yield error('The parameter list may only contain variable names and type names.', token)
       } else if (i === 0 && token.tokenType === 'SYMBOL') {
-        yield {
-          severity: monaco.MarkerSeverity.Error,
-          message: 'Expected to find a variable name at the first position of the parameter list.',
-          ...rangeToMonaco(token)
-        }
+        yield error('Expected to find a variable name at the first position of the parameter list.', token)
       } else if (i > 0 && token.tokenType === 'SYMBOL' && tokens[i - 1].tokenType !== 'REFERENCE') {
-        yield {
-          severity: monaco.MarkerSeverity.Error,
-          message: 'Expected a parameter name to preced this type name.',
-          ...rangeToMonaco(token)
-        }
+        yield error('Expected a parameter name to preced this type name.', token)
       } else if (token.tokenType === 'REFERENCE' && builtIns.functions.some(({ name }) => name === token.token)) {
-        yield {
-          severity: monaco.MarkerSeverity.Warning,
-          message: `${token.token} collides with a built-in with the same name. You should rename the parameter.`,
-          ...rangeToMonaco(token)
-        }
+        yield warning(`${token.token} collides with a built-in with the same name. You should rename the parameter.`, token)
       } else if (token.tokenType === 'SYMBOL' && !isTypeSym(token.token)) {
-        yield {
-          severity: monaco.MarkerSeverity.Error,
-          message: `${token.token} is not a valid type name.`,
-          ...rangeToMonaco(token)
-        }
+        yield error(`${token.token} is not a valid type name.`, token)
       } else if (token.tokenType === 'SYMBOL' && !isBuiltInType(token.token) && !datadefs.some(({ name }) => name === normalizeSymbol(token.token, true))) {
-        yield {
-          severity: monaco.MarkerSeverity.Warning,
-          message: `Unknown type name ${token.token}.`,
-          ...rangeToMonaco(token)
-        }
+        yield warning(`Unknown type name ${token.token}.`, token)
       }
     }
 
@@ -115,17 +91,9 @@ export default class MarkerProvier {
       for (let i = rightArrowPosition + 1; i < tokens.length - 1; i++) {
         const token = tokens[i]
         if (token.tokenType !== 'SYMBOL') {
-          yield {
-            severity: monaco.MarkerSeverity.Error,
-            message: 'The return list may only contain type names (e.g. :Int).',
-            ...rangeToMonaco(token)
-          }
+          yield error('The return list may only contain type names (e.g. :Int).', token)
         } else if (!isTypeSym(token.token)) {
-          yield {
-            severity: monaco.MarkerSeverity.Error,
-            message: `${token.token} is not a valid type name.`,
-            ...rangeToMonaco(token)
-          }
+          yield error(`${token.token} is not a valid type name.`, token)
         }
       }
     }
@@ -145,31 +113,19 @@ export default class MarkerProvier {
         case 'PARAM_LIST_END':
           brackets.pop()
           if (top !== 'PARAM_LIST_START') {
-            yield {
-              severity: monaco.MarkerSeverity.Error,
-              message: 'Expected matching opening bracket.',
-              ...rangeToMonaco(token)
-            }
+            yield error('Expected matching opening bracket.', token)
           }
         break
         case 'ARR_END':
           brackets.pop()
           if (top !== 'ARR_START') {
-            yield {
-              severity: monaco.MarkerSeverity.Error,
-              message: 'Expected matching opening bracket.',
-              ...rangeToMonaco(token)
-            }
+            yield error('Expected matching opening bracket.', token)
           }
           break
         case 'EXEARR_END':
           brackets.pop()
           if (top !== 'EXEARR_START') {
-            yield {
-              severity: monaco.MarkerSeverity.Error,
-              message: 'Expected matching opening bracket.',
-              ...rangeToMonaco(token)
-            }
+            yield error('Expected matching opening bracket.', token)
           }
           break
         case 'PARAM_LIST_START':
@@ -183,11 +139,7 @@ export default class MarkerProvier {
     }
 
     for (const openBracket of brackets) {
-      yield {
-        severity: monaco.MarkerSeverity.Error,
-        message: 'Expected matching closing bracket.',
-        ...rangeToMonaco(openBracket)
-      }
+      yield error('Expected matching closing bracket.', openBracket)
     }
   }
 
@@ -226,11 +178,35 @@ export default class MarkerProvier {
       if (functionsAtPosition.some(({ params }) => params.some((param) => param.name === token.token))) continue
 
       // still not found, so the reference might be invalid
-      yield {
-        severity: monaco.MarkerSeverity.Error,
-        message: `Unknown function or variable ${token.token}.`,
-        ...rangeToMonaco(token)
-      }
+      yield warning(`Unknown function or variable name ${token.token}.`, token)
     }
+  }
+}
+
+/**
+ * Create an error marker.
+ * @param {string} message Error message
+ * @param {Token} token Source token
+ * @returns {IMarkerData} Monaco error marker
+ */
+function error (message, token) {
+  return {
+    severity: monaco.MarkerSeverity.Error,
+    message,
+    ...rangeToMonaco(token)
+  }
+}
+
+/**
+ * Create a warning marker.
+ * @param {string} message Warning message
+ * @param {Token} token Source token
+ * @returns {IMarkerData} Monaco warning marker
+ */
+function warning (message, token) {
+  return {
+    severity: monaco.MarkerSeverity.Warning,
+    message,
+    ...rangeToMonaco(token)
   }
 }
