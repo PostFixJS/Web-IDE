@@ -76,7 +76,7 @@ export default class MarkerProvier {
       } else if (i === 0 && token.tokenType === 'SYMBOL') {
         yield error('Expected to find a variable name at the first position of the parameter list.', token)
       } else if (i > 0 && token.tokenType === 'SYMBOL' && tokens[i - 1].tokenType !== 'REFERENCE') {
-        yield error('Expected a parameter name to preced this type name.', token)
+        yield error('Expected a parameter name to precede this type name.', token)
       } else if (token.tokenType === 'REFERENCE' && builtIns.functions.some(({ name }) => name === token.token)) {
         yield warning(`${token.token} collides with a built-in with the same name. You should rename the parameter.`, token)
       } else if (token.tokenType === 'SYMBOL' && !isTypeSym(token.token)) {
