@@ -1,3 +1,8 @@
+/**
+ * Get the documentation for the functions that are defined by the given datadef.
+ * @param {object} datadef Datadef object as returned by the DocParser
+ * @returns {object[]} Functions with documentation for the params and return values
+ */
 export function getDatadefFunctions (datadef) {
   const datadefName = datadef.name.toLowerCase().substr(1)
   if (datadef.type === 'union') {
@@ -83,5 +88,25 @@ export function getDatadefFunctions (datadef) {
           description: `Updated ${datadef.name} instance`
         }]
       }))]
+  }
+}
+
+/**
+ * Get the names of the functions that the given datadef defines.
+ * @param {object} datadef Datadef object as returned by the DocParser
+ * @returns {string[]} Function names
+ */
+export function getDatadefFunctionNames (datadef) {
+  const datadefName = datadef.name.toLowerCase().substr(1)
+  if (datadef.type === 'union') {
+    return [`${datadefName}?`]
+  } else {
+    return [
+      datadefName,
+      `${datadefName}?`,
+      ...datadef.fields.map((field) => `${datadefName}-${field.name}`),
+      ...datadef.fields.map((field) => `${datadefName}-${field.name}-set`),
+      ...datadef.fields.map((field) => `${datadefName}-${field.name}-do`)
+    ]
   }
 }

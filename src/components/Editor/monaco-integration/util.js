@@ -62,3 +62,16 @@ export function disableCommandPalette (editor) {
     keybindings: [monaco.KeyCode.F1, monaco.KeyMod.Alt | monaco.KeyCode.F1]
   })
 }
+
+/**
+ * Get the functions at a given position.
+ * @param {object[]} functions Functions as returned by the DocParser
+ * @param {object} position Monaco position (one-based)
+ * @returns {object[]} Functions at the given position, may be multiple functions if they are nested
+ */
+export function getFunctionsAtPosition (functions, position) {
+  return functions.filter(({ source: { body } }) => {
+    const bodyRange = new monaco.Range.fromPositions(positionToMonaco(body.start), positionToMonaco(body.end))
+    return bodyRange.containsPosition(position)
+  })
+}

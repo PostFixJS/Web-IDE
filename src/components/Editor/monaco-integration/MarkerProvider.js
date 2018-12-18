@@ -6,7 +6,8 @@ import { isBuiltInType } from 'postfixjs/types/util'
 import DocParser from 'postfixjs/DocParser'
 import * as builtIns from '../../../interpreter/doc'
 import { isTypeSym } from '../postfixUtil'
-import { rangeToMonaco } from './util'
+import { rangeToMonaco, getFunctionsAtPosition, positionToMonaco } from './util'
+import { getDatadefFunctionNames } from './datadef'
 
 /**
  * A class that checks the code and adds markers for warnings and errors.
@@ -28,11 +29,14 @@ export default class MarkerProvier {
   check = debounce(500, () => {
     const code = this.model.getValue()
     const tokens = Lexer.parse(code)
+    const functions = DocParser.getFunctions(code, { withRanges: true })
     const datadefs = DocParser.getDatadefs(code)
+    const variables = DocParser.getVariables(code)
 
     monaco.editor.setModelMarkers(this.model, 'webide', [
       ...this.checkBrackets(tokens),
-      ...this.checkParamsLists(tokens, { datadefs })
+      ...this.checkParamsLists(tokens, { datadefs }),
+      ...this.checkReferences(tokens, { datadefs, functions, variables })
     ])
   });
 
@@ -183,6 +187,49 @@ export default class MarkerProvier {
         severity: monaco.MarkerSeverity.Error,
         message: 'Expected matching closing bracket.',
         ...rangeToMonaco(openBracket)
+      }
+    }
+  }
+
+  /**
+   * Check the given tokens for undefined references and yield error markers.
+   * This uses heuristics, so it might not find all cases, especially it doesn't care about definition order.
+   * @param {Token[]} tokens Tokenized code
+   * @yields {IMarkerData} Markers of errors
+   */
+  * checkReferences (tokens, { datadefs, functions, variables }) {
+    let paramListStack = []
+    for (const token of tokens) {
+      // ignore references in parameter lists as they are used to define variables
+      if (token.tokenType === 'PARAM_LIST_END') {
+        if (paramListStack.length > 0) {
+          paramListStack.pop()
+        }
+      } else if (token.tokenType === 'PARAM_LIST_START') {
+        paramListStack.push(token)
+      }
+      if (paramListStack.length > 0) continue
+      if (token.tokenType !== 'REFERENCE') continue
+
+      const name = token.token
+
+      // check built-ins, functions and variables
+      if (builtIns.functions.some((fun) => fun.name === name)) continue
+      if (functions.some((fun) => fun.name === name)) continue
+      if (variables.some((variable) => variable.name === name)) continue
+
+      // check datadef functions
+      if (datadefs.some((datadef) => getDatadefFunctionNames(datadef).some((fun) => fun === name))) continue
+
+      // check if the reference is a function parameter inside a function
+      const functionsAtPosition = getFunctionsAtPosition(functions, positionToMonaco(token))
+      if (functionsAtPosition.some(({ params }) => params.some((param) => param.name === token.token))) continue
+
+      // still not found, so the reference might be invalid
+      yield {
+        severity: monaco.MarkerSeverity.Error,
+        message: `Unknown function or variable ${token.token}.`,
+        ...rangeToMonaco(token)
       }
     }
   }

@@ -1,11 +1,10 @@
 import { getTokenAt } from '../postfixUtil'
 import DocParser from 'postfixjs/DocParser'
 import { normalizeSymbol } from 'postfixjs/tokenUtils'
-import * as monaco from 'monaco-editor'
 import * as builtIns from '../../../interpreter/doc'
 import { getDatadefFunctions } from './datadef'
-import { positionToMonaco, rangeToMonaco, positionFromMonaco } from './util'
-import { getFunctionId } from '../../Documentation/Documentation';
+import { rangeToMonaco, positionFromMonaco, getFunctionsAtPosition } from './util'
+import { getFunctionId } from '../../Documentation/Documentation'
 
 export default {
   provideHover: (model, position) => {
@@ -26,10 +25,7 @@ export default {
       }
 
 
-      const functionsAtPosition = functions.filter(({ source: { body } }) => {
-        const bodyRange = new monaco.Range.fromPositions(positionToMonaco(body.start), positionToMonaco(body.end))
-        return bodyRange.containsPosition(position)
-      })
+      const functionsAtPosition = getFunctionsAtPosition(functions, position)
       usageMessages.push(...getVariableHoverMessage(functionsAtPosition
         .map((fun) => fun.params.filter(({ name }) => name === token.token))
         .reduce((allParams, fnParams) => allParams.concat(fnParams), [])

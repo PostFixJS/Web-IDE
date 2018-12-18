@@ -3,7 +3,7 @@ import DocParser from 'postfixjs/DocParser'
 import * as builtIns from '../../../interpreter/doc'
 import { isTypeSym } from '../postfixUtil'
 import { getDatadefFunctions } from './datadef'
-import { positionToMonaco  } from './util'
+import { positionToMonaco, getFunctionsAtPosition  } from './util'
 import { getFunctionId } from '../../Documentation/Documentation'
 
 export default {
@@ -28,10 +28,7 @@ export default {
     }
 
     // may be multiple functions if they are nested
-    const functionsAtPosition = functions.filter(({ source: { body } }) => {
-      const bodyRange = monaco.Range.fromPositions(positionToMonaco(body.start), positionToMonaco(body.end))
-      return bodyRange.containsPosition(position)
-    })
+    const functionsAtPosition = getFunctionsAtPosition(functions, position)
 
     return {
       suggestions: [
