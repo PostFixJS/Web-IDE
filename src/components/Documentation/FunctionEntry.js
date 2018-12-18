@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import injectSheet from 'react-jss'
 import cx from 'classnames'
 import ReactMarkdown from 'react-markdown'
@@ -74,6 +75,10 @@ const styles = (theme) => ({
   }
 })
 
+/**
+ * A documentation list element for a function. Displays the description with markdown,
+ * its parameters, return values and examples with syntax highlighting.
+ */
 class FunctionEntry extends React.Component {
   render () {
     const {
@@ -81,6 +86,7 @@ class FunctionEntry extends React.Component {
       fun,
       ...other
     } = this.props
+
     const {
       name,
       description,
@@ -141,6 +147,60 @@ class FunctionEntry extends React.Component {
 
 export default injectSheet(styles, { inject: ['classes'] })(FunctionEntry)
 
+FunctionEntry.propTypes = {
+  /**
+   * The function to show, as produced by the DocParser.
+   */
+  fun: PropTypes.shape({
+    /**
+     * The function name.
+     */
+    name: PropTypes.string.isRequired,
+    /**
+     * The function description.
+     */
+    description: PropTypes.string.isRequired,
+    /**
+     * The function parameters.
+     */
+    params: PropTypes.arrayOf(PropTypes.shape({
+      /**
+       * Parameter variable name.
+       */
+      name: PropTypes.string.isRequired,
+      /**
+       * Parameter type, defaults to :Obj.
+       */
+      type: PropTypes.string,
+      /**
+       * Parameter description.
+       */
+      description: PropTypes.string.isRequired,
+    })).isRequired,
+    /**
+     * Return values.
+     */
+    returns: PropTypes.arrayOf(PropTypes.shape({
+      /**
+       * Return value type, defaults to :Obj.
+       */
+      type: PropTypes.string,
+      /**
+       * Return value description.
+       */
+      description: PropTypes.string.isRequired,
+    })).isRequired,
+    /**
+     * Additional documentation tags.
+     */
+    tags: PropTypes.shape({
+      /**
+       * Usage examples of the function.
+       */
+      example: PropTypes.arrayOf(PropTypes.string)
+    })
+  }).isRequired
+}
 
 /**
  * Generate text for a function signature.

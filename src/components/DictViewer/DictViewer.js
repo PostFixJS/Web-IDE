@@ -19,6 +19,9 @@ const styles = (theme) => ({
   }
 })
 
+/**
+ * Tree view for the dictionary stack.
+ */
 class DictViewer extends React.Component {
   render () {
     const { classes, dicts, invalid, fontSize } = this.props
@@ -62,12 +65,33 @@ class DictViewer extends React.Component {
 }
 
 DictViewer.propTypes = {
+  /** @ignore */
+  classes: PropTypes.object.isRequired,
+  /**
+   * The dictionary stack.
+   */
   dicts: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.shape({
+    /**
+     * Variable name
+     */
     name: PropTypes.string.isRequired,
+    /**
+     * Variable type
+     */
     type: PropTypes.string.isRequired,
+    /**
+     * Variable value, serialized to a string
+     */
     value: PropTypes.string.isRequired
   }))).isRequired,
+  /**
+   * Whether or not the dictionary stack is invalid. It is invalid if it doesn't match the current
+   * interpreter state, e.g. if the interpreter is running and the dict view is not updated.
+   */
   invalid: PropTypes.bool,
+  /**
+   * The font size of the dictionary entries, in pixels.
+   */
   fontSize: PropTypes.number
 }
 

@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import injectSheet from 'react-jss'
 import cx from 'classnames'
 
@@ -28,6 +29,9 @@ const styles = (theme) => ({
   }
 })
 
+/**
+ * A button component.
+ */
 function Button ({ children, classes, primary, ...other }) {
   return (
     <button
@@ -37,6 +41,19 @@ function Button ({ children, classes, primary, ...other }) {
       {children}
     </button>
   )
+}
+
+Button.propTypes = {
+  /** @ignore */
+  classes: PropTypes.object.isRequired,
+  /**
+   * Button content, e.g. a string label.
+   */
+  children: PropTypes.node,
+  /**
+   * True to highlight this button.
+   */
+  primary: PropTypes.bool
 }
 
 export default injectSheet(styles)(Button)

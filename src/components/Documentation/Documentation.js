@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import injectSheet from 'react-jss'
 import * as JsSearch from 'js-search'
 import { throttle } from 'throttle-debounce'
@@ -40,6 +41,9 @@ const styles = (theme) => ({
 
 let jsSearchIndex
 
+/**
+ * A documentation view that shows the documentation of all built-in operators.
+ */
 class Documentation extends React.PureComponent {
   state = { search: '', searchResults: [] }
 
@@ -119,6 +123,11 @@ class Documentation extends React.PureComponent {
       </div>
     )
   }
+}
+
+Documentation.propTypes = {
+  /** @ignore */
+  classes: PropTypes.object.isRequired
 }
 
 export default injectSheet(styles)(Documentation)

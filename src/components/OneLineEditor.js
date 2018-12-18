@@ -3,6 +3,9 @@ import PropTypes from 'prop-types'
 import MonacoEditor from 'react-monaco-editor'
 import { disableCommandPalette } from './Editor/monaco-integration/util'
 
+/**
+ * A Monaco editor that is one line high and has most features disabled.
+ */
 export default class OneLineEditor extends React.Component {
   state = { height: 0 }
 
@@ -72,7 +75,20 @@ export default class OneLineEditor extends React.Component {
 }
 
 OneLineEditor.propTypes = {
+  /**
+   * Function to be called after the editor is mounted.
+   */
   editorDidMount: PropTypes.func,
+  /**
+   * Font size of the editor.
+   */
+  fontSize: PropTypes.number.isRequired,
+  /**
+   * Function to be called when the font size is changed.
+   */
   onFontSizeChange: PropTypes.func,
+  /**
+   * Options for the Monaco editor.
+   */
   options: PropTypes.object
 }

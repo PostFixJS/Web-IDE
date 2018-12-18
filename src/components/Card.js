@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import injectSheet from 'react-jss'
 import cx from 'classnames'
 
@@ -31,6 +32,10 @@ const styles = (theme) => ({
   }
 })
 
+/**
+ * A card with a very thin drop shadow and slightly rounded corners.
+ * Used as the basic layout element. Unknown props are applied to the root div element.
+ */
 function Card ({ classes, children, className, title, scrollable = false, ...other }) {
   return (
     <div className={cx(classes.root, className)} {...other}>
@@ -40,6 +45,31 @@ function Card ({ classes, children, className, title, scrollable = false, ...oth
       </div>
     </div>
   )
+}
+
+Card.defaultProps = {
+  scrollable: false
+}
+
+Card.propTypes = {
+  /** @ignore */
+  classes: PropTypes.object.isRequired,
+  /**
+   * Card content.
+   */
+  children: PropTypes.node,
+  /**
+   * Additional CSS class names to apply to the card.
+   */
+  className: PropTypes.string,
+  /**
+   * Title of the card.
+   */
+  title: PropTypes.string,
+  /**
+   * True to display a scrollbar if the content is bigger than the card.
+   */
+  scrollable: PropTypes.bool
 }
 
 export default injectSheet(styles)(Card)

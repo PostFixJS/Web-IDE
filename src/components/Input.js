@@ -17,7 +17,11 @@ const styles = (theme) => ({
   },
 })
 
-function Input ({ classes, className, theme, ...other }) {
+/**
+ * A styled input component that uses the theme.
+ * All props are passed through to the HTML input component.
+ */
+function Input ({ classes, className, ...other }) {
   return (
     <input
       className={cx(classes.root, className)}
@@ -27,7 +31,12 @@ function Input ({ classes, className, theme, ...other }) {
 }
 
 Input.propTypes = {
+  /** @ignore */
   classes: PropTypes.object.isRequired,
+  /**
+   * Additional CSS classes to be applied to the input element.
+   */
+  className: PropTypes.string
 }
 
-export default injectSheet(styles)(Input)
+export default injectSheet(styles, { inject: ['classes'] })(Input)

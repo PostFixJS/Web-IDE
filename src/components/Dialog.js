@@ -52,6 +52,9 @@ const styles = (theme) => ({
   }
 })
 
+/**
+ * A dialog component.
+ */
 class Dialog extends React.PureComponent {
   cancelClick = (e) => {
     e.stopPropagation()
@@ -93,12 +96,31 @@ class Dialog extends React.PureComponent {
 }
 
 Dialog.propTypes = {
+  /**
+   * Buttons to show at the bottom of the dialog.
+   */
   buttons: PropTypes.arrayOf(PropTypes.element),
+  /**
+   * Dialog content.
+   */
   children: PropTypes.node,
+  /** @ignore */
   classes: PropTypes.object.isRequired,
+  /**
+   * Whether or not the dialog is displayed.
+   */
   open: PropTypes.bool.isRequired,
+  /**
+   * Function to be called when the dialog should be closed.
+   */
   onClose: PropTypes.func,
+  /**
+   * Title of the dialog.
+   */
   title: PropTypes.string,
+  /**
+   * Width of the dialog, in pixels.
+   */
   width: PropTypes.number
 }
 

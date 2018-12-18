@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import injectStyle from 'react-jss'
 import Dialog from '../components/Dialog'
 import Button from '../components/Button'
@@ -80,4 +81,9 @@ export default function ShortcutOverlay ({ open, onClose }) {
       </Section>
     </Dialog>
   )
+}
+
+ShortcutOverlay.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired
 }
