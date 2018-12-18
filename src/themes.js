@@ -1,7 +1,31 @@
+import * as monaco from 'monaco-editor'
+
+monaco.editor.defineTheme('webide-light', {
+  base: 'vs',
+  inherit: true,
+  colors: {
+    // monaco-editor displays warnings in green by default, which doesn't really make sense
+    'editorWarning.foreground': '#ffa311',
+    'editorOverviewRuler.warningForeground': '#ffa311'
+  },
+  rules: []
+})
+
+monaco.editor.defineTheme('webide-dark', {
+  base: 'vs-dark',
+  inherit: true,
+  colors: {
+    // monaco-editor displays warnings in green by default, which doesn't really make sense
+    'editorWarning.foreground': '#ffa311',
+    'editorOverviewRuler.warningForeground': '#ffa311'
+  },
+  rules: []
+})
+
 export const light = {
   type: 'light',
   monaco: {
-    baseTheme: 'vs-light'
+    baseTheme: 'webide-light'
   },
   background: '#efefef',
   card: {
@@ -33,7 +57,7 @@ export const light = {
 export const dark = {
   type: 'dark',
   monaco: {
-    baseTheme: 'vs-dark'
+    baseTheme: 'webide-dark'
   },
   background: '#2f2f2f',
   card: {
