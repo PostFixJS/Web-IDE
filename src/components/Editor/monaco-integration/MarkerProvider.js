@@ -175,6 +175,7 @@ export default class MarkerProvier {
 
       // check if the reference is a function parameter inside a function
       const functionsAtPosition = getFunctionsAtPosition(functions, positionToMonaco(token))
+      if (functionsAtPosition.length > 0 && token.token === 'recur') continue // recur is always defined inside a function
       if (functionsAtPosition.some(({ params }) => params.some((param) => param.name === token.token))) continue
 
       // still not found, so the reference might be invalid
