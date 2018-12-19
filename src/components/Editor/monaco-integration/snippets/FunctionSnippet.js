@@ -1,5 +1,6 @@
-import * as monaco from 'monaco-editor'
-
+/**
+ * A completion provider that defines a snippet to insert a function.
+ */
 export default {
   provideCompletionItems: (model, position) => {
     const items = []

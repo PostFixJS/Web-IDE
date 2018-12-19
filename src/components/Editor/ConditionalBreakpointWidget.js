@@ -52,6 +52,9 @@ const styles = (theme) => ({
   }
 })
 
+/**
+ * The React component that is used by the conditional breakpoint widget.
+ */
 class RawWidget extends React.Component {
   lineHighlightDecorations = []
 
@@ -81,6 +84,10 @@ class RawWidget extends React.Component {
     }
   }
 
+  /**
+   * Show an error in the code as decoration with a tooltip.
+   * @param err {Err} Error to display
+   */
   showError (err) {
     const pos = err.origin
     this.lineHighlightDecorations = this._editor.deltaDecorations(this.lineHighlightDecorations, [
@@ -187,7 +194,20 @@ const Widget = connect((state) => ({
   onFontSizeChange: (fontSize) => dispatch(actions.setFontSize(fontSize))
 }))(injectSheet(styles)(RawWidget))
 
+/**
+ * The conditional breakpoint widget to be used by Monaco.
+ * Uses React to render the component defined above internally.
+ */
 export default class ConditionalBreakpointWidget extends ZoneWidget {
+  /**
+   * 
+   * @param {ITextEditor} Parent Monaco editor
+   * @param {object} options Options
+   * @param {function} options.onAccept Callback to be invoked if the changes should be applied
+   * @param {function} options.onRemove Callback to be invoked if the breakpoint should be removed
+   * @param {function} options.breakpoint The breakpoint data
+   * @param {function} options.onMounted Callback to be invoked after the widget is shown
+   */
   constructor (editor, { onAccept, onRemove, breakpoint, onMounted }) {
     super(editor, {
       showFrame: true,
@@ -226,14 +246,10 @@ export default class ConditionalBreakpointWidget extends ZoneWidget {
     })
   }
 
-  _onWidth(width) {
-    // TODO
-  }
-
-  _doLayout(height, width) {
-    // TODO
-  }
-
+  /**
+   * Display a error in the widget
+   * @param {Err} err Error to display
+   */
   showError (err) {
     this._widget.showError(err)
   }

@@ -11,17 +11,26 @@ const styles = {
   }
 }
 
-function RawWidget ({ classes, error }) {
-  return (
-    <div className={classes.root} title={error.message}>
-      <span className={classes.error}>Error:</span> {error.message}
-    </div>
-  )
-}
+/**
+ * React component that is used to display errors in the editor.
+ */
+const Widget = injectSheet(styles)(({ classes, error }) => (
+  <div className={classes.root} title={error.message}>
+    <span className={classes.error}>Error:</span> {error.message}
+  </div>
+))
 
-const Widget = injectSheet(styles)(RawWidget)
-
+/**
+ * The error widget to be used by Monaco to show errors in the editor.
+ * Uses React to render the widget internally.
+ */
 export default class ErrorWidget extends ZoneWidget {
+  /**
+   * Create a new error widget.
+   * @param {ITextEditor} editor Monaco editor
+   * @param {Err} error Error to be displayed
+   * @param {function} onClose Callback to be invoked when the error should be closed
+   */
   constructor (editor, error, onClose) {
     super(editor, {
       showFrame: true,

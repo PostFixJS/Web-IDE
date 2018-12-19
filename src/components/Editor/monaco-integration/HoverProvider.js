@@ -6,6 +6,10 @@ import { getDatadefFunctions } from './datadef'
 import { rangeToMonaco, positionFromMonaco, getFunctionsAtPosition } from './util'
 import { getFunctionId } from '../../Documentation/Documentation'
 
+/**
+ * A hover provider that provides documentation for known functions, variables and symbols.
+ * It supports built-in and user-defined objects.
+ */
 export default {
   provideHover: (model, position) => {
     const code = model.getValue()

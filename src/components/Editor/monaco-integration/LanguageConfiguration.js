@@ -1,3 +1,6 @@
+/**
+ * The language configuration of PostFix for the Monaco editor.
+ */
 export default {
   brackets: [
     ['(', ')'],

@@ -2,6 +2,9 @@ import Lexer from 'postfixjs/Lexer'
 import { parseParamsList, readParamsList } from 'postfixjs/tokenUtils'
 import * as monaco from 'monaco-editor'
 
+/**
+ * A completion provider that generates a function documentation placeholder.
+ */
 export default {
   triggerCharacters: ['<'],
   provideCompletionItems: (model, position) => {

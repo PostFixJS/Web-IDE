@@ -93,6 +93,12 @@ class FunctionEntry extends React.Component {
       params,
       returns
     } = fun
+if (!name) {
+  console.error('no name', fun)
+}
+if (!description) {
+  console.error('no description', fun)
+}
 
     const signature = getFunctionSignature(this.props.fun)
     const examples = this.props.fun.tags && this.props.fun.tags.example
@@ -213,7 +219,7 @@ export function getFunctionSignature (doc) {
     .join(', ')
   const returns = doc.returns.map((r) => r.type).join(', ')
   if (returns.length > 0) {
-    return `${params.length > 0 ? `${params} ` : ''} -> ${returns}`
+    return `${params.length > 0 ? `${params} ` : ''}-> ${returns}`
   } else if (params.length > 0) {
     return `${params}`
   } else {

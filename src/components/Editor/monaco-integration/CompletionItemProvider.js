@@ -81,6 +81,13 @@ export default {
   }
 }
 
+/**
+ * Merge built-in and user-defined symbols.
+ * If a symbol is defined by the user and a built-in, the documentation will provide a list of both descriptions.
+ * @param {object[]} builtIns Built-in symbols
+ * @param {object[]} userSymbols User-defined symbols
+ * @returns {object[]} Merged symbol list
+ */
 function mergeSymbolEntries (builtIns, userSymbols) {
   const symbols = new Map()
   for (const sym of builtIns) {

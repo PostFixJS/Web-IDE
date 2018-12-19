@@ -1,9 +1,11 @@
 // Based on the examples at https://microsoft.github.io/monaco-editor/monarch.html
 // but customized for PostFix tokens (especially comments, symbols, ! operator, ...)
 
+/**
+ * A Monarch grammar for PostFix.
+ */
 export default {
-  // Set defaultToken to invalid to see what you do not tokenize yet
-  defaultToken: 'invalid',
+  defaultToken: 'invalid', // set defaultToken to invalid to display unknown tokens in red
   escapes: /\\["rtn]/,
   start: 'root',
   keywords: [

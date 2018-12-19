@@ -1,3 +1,10 @@
+/**
+ * Get a human-readable string representation of the given test result.
+ * @param {object} test Test result object
+ * @param {boolean} test.passed Whether the test passed
+ * @param {string} test.type The test type
+ * @param {object} test.params Test parameters, depend on the test type
+ */
 export function getTestResultMessage ({ passed, type, params }) {
   if (passed) {
     return '✓ Test passed'
