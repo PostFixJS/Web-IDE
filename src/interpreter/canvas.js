@@ -3,7 +3,7 @@ import { popOperands, popOperand } from 'postfixjs/typeCheck'
 import createCancellationToken from 'postfixjs/util/cancellationToken'
 import * as types from 'postfixjs/types'
 import PostFixRunner from '../postfix-runner/PostFixRunner'
-import { registerFunctions, registerSymbols } from './doc'
+import { registerSymbols } from './doc'
 import Image from './canvas/Image'
 
 /**
@@ -510,78 +510,6 @@ export function registerBuiltIns (interpreter) {
       
       interpreter._stack.push(new types.Flt(image.height))
     }
-  })
-
-  registerFunctions({
-    name: 'show',
-    description: 'Open a window with a canvas to draw on.',
-    params: [{
-      name: 'title',
-      description: 'Window title',
-      type: ':Str'
-    }, {
-      name: 'width',
-      description: 'Window width',
-      type: ':Num'
-    }, {
-      name: 'height',
-      description: 'Window height',
-      type: ':Num'
-    }, {
-      name: 'initialState',
-      description: 'Initial state',
-      type: ':Obj'
-    }, {
-      name: 'callbacks',
-      description: 'Event callbacks',
-      type: ':Arr'
-    }],
-    returns: []
-  }, {
-    name: 'show-image',
-    description: 'Display an image in a new window.',
-    params: [{
-      name: 'image',
-      description: 'Image to show',
-      type: ':Arr'
-    }],
-    returns: []
-  }, {
-    name: 'read-image-url',
-    description: 'Download an image and serialize it into a data url that can be used with `:bitmap`.',
-    params: [{
-      name: 'url',
-      description: 'Url of an image',
-      type: ':Str'
-    }],
-    returns: [{
-      type: ':Str',
-      description: 'Image as data url'
-    }]
-  }, {
-    name: 'image-width',
-    description: 'Get the width of an image.',
-    params: [{
-      name: 'image',
-      description: 'Image definition',
-      type: ':Arr'
-    }],
-    returns: [{
-      type: ':Flt',
-      description: 'Image width'
-    }]
-  }, {
-    name: 'image-height',
-    description: 'Get the height of an image.',
-    params: [{
-      name: 'image',
-      description: 'Image definition',
-      type: ':Arr'
-    }],
-    returns: [{
-      type: ':Flt',
-      description: 'Image height'
-    }]
   })
 
   registerSymbols({

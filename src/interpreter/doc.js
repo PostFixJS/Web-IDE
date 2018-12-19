@@ -1,6 +1,7 @@
 import builtIns from 'postfixjs/doc/operators'
+import webideBuiltIns from './operators'
 
-export const functions = [ ...builtIns.functions ]
+export const functions = [ ...builtIns.functions, ...webideBuiltIns.functions ]
 export const variables = []
 export const symbols = []
 

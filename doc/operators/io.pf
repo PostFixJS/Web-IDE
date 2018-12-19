@@ -1,0 +1,56 @@
+#<
+Print a value.
+@param value Value to print
+>#
+print: (value :Obj) {} fun
+
+#<
+Print a value and a line break.
+@param value Value to print
+>#
+println: (value :Obj) {} fun
+
+#<
+Format the given string using the given parameters and print it. This uses a C-style format string, e.g. `%d` is used for integers, `%s` for strings and so on.
+@param format Format string
+@param params Parameters
+>#
+printf: (format :Str, params :Arr) {} fun
+
+#<
+Format the given string using the given parameters and print it and a line break. This uses a C-style format string, e.g. `%d` is used for integers, `%s` for strings and so on.
+@param format Format string
+@param params Parameters
+>#
+printfln: (format :Str, params :Arr) {} fun
+
+#<
+Read a single character from the input.
+@return The character code of the character that was read
+>#
+read-char: (-> :Int) {} fun
+
+#<
+Read a line from the input.
+@return The line that was read from the input
+>#
+read-line: (-> :Str) {} fun
+
+#<
+Read a line from the input and convert it to :Flt. Throws an error if the input cannot be converted to a float.
+@return The float that was read from the input
+>#
+read-flt: (-> :Flt) {} fun
+
+#<
+Read a line from the input and convert it to :Int. Throws an error if the input cannot be converted to an integer.
+@return The integer that was read from the input
+>#
+read-int: (-> :Int) {} fun
+
+#<
+Download the content at a URL as a string. If the download fails, an error is thrown.
+@param url URL to fetch
+@return Downloaded content
+>#
+read-url: (url :Str -> :Str) {} fun

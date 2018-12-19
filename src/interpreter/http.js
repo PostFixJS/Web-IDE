@@ -1,7 +1,6 @@
 import * as types from 'postfixjs/types'
 import { popOperand } from 'postfixjs/typeCheck'
 import createCancellationToken from 'postfixjs/util/cancellationToken'
-import { registerFunctions } from './doc'
 
 export function registerBuiltIns (interpreter) {
   interpreter.registerBuiltIn({
@@ -46,19 +45,5 @@ export function registerBuiltIns (interpreter) {
           })
       }
     }
-  })
-
-  registerFunctions({
-    name: 'read-url',
-    description: 'Download the content at a URL as a string. If the download fails, an error is thrown.',
-    params: [{
-      name: 'url',
-      description: 'URL to fetch',
-      type: ':Str'
-    }],
-    returns: [{
-      description: 'Downloaded content',
-      type: ':Str'
-    }]
   })
 }

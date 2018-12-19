@@ -1,0 +1,36 @@
+#<
+Open a window with a canvas to draw on.
+@param title Window title
+@param width Window width
+@param height Window height
+@param initialState Initial state
+@param callbacks Event callbacks
+>#
+show: (title :Str, width :Num, height :Num, initialState :Obj, callbacks :Arr) {} fun
+
+#<
+Display an image in a new window.
+@param image Image to show
+>#
+show-image: (image :Arr) {} fun
+
+#<
+Download an image and serialize it into a data url that can be used with `:bitmap`.
+@param url Url of an image
+@return Image as data url
+>#
+read-image-url: (url :Str -> :Str) {} fun
+
+#<
+Get the width of an image.
+@param image Image definition
+@return Image width
+>#
+image-width: (image :Arr -> :Flt) {} fun
+
+#<
+Get the height of an image.
+@param image Image definition
+@return Image height
+>#
+image-height: (image :Arr -> :Flt) {} fun

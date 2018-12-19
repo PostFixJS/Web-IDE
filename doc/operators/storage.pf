@@ -1,0 +1,13 @@
+#<
+Load a string that was previously stored in the browser storage using store-value.
+@param key Key of the value to load
+@return Value loaded from the storage or nil if not found
+>#
+load-value: (key :Str -> :Str) {} fun
+
+#<
+Store a string in the browser storage.
+@param key Storage key, used to laod the value later
+@param value Value to store
+>#
+store-value: (key :Str, value :Str) {} fun

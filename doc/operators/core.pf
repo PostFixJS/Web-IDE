@@ -1,0 +1,4 @@
+#<
+Pause the program execution and invoke the debugger. This is equivalent to setting a breakpoint.
+>#
+debugger: () {} fun

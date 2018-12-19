@@ -4,7 +4,7 @@ import { popOperands, popOperand } from 'postfixjs/typeCheck'
 import createCancellationToken from 'postfixjs/util/cancellationToken'
 import * as actions from '../actions'
 import store from '../store'
-import { registerFunctions, registerSymbols } from './doc'
+import { registerSymbols } from './doc'
 import * as canvas from './canvas'
 import * as storage from './storage'
 import * as http from './http'
@@ -69,89 +69,6 @@ async function readChar (cancelToken) {
 }
 
 export function registerBuiltIns (interpreter) {
-  registerFunctions({
-    name: 'print',
-    description: 'Print a value.',
-    params: [{
-      name: 'value',
-      description: 'Value to print',
-      type: ':Obj'
-    }],
-    returns: []
-  }, {
-    name: 'println',
-    description: 'Print a value and a line break.',
-    params: [{
-      name: 'value',
-      description: 'Value to print',
-      type: ':Obj'
-    }],
-    returns: []
-  }, {
-    name: 'printf',
-    description: 'Format the given string using the given parameters and print it. This uses a C-style format string, e.g. `%d` is used for integers, `%s` for strings and so on.',
-    params: [{
-      name: 'format',
-      description: 'Format string',
-      type: ':Str'
-    }, {
-      name: 'params',
-      description: 'Parameters',
-      type: ':Arr'
-    }],
-    returns: []
-  }, {
-    name: 'printfln',
-    description: 'Format the given string using the given parameters and print it and a line break. This uses a C-style format string, e.g. `%d` is used for integers, `%s` for strings and so on.',
-    params: [{
-      name: 'format',
-      description: 'Format string',
-      type: ':Str'
-    }, {
-      name: 'params',
-      description: 'Parameters',
-      type: ':Arr'
-    }],
-    returns: []
-  }, {
-    name: 'read-char',
-    description: 'Read a single character from the input.',
-    params: [],
-    returns: [{
-      type: ':Int',
-      description: 'The character code of the character that was read'
-    }]
-  }, {
-    name: 'read-line',
-    description: 'Read a line from the input.',
-    params: [],
-    returns: [{
-      type: ':Str',
-      description: 'The line that was read from the input'
-    }]
-  }, {
-    name: 'read-flt',
-    description: 'Read a line from the input and convert it to :Flt. Throws an error if the input cannot be converted to a float.',
-    params: [],
-    returns: [{
-      type: ':Flt',
-      description: 'The float that was read from the input'
-    }]
-  }, {
-    name: 'read-int',
-    description: 'Read a line from the input and convert it to :Int. Throws an error if the input cannot be converted to an integer.',
-    params: [],
-    returns: [{
-      type: ':Int',
-      description: 'The integer that was read from the input'
-    }]
-  }, {
-    name: 'debugger',
-    description: 'Pause the program execution and invoke the debugger. This is equivalent to setting a breakpoint.',
-    params: [],
-    returns: []
-  })
-
   interpreter.registerBuiltIn({
     name: 'print',
     execute (interpreter, token) {
