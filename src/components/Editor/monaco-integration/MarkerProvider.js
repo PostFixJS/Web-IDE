@@ -30,13 +30,14 @@ export default class MarkerProvier {
     const code = this.model.getValue()
     const tokens = Lexer.parse(code)
     const functions = DocParser.getFunctions(code, { withRanges: true })
+    const lambdaFunctions = DocParser.getLambdaFunctions(code, { withRanges: true })
     const datadefs = DocParser.getDatadefs(code)
     const variables = DocParser.getVariables(code)
 
     monaco.editor.setModelMarkers(this.model, 'webide', [
       ...this.checkBrackets(tokens),
       ...this.checkParamsLists(tokens, { datadefs }),
-      ...this.checkReferences(tokens, { datadefs, functions, variables })
+      ...this.checkReferences(tokens, { datadefs, functions, lambdaFunctions, variables })
     ])
   });
 
@@ -147,9 +148,14 @@ export default class MarkerProvier {
    * Check the given tokens for undefined references and yield error markers.
    * This uses heuristics, so it might not find all cases, especially it doesn't care about definition order.
    * @param {Token[]} tokens Tokenized code
+   * @param {object} data Previously parsed definitions
+   * @param {object} data.datadefs Datadefs found in the code
+   * @param {object} data.functions Functions found in the code
+   * @param {object} data.lambdaFunctions Lambda functions found in the code
+   * @param {object} data.variables Variables found in the code
    * @yields {IMarkerData} Markers of errors
    */
-  * checkReferences (tokens, { datadefs, functions, variables }) {
+  * checkReferences (tokens, { datadefs, functions, lambdaFunctions, variables }) {
     let paramListStack = []
     for (const token of tokens) {
       // ignore references in parameter lists as they are used to define variables
@@ -176,7 +182,11 @@ export default class MarkerProvier {
       // check if the reference is a function parameter inside a function
       const functionsAtPosition = getFunctionsAtPosition(functions, positionToMonaco(token))
       if (functionsAtPosition.length > 0 && token.token === 'recur') continue // recur is always defined inside a function
-      if (functionsAtPosition.some(({ params }) => params.some((param) => param.name === token.token))) continue
+      if (functionsAtPosition.some(({ params }) => params && params.some((param) => param.name === token.token))) continue
+
+      // check if the reference is a function parameter inside a lambda function
+      const lambdaFunctionsAtPosition = getFunctionsAtPosition(lambdaFunctions, positionToMonaco(token))
+      if (lambdaFunctionsAtPosition.some(({ params }) => params && params.some((param) => param.name === token.token))) continue
 
       // still not found, so the reference might be invalid
       yield warning(`Unknown function or variable name ${token.token}.`, token)
