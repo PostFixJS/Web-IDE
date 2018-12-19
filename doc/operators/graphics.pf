@@ -5,12 +5,39 @@ Open a window with a canvas to draw on.
 @param height Window height
 @param initialState Initial state
 @param callbacks Event callbacks
+@example
+"Demo" 200 200 [:angle 0 :speed 0.01] [
+  :on-tick (state) { # increase the angle by speed
+    state :angle state .:angle state .:speed + key-set
+  } lam
+
+  :on-draw (state) {
+    [:overlay [
+      [:rotate state .:angle [
+        :square 100 "blue"
+        :on-mouse-press (state x y) { # change the direction on click
+          state :speed 1 { -1 * } key-update
+        } lam
+      ]]
+      [:square 200 "white"]
+    ]]
+  } lam
+] show
 >#
 show: (title :Str, width :Num, height :Num, initialState :Obj, callbacks :Arr) {} fun
 
 #<
 Display an image in a new window.
 @param image Image to show
+@example
+# display a rotated orange square next to a blue circle that contains an orange circle
+[:beside [
+  [:rotate PI 4 / [:square 1 "orange"]]
+  [:overlay [
+    [:scale 0.5 [:circle 2 sqrt "orange"]]
+    [:circle 2 sqrt "blue"]
+  ]]
+]] show-image
 >#
 show-image: (image :Arr) {} fun
 
@@ -25,6 +52,7 @@ read-image-url: (url :Str -> :Str) {} fun
 Get the width of an image.
 @param image Image definition
 @return Image width
+@example [:circle 200] image-width # returns 200
 >#
 image-width: (image :Arr -> :Flt) {} fun
 
@@ -32,5 +60,6 @@ image-width: (image :Arr -> :Flt) {} fun
 Get the height of an image.
 @param image Image definition
 @return Image height
+@example [:rectangle 200 150] image-height # returns 150
 >#
 image-height: (image :Arr -> :Flt) {} fun
