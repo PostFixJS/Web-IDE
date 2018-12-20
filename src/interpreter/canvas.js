@@ -63,7 +63,6 @@ export function registerBuiltIns (interpreter) {
       ], token)
       const windowWidth = Math.floor(width.value)
       const windowHeight = Math.floor(height.value)
-      
       const top = (window.outerHeight - windowHeight) / 2 + window.screenY
       const left = (window.outerWidth - windowWidth) / 2 + window.screenX
 
@@ -491,7 +490,7 @@ export function registerBuiltIns (interpreter) {
         // cancelled while loading the image
         return
       }
-      
+
       interpreter._stack.push(new types.Flt(image.width))
     }
   })
@@ -511,7 +510,7 @@ export function registerBuiltIns (interpreter) {
         // cancelled while loading the image
         return
       }
-      
+
       interpreter._stack.push(new types.Flt(image.height))
     }
   })

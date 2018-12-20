@@ -75,7 +75,7 @@ class Square extends Image {
   static from (obj) {
     if (obj.items.length >= 2 && obj.items[1] instanceof types.Num) {
       const size = obj.items[1].value
-      let fill = "#000"
+      let fill = '#000'
       let stroke = null
       if (obj.items.length >= 3) fill = Color.from(obj.items[2])
       if (obj.items.length >= 4) stroke = Pen.from(obj.items[3])
@@ -127,6 +127,9 @@ class Rectangle extends Image {
   }
 }
 
+/**
+ * A circle image.
+ */
 class Circle extends Image {
   constructor (size, fill, stroke) {
     super(size, size)
@@ -168,6 +171,9 @@ class Circle extends Image {
   }
 }
 
+/**
+ * An ellipse image.
+ */
 class Ellipse extends Image {
   constructor (width, height, fill, stroke) {
     super(width, height)
@@ -211,6 +217,9 @@ class Ellipse extends Image {
   }
 }
 
+/**
+ * A text image.
+ */
 class Text extends Image {
   constructor (text, font, fill, stroke) {
     super(Text.getTextWidth(text, font), font.size)
@@ -263,6 +272,9 @@ class Text extends Image {
   }
 }
 
+/**
+ * A transformation that scales an image and creates a new one.
+ */
 class Scale extends Image {
   constructor (scale, image) {
     super(scale * image.width, scale * image.height)
@@ -293,6 +305,9 @@ class Scale extends Image {
   }
 }
 
+/**
+ * A transformation that rotates an image and creates a new one.
+ */
 class Rotate extends Image {
   constructor (angle, image) {
     super(
@@ -334,6 +349,9 @@ class Rotate extends Image {
   }
 }
 
+/**
+ * A composite image that places an image on a background image.
+ */
 class PlaceImage extends Image {
   constructor (front, back, x, y, hAlign = 'center', vAlign = 'center') {
     super(0, 0) // width and height are set below
@@ -409,6 +427,9 @@ class PlaceImage extends Image {
   }
 }
 
+/**
+ * A composite image that puts multiple images in a row.
+ */
 class Beside extends Image {
   constructor (images, vAlign = 'top') {
     super(
@@ -488,6 +509,9 @@ class Beside extends Image {
   }
 }
 
+/**
+ * A composite image that puts multiple images in a column.
+ */
 class Above extends Image {
   constructor (images, hAlign = 'left') {
     super(
@@ -567,6 +591,9 @@ class Above extends Image {
   }
 }
 
+/**
+ * A composite image that puts an image under another image.
+ */
 class Underlay extends Image {
   constructor (images, hAlign = 'center', vAlign = 'center', dx = 0, dy = 0) {
     super(0, 0) // width and height are set below
@@ -699,6 +726,9 @@ class Underlay extends Image {
   }
 }
 
+/**
+ * A composite image that puts an image over another image.
+ */
 class Overlay extends Image {
   static async from (obj) {
     if (obj.items.length === 2 && obj.items[1] instanceof types.Arr) {
@@ -753,10 +783,10 @@ class Bitmap extends Image {
   static async from (obj) {
     if (obj.items.length === 2 && obj.items[1] instanceof types.Str) {
       return new Promise((resolve, reject) => {
-          const img = new window.Image()  
-          img.onload = () => resolve(new Bitmap(img))
-          img.onerror = () => reject(new types.Err('Could not load image', obj.origin))
-          img.src = obj.items[1].value
+        const img = new window.Image()
+        img.onload = () => resolve(new Bitmap(img))
+        img.onerror = () => reject(new types.Err('Could not load image', obj.origin))
+        img.src = obj.items[1].value
       })
     } else {
       throw new types.Err('Invalid bitmap', obj.origin)

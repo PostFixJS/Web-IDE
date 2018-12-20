@@ -1,7 +1,15 @@
 import * as types from 'postfixjs/types'
 import Color from './Color'
 
+/**
+ * A pen for drawing the border of shapes.
+ */
 export default class Pen {
+  /**
+   * Create a new pen.
+   * @param {Color} color Color of the pen
+   * @param {number} stroke Stroke width
+   */
   constructor (color, stroke = 1) {
     this.color = color
     this.stroke = stroke

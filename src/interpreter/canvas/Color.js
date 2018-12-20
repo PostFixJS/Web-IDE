@@ -1,10 +1,22 @@
 import * as types from 'postfixjs/types'
 
+/**
+ * A color that can be used in images.
+ */
 export default class Color {
+  /**
+   * Create a new color instance.
+   * @param {string} color Color
+   */
   constructor (color) {
     this.color = color
   }
 
+  /**
+   * Create a color from a PostFix array.
+   * [:color "name"], [:color "name" alpha], [:color r g b] or [:color r g b a]
+   * @param {Obj} obj PostFix color array
+   */
   static from (obj) {
     if (obj instanceof types.Str) {
       // "red"
@@ -31,6 +43,10 @@ export default class Color {
   }
 }
 
+/**
+ * Convert the given color name or hex code to an rgb color.
+ * @param {string} color Color name or hex code
+ */
 function colorToRgb (color) {
   // https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-fillstyle
 

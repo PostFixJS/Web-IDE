@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Redux reducers that change the application state based on an action.
+ */
+
 import * as actions from '../actions'
 
 export function code (state = localStorage.getItem('code') || '', action) {
@@ -147,6 +151,12 @@ export function serviceWorker (state = { installed: false, updateAvailable: fals
   }
 }
 
+/**
+ * Parse the given JSON string or return the default value if that fails.
+ * @param {string} json JSON string
+ * @param {object} defaultValue Default value
+ * @returns {object} Parsed JSON value or the default value
+ */
 function tryParseJSON (json, defaultValue) {
   try {
     return JSON.parse(json) || defaultValue
