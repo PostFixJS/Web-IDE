@@ -71,6 +71,9 @@ const styles = (theme) => ({
   }
 })
 
+/**
+ * The root component of the IDE.
+ */
 class App extends Component {
   state = {
     running: false,

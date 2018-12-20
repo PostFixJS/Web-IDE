@@ -5,6 +5,9 @@ import Button from './Button'
 import DropdownButton from './DropdownButton'
 import Divider from './Divider'
 
+/**
+ * A toolbar for the IDE.
+ */
 export default class Toolbar extends React.Component {
   _fileInput = React.createRef()
 
@@ -145,17 +148,56 @@ export default class Toolbar extends React.Component {
 }
 
 Toolbar.propTypes = {
+  /**
+   * True if the program is running.
+   */
   running: PropTypes.bool.isRequired,
+  /**
+   * True if the program is paused.
+   */
   paused: PropTypes.bool.isRequired,
+  /**
+   * True if the program can be paused at the moment.
+   */
   canPause: PropTypes.bool.isRequired,
+  /**
+   * True if the program can be stepped at the moment.
+   */
   canStep: PropTypes.bool.isRequired,
+  /**
+   * Callback that is invoked when the program is started.
+   */
   onRun: PropTypes.func.isRequired,
+  /**
+   * Callback that is invoked when the program is paused.
+   */
   onPause: PropTypes.func.isRequired,
+  /**
+   * Callback that is invoked when the program is stopped.
+   */
   onStop: PropTypes.func.isRequired,
+  /**
+   * Callback that is invoked when the program should execute a step.
+   */
   onStep: PropTypes.func.isRequired,
+  /**
+   * Callback that is invoked to load a new file.
+   */
   onOpen: PropTypes.func.isRequired,
+  /**
+   * Callback that is invoked to save the code.
+   */
   onSave: PropTypes.func.isRequired,
+  /**
+   * Callback that is invoked to show the settings.
+   */
   onShowSettings: PropTypes.func.isRequired,
+  /**
+   * Callback that is invoked to show the keyboard shortcut overlay.
+   */
   onShowKeyboardShortcuts: PropTypes.func.isRequired,
+  /**
+   * Callback that is invoked to toggle the documentation panel.
+   */
   onToggleDocumentationPanel: PropTypes.func.isRequired
 }

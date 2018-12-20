@@ -2,6 +2,10 @@ import * as types from 'postfixjs/types'
 import { popOperand } from 'postfixjs/typeCheck'
 import createCancellationToken from 'postfixjs/util/cancellationToken'
 
+/**
+ * Add the http functions (i.e. read-url) to the interpreter.
+ * @param {Interpreter} interpreter PostFix interpreter
+ */
 export function registerBuiltIns (interpreter) {
   interpreter.registerBuiltIn({
     name: 'read-url',

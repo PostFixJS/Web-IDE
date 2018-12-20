@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import injectSheet from 'react-jss'
 import cx from 'classnames'
 import MonacoEditor from 'react-monaco-editor'
@@ -26,6 +27,9 @@ const styles = (theme) => ({
   }
 })
 
+/**
+ * Component that  displays the program input and output.
+ */
 class InputOutput extends React.Component {
   state = {
     visible: 'output'
@@ -218,6 +222,43 @@ class InputOutput extends React.Component {
       </div>
     )
   }
+}
+
+InputOutput.propTypes = {
+  /** @ignore */
+  classes: PropTypes.object.isRequired,
+  /**
+   * Input provided by the user.
+   */
+  input: PropTypes.string.isRequired,
+  /**
+   * The current position of the input reader.
+   */
+  inputPosition: PropTypes.number.isRequired,
+  /**
+   * True to highlight the input area while the runtime waits for input.
+   */
+  isWaiting: PropTypes.bool.isRequired,
+  /**
+   * Output printed by the program.
+   */
+  output: PropTypes.string.isRequired,
+  /**
+   * Callback to be invoked when the font size is changed.
+   */
+  onFontSizeChange: PropTypes.func.isRequired,
+  /**
+   * Callback to be invoked when the user adds input.
+   */
+  onInputChange: PropTypes.func.isRequired,
+  /**
+   * True to make the input read-only, e.g. when the program is not running.
+   */
+  readOnly: PropTypes.bool.isRequired,
+  /**
+   * Font size of the input and output, in pixels.
+   */
+  fontSize: PropTypes.number.isRequired
 }
 
 export default injectSheet(styles)(InputOutput)

@@ -9,10 +9,19 @@ import * as canvas from './canvas'
 import * as storage from './storage'
 import * as http from './http'
 
+/**
+ * Add a string to the output.
+ * @param {string} str String to print
+ */
 function print (str) {
   store.dispatch(actions.addOutput(str))
 }
 
+/**
+ * Wait for the user to provide input.
+ * @param {object} cancelToken Cancellation token
+ * @returns {Promise} A promise that resolves when new input is provided by the user
+ */
 function waitForInput (cancelToken) {
   return new Promise((resolve) => {
     store.dispatch(actions.waitForInput(true))
@@ -38,6 +47,11 @@ function waitForInput (cancelToken) {
   })
 }
 
+/**
+ * Read one line of input. If no input is available, wait for more input.
+ * @param {object} cancelToken Cancellation token
+ * @returns {string} One line of input
+ */
 async function readLine (cancelToken) {
   const { value, position } = store.getState().input
   const nextNewline = value.indexOf('\n', position)
@@ -56,6 +70,11 @@ async function readLine (cancelToken) {
   return str
 }
 
+/**
+ * Read one character from the input. If no input is available, wait for more input.
+ * @param {object} cancelToken Cancellation token
+ * @returns {string} One character from the input
+ */
 async function readChar (cancelToken) {
   const { value, position } = store.getState().input
   if (position < value.length) {
@@ -68,6 +87,10 @@ async function readChar (cancelToken) {
   }
 }
 
+/**
+ * Add the input, output and debugger functions to the interpreter.
+ * @param {Interpreter} interpreter PostFix interpreter
+ */
 export function registerBuiltIns (interpreter) {
   interpreter.registerBuiltIn({
     name: 'print',

@@ -15,6 +15,9 @@ import { positionToMonaco, positionFromMonaco, showMessage } from './monaco-inte
 import ErrorWidget from './ErrorWidget'
 import { getTestResultMessage } from './tests'
 
+/**
+ * The main editor of the IDE.
+ */
 class Editor extends React.Component {
   _rootRef = React.createRef()
   disposables = []
@@ -403,14 +406,34 @@ Editor.defaultProps = {
 }
 
 Editor.propTypes = {
+  /**
+   * The current code in the editor.
+   */
   code: PropTypes.string,
+  /**
+   * Callback to be invoked when the editor content changes.
+   */
   onChange: PropTypes.func,
+  /**
+   * True to make the editor read-only, e.g. while running a program.
+   */
   readOnly: PropTypes.bool,
+  /**
+   * The initial breakpoints.
+   */
   defaultBreakpoints: PropTypes.array.isRequired,
+  /**
+   * Callback to be invoked when the breakpoints change.
+   */
   onBreakpointsChange: PropTypes.func.isRequired,
+  /**
+   * Callback to be invoked when the editor font size changes.
+   */
   onFontSizeChange: PropTypes.func.isRequired,
+  /**
+   * Used to get a reference to the component.
+   */
   innerRef: PropTypes.func,
-
   /**
    * Function that is called when a line should be copied to the REPL.
    */

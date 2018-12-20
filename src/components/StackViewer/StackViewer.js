@@ -19,6 +19,9 @@ const styles = (theme) => ({
   }
 })
 
+/**
+ * A tree view for the stack of the interpreter.
+ */
 class StackViewer extends React.Component {
   render () {
     const { classes, stack, invalid, fontSize } = this.props
@@ -53,11 +56,43 @@ class StackViewer extends React.Component {
 }
 
 StackViewer.propTypes = {
+  /**
+   * The stack elements.
+   */
   stack: PropTypes.arrayOf(PropTypes.shape({
+    /**
+     * Element type.
+     */
     type: PropTypes.string.isRequired,
-    value: PropTypes.string.isRequired
+    /**
+     * Element value, serialized to a string.
+     */
+    value: PropTypes.string.isRequired,
+    /**
+     * Children of the element, e.g. array items.
+     */
+    children: PropTypes.arrayOf(PropTypes.shape({
+      /**
+       * Children type.
+       */
+      type: PropTypes.string.isRequired,
+      /**
+       * Children value, serialized to a string.
+       */
+      value: PropTypes.string.isRequired,
+      /**
+       * Nested children elements.
+       */
+      children: PropTypes.array
+    }))
   })).isRequired,
+  /**
+   * True to change the opacity of the stack, e.g. if it is not up to date while the program is running.
+   */
   invalid: PropTypes.bool,
+  /**
+   * The font size in pixels.
+   */
   fontSize: PropTypes.number
 }
 

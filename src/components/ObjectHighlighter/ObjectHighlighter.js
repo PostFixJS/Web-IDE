@@ -1,6 +1,11 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { withTheme } from 'react-jss'
 
+/**
+ * A highlighter for PostFix object arrays.
+ * This is similar to a syntax highlighter but uses previously tokenized strings.
+ */
 function ObjectHighlighter({ objects, theme }) {
   return (
     <React.Fragment>
@@ -16,8 +21,25 @@ function ObjectHighlighter({ objects, theme }) {
   )
 }
 
+ObjectHighlighter.propTypes = {
+  /**
+   * The objects to highlight, as an array of strings.
+   */
+  objects: PropTypes.arrayOf(PropTypes.string).isRequired,
+  /**
+   * The current theme, automatically injected.
+   * @ignore
+   */
+  theme: PropTypes.object.isRequired
+}
+
 export default withTheme(ObjectHighlighter)
 
+/**
+ * Shorten the given string.
+ * @param {string} value A string
+ * @returns The string shortened to maximum 100 characters
+ */
 function shorten (value) {
   if (value.length > 100) {
     return `${value.substr(0, 100)}…`
@@ -25,6 +47,12 @@ function shorten (value) {
   return value
 }
 
+/**
+ * Get the color for the given PostFix object.
+ * @param {string} value PostFix value
+ * @param {object} theme Editor theme
+ * @returns {string} Color for highlighting the object
+ */
 function getColor (value, theme) {
   return theme.highlighting[getType(value)] || '#000'
 }
@@ -58,7 +86,11 @@ const keywords = [
   'debugger',
   'datadef'
 ]
-
+/**
+ * Get the type of the given PostFix object.
+ * @param {string} value PostFix object value
+ * @returns {string} Type of the object
+ */
 function getType (value) {
   if (value === 'true' || value === 'false') {
     return highlightTypes.BOOL

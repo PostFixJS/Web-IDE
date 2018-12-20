@@ -19,6 +19,9 @@ const styles = (theme) => ({
   }
 })
 
+/**
+ * An expandable item for the StackViewer.
+ */
 class ExpandableItem extends React.Component {
   state = {
     expanded: false
@@ -76,10 +79,27 @@ class ExpandableItem extends React.Component {
 }
 
 ExpandableItem.propTypes = {
+  /** @ignore */
   classes: PropTypes.object.isRequired,
+  /**
+   * The depth of this item in the tree.
+   */
   depth: PropTypes.number.isRequired,
+  /**
+   * The variable to display.
+   */
   item: PropTypes.shape({
+    /**
+     * Variable name
+     */
+    name: PropTypes.string.isRequired,
+    /**
+     * Variable type
+     */
     type: PropTypes.string.isRequired,
+    /**
+     * Variable value, serialized to a string
+     */
     value: PropTypes.string.isRequired
   }).isRequired
 }

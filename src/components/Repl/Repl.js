@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import injectSheet from 'react-jss'
 import { InterruptedException } from '../../postfix-runner/PostFixRunner'
 import ObjectHighlighter from '../ObjectHighlighter/ObjectHighlighter'
@@ -39,6 +40,13 @@ const styles = (theme) => ({
   }
 })
 
+/**
+ * Get the index of the last element in an array that matches a predicate function.
+ * @param {array} arr An array
+ * @param {function} predicate A predicate function
+ * @param {number} startIndex Start index, defaults to the last index
+ * @returns The index of the last element in the array that matches the predicate function
+ */
 function findIndexFromEnd (arr, predicate, startIndex = arr.length - 1) {
   for (let i = startIndex; i >= 0; i--) {
     if (predicate(arr[i], i, arr)) {
@@ -48,6 +56,13 @@ function findIndexFromEnd (arr, predicate, startIndex = arr.length - 1) {
   return -1
 }
 
+/**
+ * Get the index of the first element in an array that matches a predicate function.
+ * @param {array} arr An array
+ * @param {function} predicate A predicate function
+ * @param {number} startIndex Start index, defaults to 0
+ * @retunrs The index of the first element in the array that matches the predicate function
+ */
 function findIndex (arr, predicate, startIndex = 0) {
   for (let i = startIndex; i < arr.length; i++) {
     if (predicate(arr[i], i, arr)) {
@@ -57,6 +72,9 @@ function findIndex (arr, predicate, startIndex = 0) {
   return -1
 }
 
+/**
+ * A read-eval-print loop with a history that can be accessed with the arrow keys.
+ */
 class Repl extends React.Component {
   state = {
     running: false,
@@ -215,7 +233,6 @@ class Repl extends React.Component {
       disabled,
       lines,
       onExecutionFinished,
-      onRunCommand,
       onAppendLine,
       runner,
       fontSize,
@@ -266,6 +283,47 @@ class Repl extends React.Component {
       </div>
     )
   }
+}
+
+Repl.propTypes = {
+  /** @ignore */
+  classes: PropTypes.object.isRequired,
+  /**
+   * True to disable the REPL.
+   */
+  disabled: PropTypes.bool,
+  /**
+   * The output lines.
+   */
+  lines: PropTypes.arrayOf(PropTypes.shape({
+    type: PropTypes.oneOf(['input', 'error', 'text', 'output']).isRequired,
+    value: PropTypes.string.isRequired
+  })),
+  /**
+   * Callback to be invoked when the execution of a command finishes.
+   */
+  onExecutionFinished: PropTypes.func.isRequired,
+  /**
+   * Callback to be invoked when a line should be added to the REPL.
+   */
+  onAppendLine: PropTypes.func.isRequired,
+  /**
+   * The PostFix runner.
+   */
+  runner: PropTypes.any.isRequired,
+  /**
+   * The font size in pixels.
+   */
+  fontSize: PropTypes.number.isRequired,
+  /**
+   * Callback to be invoked when the font size changes.
+   */
+  onFontSizeChange: PropTypes.func.isRequired,
+  /**
+   * The current theme, automatically injected.
+   * @ignore
+   */
+  theme: PropTypes.object.isRequired
 }
 
 export default injectSheet(styles)(Repl)

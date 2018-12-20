@@ -1,6 +1,10 @@
 import * as types from 'postfixjs/types'
 import { popOperands, popOperand } from 'postfixjs/typeCheck'
 
+/**
+ * Add the storage functions to the interpreter.
+ * @param {Interpreter} interpreter PostFix interpreter
+ */
 export function registerBuiltIns (interpreter) {
   interpreter.registerBuiltIn({
     name: 'store-value',

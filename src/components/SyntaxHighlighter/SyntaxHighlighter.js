@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import injectSheet from 'react-jss'
 import tokenize from './monarchTokenizer'
 import postFixGrammar from '../Editor/monaco-integration/MonarchTokensProvider'
@@ -44,6 +45,15 @@ class SyntaxHighlighter extends React.PureComponent {
       </React.Fragment>
     )
   }
+}
+
+SyntaxHighlighter.propTypes = {
+  /** @ignore */
+  classes: PropTypes.object.isRequired,
+  /**
+   * PostFix code to be highlighted.
+   */
+  children: PropTypes.string.isRequired
 }
 
 export default injectSheet(styles)(SyntaxHighlighter)

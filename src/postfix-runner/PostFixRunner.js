@@ -29,7 +29,14 @@ const maybeImmediate = (() => {
   return maybeImmediate
 })()
 
+/**
+ * A runner to execute PostFix in the browser so that the execution can be paused at any time.
+ */
 export default class PostFixRunner {
+  /**
+   * Create a new PostFix runner.
+   * @param {object} options Interpreter options
+   */
   constructor (options) {
     this.interpreter = new Interpreter(options)
     this.interpreter[runnerProperty] = this
@@ -62,6 +69,12 @@ export default class PostFixRunner {
     return this._runnerState && this._runnerState.stepper != null
   }
 
+  /**
+   * Execute the given PostFix code.
+   * @param {string} code PostFix code
+   * @param {boolean} pauseImmediately True to pause the program immediately
+   * @param {boolean} reset True to reset the interpreter state before starting the execution
+   */
   run (code, pauseImmediately = false, reset = true) {
     maybeImmediate.deferNext()
     this._pauseRequested = false
@@ -104,6 +117,11 @@ export default class PostFixRunner {
     })
   }
 
+  /**
+   * Execute the given object nested in the current runner.
+   * This is used to execute callbacks, e.g. of show.
+   * @param {Obj} obj PostFix object
+   */
   runInner (obj) {
     this._runnerStateStack.push(this._runnerState)
     this._runnerState = {
@@ -127,12 +145,19 @@ export default class PostFixRunner {
     }
   }
 
+  /**
+   * Continue execution after it was paused.
+   */
   continue () {
     this._pauseRequested = false
     maybeImmediate(this._step)
     this._emit('continue')
   }
 
+  /**
+   * Run the interpreter for one step and break at breakpoints.
+   * @private
+   */
   _step = async () => {
     if (!this.running) return
 
@@ -155,6 +180,10 @@ export default class PostFixRunner {
     }
   }
 
+  /**
+   * Run the interpreter for one step.
+   * @private
+   */
   async _stepImpl () {
     if (this._breakpointRunner != null && this._breakpointRunner.running) {
       this._breakpointRunner.stop()
@@ -177,6 +206,9 @@ export default class PostFixRunner {
     }
   }
 
+  /**
+   * Run the interpreter for one step.
+   */
   async step () {
     this._pauseRequested = true
     await this._stepImpl()
@@ -186,6 +218,9 @@ export default class PostFixRunner {
     }
   }
 
+  /**
+   * Pause the running interpreter.
+   */
   async pause () {
     if (this._breakpointRunner != null) {
       this._breakpointRunner.stop()
@@ -193,6 +228,9 @@ export default class PostFixRunner {
     this._pauseRequested = true
   }
 
+  /**
+   * Stop the running interpreter.
+   */
   stop () {
     if (this.running) {
       if (this._breakpointRunner != null) {
@@ -214,6 +252,11 @@ export default class PostFixRunner {
     }
   }
 
+  /**
+   * Add an event handler.
+   * @param {string} event Event name, e.g. pause
+   * @param {function} handler Event handler
+   */
   on (event, handler) {
     if (!this._listeners[event]) {
       this._listeners[event] = []
@@ -221,12 +264,23 @@ export default class PostFixRunner {
     this._listeners[event].push(handler)
   }
 
+  /**
+   * Remove an event handler.
+   * @param {string} event Event name, e.g. pause
+   * @param {function} handler Event handler
+   */
   off (event, handler) {
     if (this._listeners[event]) {
       this._listeners[event].splice(this._listeners[event].indexOf(handler))
     }
   }
 
+  /**
+   * Emit an event.
+   * @private
+   * @param {string} event Event name
+   * @param  {...any} args Arguments to pass to the event
+   */
   _emit (event, ...args) {
     const handlers = this._listeners[event]
     if (handlers) {
@@ -236,6 +290,11 @@ export default class PostFixRunner {
     }
   }
 
+  /**
+   * Check if the interpreter should pause at the given location (e.g. due to a debugger statement or because there is a breakpoint).
+   * This also evaluates conditional breakpoints.
+   * @param {object} location Location of the next token to be executed
+   */
   async shouldBreakAt ({ token, line, col }) {
     if (this._pauseRequested) return true
     if (token === 'debugger') return true

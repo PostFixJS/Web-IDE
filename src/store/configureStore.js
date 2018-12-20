@@ -2,6 +2,11 @@ import { createStore, combineReducers } from 'redux'
 import { debounce } from 'throttle-debounce'
 import * as reducers from '../reducers'
 
+/**
+ * Configure the Redux storage.
+ * @param {object} initialState Initial application state
+ * @returns {object} The Redux storage to be used by the application
+ */
 export default function (initialState) {
   const store = createStore(
     combineReducers(reducers),

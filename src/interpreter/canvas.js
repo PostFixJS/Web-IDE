@@ -46,6 +46,10 @@ function resizeCanvasToWindowSize (canvas, win, imageWidth, imageHeight, onSizeC
   updateCanvas()
 }
 
+/**
+ * Add the graphic functions to the given interpreter.
+ * @param {Interpreter} interpreter PostFix interpreter
+ */
 export function registerBuiltIns (interpreter) {
   interpreter.registerBuiltIn({
     name: 'show',

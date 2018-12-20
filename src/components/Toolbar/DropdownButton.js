@@ -93,9 +93,19 @@ class DropdownButton extends React.Component {
 }
 
 DropdownButton.propTypes = {
+  /** @ignore */
   classes: PropTypes.object.isRequired,
+  /**
+   * Dropdown items.
+   */
   items: PropTypes.arrayOf(PropTypes.shape({
+    /**
+     * Label of the item.
+     */
     title: PropTypes.string.isRequired,
+    /**
+     * Callback to be invoked when the item is clicked.
+     */
     onClick: PropTypes.func.isRequired
   })).isRequired
 }

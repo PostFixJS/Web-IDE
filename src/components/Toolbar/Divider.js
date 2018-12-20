@@ -10,7 +10,10 @@ const styles = (theme) => ({
   }
 })
 
-function Divider ({ classes, children, icon, label, ...other }) {
+/**
+ * A divider for the toolbar.
+ */
+function Divider ({ classes }) {
   return (
     <div className={classes.root} />
   )

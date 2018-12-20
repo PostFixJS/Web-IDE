@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import injectSheet from 'react-jss'
 import { throttle } from 'throttle-debounce'
 import Dialog from '../Dialog'
@@ -43,6 +44,9 @@ const styles = (theme) => ({
 const MIN_FONT_SIZE = 8 // minimum font size supported by monaco editor
 const MAX_FONT_SIZE = 100 // maximum font size supported by monaco editor
 
+/**
+ * A settings dialog for the IDE.
+ */
 class Settings extends React.PureComponent {
   handleFontSizeChange = (e) => {
     const fontSize = parseInt(e.target.value, 10)
@@ -128,6 +132,36 @@ class Settings extends React.PureComponent {
       </Dialog>
     )
   }
+}
+
+Settings.propTypes = {
+  /** @ignore */
+  classes: PropTypes.object.isRequired,
+  /**
+   * True to show the settings.
+   */
+  open: PropTypes.bool.isRequired,
+  /**
+   * Callback to be invoked when the settings should close.
+   */
+  onClose: PropTypes.func.isRequired,
+  /**
+   * The settings.
+   */
+  settings: PropTypes.shape({
+    /**
+     * The font size of the editor in pixels.
+     */
+    fontSize: PropTypes.number.isRequired,
+    /**
+     * The theme.
+     */
+    theme: PropTypes.oneOf(['light', 'dark']).isRequired,
+    /**
+     * True to enable proper tail calls.
+     */
+    enableProperTailCalls: PropTypes.bool.isRequired
+  }).isRequired
 }
 
 export default injectSheet(styles)(Settings)
