@@ -52,7 +52,7 @@ export default class ErrorWidget extends ZoneWidget {
     ), container)
 
     // unmount the React tree when the widget is destroyed
-    this._disposables.push({
+    this._disposables._toDispose.add({
       dispose () {
         ReactDOM.unmountComponentAtNode(container)
       }

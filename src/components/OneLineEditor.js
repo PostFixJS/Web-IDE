@@ -12,17 +12,17 @@ export default class OneLineEditor extends React.Component {
   editorDidMount = (editor, monaco) => {
     this.editor = editor
     this.setState({
-      height: editor.getConfiguration().lineHeight
+      height: editor.getOption(monaco.editor.EditorOption.lineHeight)
     })
    
     editor.onDidChangeConfiguration(() => {
       if (this.props.onFontSizeChange) {
-        const fontSize = editor.getConfiguration().fontInfo.fontSize
+        const fontSize = editor.getRawOptions().fontSize
         if (fontSize !== this.props.fontSize) {
           this.props.onFontSizeChange(fontSize)
         }
       }
-      this.setState({ height: this.editor.getConfiguration().lineHeight })
+      this.setState({ height: editor.getOption(monaco.editor.EditorOption.lineHeight) })
     })
     
     disableCommandPalette(editor)

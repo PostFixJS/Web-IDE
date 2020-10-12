@@ -10,7 +10,6 @@ export default {
   provideCompletionItems: (model, position) => {
     const code = model.getValue()
     const functions = DocParser.getFunctions(code, { withRanges: true })
-    const lambdaFunctions = DocParser.getLambdaFunctions(code, { withRanges: true })
     const variables = DocParser.getVariables(code)
     const datadefs = DocParser.getDatadefs(code)
     const symbols = DocParser.getSymbols(code)
@@ -29,7 +28,7 @@ export default {
     }
 
     // may be multiple functions if they are nested
-    const functionsAtPosition = getFunctionsAtPosition([...functions, ...lambdaFunctions], position)
+    const functionsAtPosition = getFunctionsAtPosition(functions, position)
 
     return {
       suggestions: [

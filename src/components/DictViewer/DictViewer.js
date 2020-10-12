@@ -36,10 +36,10 @@ class DictViewer extends React.Component {
           </tr>
         </thead>
         <tbody className={classes.tbody} style={{ opacity: invalid ? 0.5 : 1, fontSize }}>
-          {dicts.map((dict, i) => (
-            <React.Fragment key={i}>
+          {dicts.map((dict, index) => (
+            <React.Fragment key={index}>
               <tr>
-                <td colSpan={3}>Dictionary #{dicts.length - i}</td>
+                <td colSpan={3}>Dictionary #{dicts.length - index}</td>
               </tr>
               {dict.map((item, i) => item.children && item.children.length > 0 ? (
                 <ExpandableItem

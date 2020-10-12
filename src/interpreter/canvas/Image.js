@@ -676,7 +676,7 @@ class Underlay extends Image {
     let offsetX = 0
     let offsetY = 0
     let lastHits = []
-  
+
     for (const image of this.images) {
       let imageOffsetX = 0
       let imageOffsetY = 0
@@ -761,6 +761,8 @@ class Bitmap extends Image {
   constructor (img) {
     super(img.width, img.height)
     this.img = img
+    this.renderData = null
+    this.corsEnabled = true
   }
 
   /**
@@ -769,11 +771,25 @@ class Bitmap extends Image {
    */
   draw (ctx) {
     ctx.drawImage(this.img, 0, 0)
+    if (this.corsEnabled) {
+      try {
+        this.renderData = ctx.getImageData(0, 0, this.img.width, this.img.height)
+      } catch (domException) {
+        if (domException.code === 18 || domException.message.includes('tainted by cross-origin data')) {
+          // We could bypass SecurityError code 18 but it would lead to serious vulnerabilities
+          this.corsEnabled = false
+        }
+      }
+    }
   }
 
   getImagesAt (x, y) {
-    // TODO maybe check the alpha value of the clicked pixel
-    return x >= 0 && y >= 0 && x < this.width && y < this.height ? [{ image: this, x, y }] : []
+    // TODO find way around CORS restrictions without risking vulnerabilities
+    const inImage = x >= 0 && y >= 0 && x < this.width && y < this.height
+    const alpha = this.corsEnabled && this.renderData != null && this.renderData instanceof ImageData && inImage
+      ? this.renderData.data[((y * (this.renderData.width * 4)) + (x * 4)) + 3] // Stored as [y, 4*x] with RGBA, thus +3
+      : 255
+    return inImage && alpha > 0 ? [{image: this, x, y}] : []
   }
 
   /**

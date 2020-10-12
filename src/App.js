@@ -364,7 +364,7 @@ class App extends Component {
       const file = e.dataTransfer.files[0]
       if (/\.pf$/.test(file.name)) {
         const reader = new FileReader()
-        reader.onloadend = (e) => this.handleOpen(e.target.result)
+        reader.onloadend = (el) => this.handleOpen(el.target.result)
         reader.readAsText(file)
       }
     }

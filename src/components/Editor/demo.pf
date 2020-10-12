@@ -7,7 +7,7 @@ multiline comment >#
 >#
 
 # Numbers
-1 2.3 10e+64 1e8 3e-5
+1 2.3 10e+64 1e8 3e-5 4E444 -Infinity -0
 
 # Strings
 "Hello \"world\"!"
@@ -27,12 +27,12 @@ add: (a :Num, b :Num -> :Num) {
   a b -
   a b *
   a b /
-  a b i/
+  a b div
 } fun
 (a :Num, b :Num -> :Num) {
   a b -
 } lam sub!
 
 # set dict entries
-2 :x !
+:x 2 !
 5 y!

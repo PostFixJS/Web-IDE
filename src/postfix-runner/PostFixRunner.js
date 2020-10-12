@@ -11,7 +11,7 @@ const maybeImmediate = (() => {
    * This allows fast functions while keeping the event loop spinning.
    * @param {Function} cb Callback function
    */
-  const maybeImmediate = (cb) => {
+  const _maybeImmediate = (cb) => {
     ctn++
     if (ctn === 1000) {
       ctn = 0
@@ -24,9 +24,9 @@ const maybeImmediate = (() => {
   /**
    * Reset the counter so that the next call will be defered.
    */
-  maybeImmediate.deferNext = () => { ctn = 999 }
+  _maybeImmediate.deferNext = () => { ctn = 999 }
 
-  return maybeImmediate
+  return _maybeImmediate
 })()
 
 /**

@@ -11,14 +11,14 @@ const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
 
 const envPublicUrl = process.env.PUBLIC_URL;
 
-function ensureSlash(path, needsSlash) {
-  const hasSlash = path.endsWith('/');
+function ensureSlash(linkpath, needsSlash) {
+  const hasSlash = linkpath.endsWith('/');
   if (hasSlash && !needsSlash) {
-    return path.substr(path, path.length - 1);
+    return linkpath.substr(linkpath, linkpath.length - 1);
   } else if (!hasSlash && needsSlash) {
-    return `${path}/`;
+    return `${linkpath}/`;
   } else {
-    return path;
+    return linkpath;
   }
 }
 

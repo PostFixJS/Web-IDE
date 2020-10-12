@@ -8,7 +8,7 @@ import LanguageConfiguration from './monaco-integration/LanguageConfiguration'
 import MonarchTokensProvider from './monaco-integration/MonarchTokensProvider'
 import CompletionItemProvider from './monaco-integration/CompletionItemProvider'
 import * as snippetProviders from './monaco-integration/snippets'
-import MarkerProvier from './monaco-integration/MarkerProvider'
+import MarkerProvider from './monaco-integration/MarkerProvider'
 import { getTokenAtOrNext, getTokenAt } from './postfixUtil'
 import ConditionalBreakpointWidget from './ConditionalBreakpointWidget'
 import { positionToMonaco, positionFromMonaco, showMessage } from './monaco-integration/util'
@@ -86,7 +86,7 @@ class Editor extends React.Component {
   }
 
   editorDidMount = (editor) => {
-    this.markerProvider = new MarkerProvier(editor)
+    this.markerProvider = new MarkerProvider(editor)
     this.editor = editor
     editor.updateOptions({
       readOnly: this.props.readOnly
@@ -143,7 +143,7 @@ class Editor extends React.Component {
       editor.getModel().onDidChangeDecorations(this.handleDecorationsChanged),
       editor.onDidChangeConfiguration(() => {
         if (this.props.onFontSizeChange) {
-          const fontSize = editor.getConfiguration().fontInfo.fontSize
+          const fontSize = editor.getRawOptions().fontSize
           if (fontSize !== this.props.fontSize) {
             this.props.onFontSizeChange(fontSize)
           }

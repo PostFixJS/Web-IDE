@@ -297,7 +297,7 @@ Repl.propTypes = {
    */
   lines: PropTypes.arrayOf(PropTypes.shape({
     type: PropTypes.oneOf(['input', 'error', 'text', 'output']).isRequired,
-    value: PropTypes.string.isRequired
+    value: PropTypes.oneOfType([PropTypes.string, PropTypes.array])
   })),
   /**
    * Callback to be invoked when the execution of a command finishes.

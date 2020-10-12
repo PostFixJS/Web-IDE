@@ -12,7 +12,7 @@ import { getDatadefFunctionNames } from './datadef'
 /**
  * A class that checks the code and adds markers for warnings and errors.
  */
-export default class MarkerProvier {
+export default class MarkerProvider {
   /**
    * Create a new marker provider and listen for changes in the given editor.
    * @param {ITextEditor} editor Monaco editor

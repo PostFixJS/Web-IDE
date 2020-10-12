@@ -49,9 +49,9 @@ export default function register() {
         navigator.serviceWorker.ready.then(() => {
           console.log(
             'This web app is being served cache-first by a service ' +
-              'worker. To learn more, visit https://goo.gl/SC7cgQ'
+              'worker. To learn more, visit https://bit.ly/2BqwbW7'
           );
-        });
+        }).catch(reason => { console.error("The service worker broke.\n" + reason) });
       } else {
         // Is not local host. Just register service worker
         registerValidSW(swUrl);
@@ -104,8 +104,10 @@ function checkValidServiceWorker(swUrl) {
         navigator.serviceWorker.ready.then(registration => {
           registration.unregister().then(() => {
             window.location.reload();
+          }).catch(reason => {
+            alert('Please click Ok and press CMD/STRG + F5.')
           });
-        });
+        }).catch(reason => { console.error("The service worker broke.\n" + reason) });
       } else {
         // Service worker found. Proceed as normal.
         registerValidSW(swUrl);
@@ -122,6 +124,6 @@ export function unregister() {
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then(registration => {
       registration.unregister();
-    });
+    }).catch(reason => { console.error("The service worker broke.\n" + reason) });
   }
 }

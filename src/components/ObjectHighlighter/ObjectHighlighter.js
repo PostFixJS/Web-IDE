@@ -97,20 +97,21 @@ function getType (value) {
   }
 
   const first = value[0]
-  const last = value[value.length - 1]
-  if (first === '"' && last === '"') {
+  const length = value.length
+  const last = value[length - 1]
+  if (length > 1 && first === '"' && last === '"') {
     return highlightTypes.STR
-  } else if (first === ':') {
+  } else if (length > 1 && first === ':') {
     if (value[1].toUpperCase() === value[1]) {
       return highlightTypes.SYM_TYPE
     }
     return highlightTypes.SYM
-  } else if (last === ':') {
+  } else if (length > 1 && last === ':') {
     if (first.toUpperCase() === first) {
       return highlightTypes.SYM_TYPE
     }
     return highlightTypes.SYM
-  } else if (!isNaN(value)) {
+  } else if (!isNaN(parseFloat(value)) && !isNaN(value - 0)) {
     return highlightTypes.NUM
   } else if (keywords.includes(value)) {
     return highlightTypes.SYM_HIGHLIGHT

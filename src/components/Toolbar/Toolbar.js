@@ -17,7 +17,7 @@ export default class Toolbar extends React.Component {
 
   handleOpenDone = (e) => {
     const reader = new FileReader()
-    reader.onloadend = (e) => this.props.onOpen(e.target.result)
+    reader.onloadend = (el) => this.props.onOpen(el.target.result)
     reader.readAsText(e.target.files[0])
   }
 

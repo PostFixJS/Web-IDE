@@ -20,7 +20,6 @@ export default {
 
     if (token.tokenType === 'REFERENCE') {
       const functions = DocParser.getFunctions(code, { withRanges: true })
-      const lambdaFunctions = DocParser.getLambdaFunctions(code, { withRanges: true })
 
       let builtInFunctions = builtIns.functions.filter((doc) => doc.name === token.token)
       if (builtInFunctions.length === 0) { // built-in functions take precedence
@@ -30,7 +29,7 @@ export default {
       }
 
 
-      const functionsAtPosition = getFunctionsAtPosition([...functions, ...lambdaFunctions], position)
+      const functionsAtPosition = getFunctionsAtPosition(functions, position)
       usageMessages.push(...getVariableHoverMessage(functionsAtPosition
         .map((fun) => fun.params.filter(({ name }) => name === token.token))
         .reduce((allParams, fnParams) => allParams.concat(fnParams), [])

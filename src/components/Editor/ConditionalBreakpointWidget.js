@@ -239,7 +239,7 @@ export default class ConditionalBreakpointWidget extends ZoneWidget {
     ), container, this.onMounted)
 
     // unmount the React tree when the widget is destroyed
-    this._disposables.push({
+    this._disposables._toDispose.add({
       dispose () {
         ReactDOM.unmountComponentAtNode(container)
       }

@@ -47,6 +47,16 @@ export default {
       [/[A-Z][^"\s,[\](){}]*:/, 'type.identifier'],
       [/[^"\s,[\](){}]+:/, 'identifier'],
 
+      // numbers
+      [/\d+\.\d+/, 'number.float'],
+      [/\d+([eE])-\d+/, 'number.float'],
+      [/\d+([eE])\+?\d+/, 'number'],
+      [/\d+/, 'number'],
+
+      // Special numbers
+      [/[+-]?Infinity/, 'number.float'],
+      [/[+-]?\d+/, 'number'],
+
       // identifiers and keywords (define these here to give precedence to symbols)
       [/([^0-9"\s,[\](){}][^"\s,[\](){}]*[^"\s,[\](){}!])|([^0-9"\s,[\](){}!])/, {
         cases: {
@@ -55,12 +65,6 @@ export default {
         }
       }],
       [/!/, 'keyword'],
-
-      // numbers
-      [/\d+\.\d+/, 'number.float'],
-      [/\d+e-\d+/, 'number.float'],
-      [/\d+e\+?\d+/, 'number'],
-      [/\d+/, 'number'],
 
       // strings
       [/"([^"\\]|\\.)*$/, 'string.invalid'],  // non-teminated string

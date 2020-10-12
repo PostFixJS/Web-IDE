@@ -13,7 +13,7 @@ import Image from './canvas/Image'
  * @param {Window} win Window the canvas is in
  * @param {number} imageWidth Original image width
  * @param {number} imageHeight Original image height
- * @param {onSizeChanged} function Optional callback function invoked when the size changed
+ * @param {function} onSizeChanged Optional callback function invoked when the size changed
  */
 function resizeCanvasToWindowSize (canvas, win, imageWidth, imageHeight, onSizeChanged) {
   const updateCanvas = () => {
@@ -70,11 +70,12 @@ export function registerBuiltIns (interpreter) {
       let rejectAll
       let windowClosed = false
       const win = window.open('', '_blank', `top=${top},left=${left},width=${windowWidth},height=${windowHeight}`)
+      if(win == null) throw new types.Err("Unable to show graphic. Please verify that your browser does not block pop-ups.", token)
       win.document.title = title.value
       const canvas = win.document.createElement('canvas')
       canvas.style.margin = '0 auto'
       canvas.style.display = 'block'
-      win.document.body.style.margin = 0
+      win.document.body.style.margin = '0'
       win.document.body.appendChild(canvas)
       win.addEventListener('unload', () => { windowClosed = true })
 
@@ -433,7 +434,8 @@ export function registerBuiltIns (interpreter) {
       let image
       yield {
         promise: Image.from(popOperand(interpreter, { type: 'Arr' }, token))
-          .then((img) => { image = img }),
+          .then((img) => { image = img })
+          .catch(reason => { throw new types.Err(reason, token) }),
         cancel
       }
       if (cancelToken.cancelled) {
@@ -447,23 +449,23 @@ export function registerBuiltIns (interpreter) {
       const top = (window.outerHeight - windowHeight) / 2 + window.screenY
       const left = (window.outerWidth - windowWidth) / 2 + window.screenX
       const win = window.open('', '_blank', `top=${top},left=${left},width=${windowWidth},height=${windowHeight}`)
+      if(win == null) throw new types.Err("Unable to show image. Please verify that your browser does not block pop-ups.", token)
       win.document.title = 'Image viewer'
       const canvas = win.document.createElement('canvas')
       canvas.style.margin = '0 auto'
       canvas.style.display = 'block'
       canvas.width = image.width
       canvas.height = image.height
-      win.document.body.style.margin = 0
+      win.document.body.style.margin = '0'
       win.document.body.appendChild(canvas)
 
       const ctx = canvas.getContext('2d')
       resizeCanvasToWindowSize(canvas, win, image.width, image.height, () => {
+        ctx.save()
         ctx.scale(canvas.width / image.width, canvas.height / image.height)
         image.draw(ctx)
         ctx.restore()
       })
-
-      // TODO resize canvas and repaint when the window is resized
 
       yield {
         cancel,
@@ -483,7 +485,8 @@ export function registerBuiltIns (interpreter) {
       let image
       yield {
         promise: Image.from(popOperand(interpreter, { type: 'Arr' }, token))
-          .then((img) => { image = img }),
+          .then((img) => { image = img })
+          .catch(reason => { throw new types.Err(reason, token) }),
         cancel
       }
       if (cancelToken.cancelled) {
@@ -503,7 +506,8 @@ export function registerBuiltIns (interpreter) {
       let image
       yield {
         promise: Image.from(popOperand(interpreter, { type: 'Arr' }, token))
-          .then((img) => { image = img }),
+          .then((img) => { image = img })
+          .catch(reason => { throw new types.Err(reason, token) }),
         cancel
       }
       if (cancelToken.cancelled) {
