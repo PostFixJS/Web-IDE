@@ -115,7 +115,7 @@ export function registerBuiltIns (interpreter) {
         { name: 'formatStr', type: 'Str' },
         { name: 'params', type: 'Arr' }
       ], token)
-      print(format(formatStr.value, params))
+      print(format(formatStr.value, params, token))
     }
   })
 
@@ -126,7 +126,7 @@ export function registerBuiltIns (interpreter) {
         { name: 'formatStr', type: 'Str' },
         { name: 'params', type: 'Arr' }
       ], token)
-      print(format(formatStr.value, params) + '\n')
+      print(format(formatStr.value, params, token) + '\n')
     }
   })
 
